@@ -1,0 +1,64 @@
+<Window x:Class="SiteWatcher.CheckpointsWindow" xmlns:system="clr-namespace:System;assembly=mscorlib" 
+xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:SiteWatcher" 
+mc:Ignorable="d" Title="{Binding Item.Name, StringFormat={}{0} - история}" Height="850" Width="800" MinWidth="800" MinHeight="800" 
+xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
+<Window.InputBindings>
+    <KeyBinding Key="Escape" Command="{Binding CloseWindowCommand}"/>
+</Window.InputBindings>
+  <Window.Resources>
+        <Style TargetType="Run">
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="{x:Static local:RunType.Delete}">
+                    <Setter Property="Background" Value="LightPink"></Setter>
+                    <Setter Property="TextDecorations" Value="Strikethrough"></Setter>
+                </Trigger>
+                <Trigger Property="Tag" Value="{x:Static local:RunType.Replace}">
+                    <Setter Property="Background" Value="Gray"></Setter>
+                    <Setter Property="Text" Value=""/>
+                    <Setter Property="TextDecorations" Value="Strikethrough"></Setter>
+                </Trigger>
+                <Trigger Property="Tag" Value="{x:Static local:RunType.Change}">
+                    <Setter Property="Background" Value="LightBlue"></Setter>
+                </Trigger>
+                <Trigger Property="Tag" Value="{x:Static local:RunType.Add}">
+                    <Setter Property="Background" Value="LightGreen"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+  </Window.Resources>
+  <DockPanel Margin="5">
+    <ListView x:Name="CheckpointsList" DockPanel.Dock="Top" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Diffs}">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Top">
+                <Run FontSize="16" FontWeight="Bold" Text="{Binding Next.Time,StringFormat=dd.MM.yyyy HH:mm:ss}" />
+                <Run Text=" &lt;- " />
+                <Run Text="{Binding Prev.Time,StringFormat=dd.MM.yyyy HH:mm:ss}" />
+            </TextBlock>
+            <ContentControl>
+                <MultiBinding Converter="{local:DiffTextOldToNewConverter}">
+                    <Binding Path="Prev.Text" />
+                    <Binding Path="Next.Text" />
+                </MultiBinding>
+            </ContentControl>
+          </DockPanel>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+      <ListView.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Удалить" Command="{Binding DeleteSelectedCommand}"></MenuItem>
+        </ContextMenu>
+      </ListView.ContextMenu>
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="Padding" Value="0 2"/>
+          <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+          <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        </Style>
+      </ListView.ItemContainerStyle>
+    </ListView>
+  </DockPanel>
+</Window>

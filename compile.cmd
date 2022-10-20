@@ -1,0 +1,1 @@
+dotnet restore && dotnet clean && dotnet build -c release && dotnet publish -c release
