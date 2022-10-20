@@ -10,7 +10,7 @@ Watches.json после первого запуска находится в %app
 
 Если файл Watches.json находится в папке с программой, включается "portable" режим (нужны права на запись в папку с программой)
 
-### В проэкте использованы сторонние библиотеки и код:
+### В проекте использованы сторонние библиотеки и код:
 
 * [Notifications.Wpf.Core](https://github.com/mjuen/Notifications.Wpf.Core)
 * [CalcBinding](https://github.com/Alex141/CalcBinding)
