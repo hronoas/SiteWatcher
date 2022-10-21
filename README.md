@@ -2,6 +2,8 @@
 
 Программа для автоматической проверки изменений на страницах сайтов
 
+Описание элементов интерфейса можно посмотреть в [SiteWatcher_GUI_desc.pdf](https://github.com/firstzerg/SiteWatcher/raw/main/manual/SiteWatcher_GUI_desc.pdf)
+
 ## Как пользоваться:
 
 ### Настройки отслеживаемых сайтов хранятся в файле Watches.json
