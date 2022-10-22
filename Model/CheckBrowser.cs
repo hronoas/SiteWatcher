@@ -147,6 +147,7 @@ namespace SiteWatcher
             WatchSource Source = item.SourceWatch.Source;
             if(Cef.ParseUrl(Source.Url)==null){
                 errors+="wrong url";
+                item.SourceWatch.IsChecking=false;
                 item.onError?.Invoke(errors);
                 item.onFinally?.Invoke(results,errors);
                 return;
@@ -206,7 +207,7 @@ namespace SiteWatcher
                 }else{
                     errors+="can't load page";
                 }
-
+                item.SourceWatch.IsChecking=false;
                 if(!String.IsNullOrEmpty(errors)) item.onError?.Invoke(errors);
                 else if(results.Count==0){
                     errors+="empty result";
@@ -215,7 +216,6 @@ namespace SiteWatcher
                 if(results.Count>0) item.onData?.Invoke(results);
                 item.onFinally?.Invoke(results,errors);
             }
-            item.SourceWatch.IsChecking=false;
         }
 
 
