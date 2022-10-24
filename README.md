@@ -1,6 +1,6 @@
 # SiteWatcher
 
-SiteWatcher позволяет автоматически проверять и уведомлять об изменениях на страницах сайтов.
+<img src="https://github.com/hronoas/SiteWatcher/blob/main/manual/screen.jpg?raw=true" align="right" alt="SiteWatcher" width="300" /> SiteWatcher позволяет автоматически проверять и уведомлять об изменениях на страницах сайтов.
 
 ### Основные возможности программы:
 
