@@ -133,7 +133,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                         <ContentControl  Content="{StaticResource IconNew}"/>
                     </Button>
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
-                        <TextBlock Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" FontSize="20" Margin="10 0" Foreground="Gray" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" ToolTip="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher {0}}" FontSize="20" Margin="10 0" Foreground="Gray" VerticalAlignment="Center"></TextBlock>
                         <ComboBox x:Name="TagsList" IsEditable="True" FontSize="14" Margin="10 0" VerticalContentAlignment="Center" IsReadOnly="False" ItemsSource="{Binding Tags}"><!-- Text="{Binding Tags, Converter={StaticResource WatchTagsToString},ConverterParameter=&apos;Все&apos;, Mode=OneWay}" -->
                             <ComboBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type local:WatchTag}">

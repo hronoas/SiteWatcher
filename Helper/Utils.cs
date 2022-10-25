@@ -19,6 +19,18 @@ namespace SiteWatcher
             .Skip(1)
             .Take(1)
             .FirstOrDefault();
+
+        private static string version ="";
+        public static string Version { 
+            get{
+                if(String.IsNullOrEmpty(version)){
+                    System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+                    version = fvi.FileVersion??"unk";
+                }
+                return version;
+            }
+        } 
         public static string AppExe { get; } = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static string AppName { get; } = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
         public static string AppPath { get; } = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)??".";
