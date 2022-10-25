@@ -123,6 +123,7 @@ namespace SiteWatcher{
             Tags.ResetBindings();
             MaxCheckpoints=w.MaxCheckpoints;
             IsChecking=false;
+            isQueued=false;
             Notify=w.Notify;
         }
         public object Clone(){
@@ -132,6 +133,7 @@ namespace SiteWatcher{
             clone.CheckpointTrace();
             clone.Source = (WatchSource)(Source.Clone());
             clone.isChecking=false;
+            clone.isQueued=false;
             return clone;
         }
 
