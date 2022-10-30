@@ -25,6 +25,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
             </Style>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <local:ListWatchTagToStringConverter x:Key="WatchTagsToString"/>
+            <local:CutLeftConverter x:Key="CutLeft"/>
             <Style x:Key="StatusStyle" TargetType="TextBlock">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Status}" Value="4">
@@ -251,7 +252,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
                                 </TextBlock.InputBindings>
                             </TextBlock>   
-                            <TextBlock Text="{Binding Diff.Next}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
+                            <TextBlock Text="{Binding Diff.Next, Converter={local:CutLeftConverter}, ConverterParameter=150-255}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </DockPanel>
                 </DataTemplate>
@@ -267,7 +268,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel>
                                     <TextBlock Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
-                                    <TextBlock Text="{Binding Diff.Prev.Text}" MaxHeight="200" MaxWidth="300"/>
+                                    <TextBlock Text="{Binding Diff.Prev}" MaxHeight="200" MaxWidth="300"/>
                                 </StackPanel>
                                 <StackPanel Margin="5 0">
                                     <TextBlock Text="-&gt;"/>

@@ -86,6 +86,36 @@ namespace SiteWatcher
         }
     }
 
+    [ValueConversion(typeof(string), typeof(string))]
+    public class CutLeftConverter : System.Windows.Markup.MarkupExtension, IValueConverter{
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+            int minIndex = 150;
+            int maxIndex = 255;
+            string? parameterString = parameter as string;
+            if (!string.IsNullOrEmpty(parameterString)){
+                string[] parameters = parameterString.Split(new char[]{'-'});
+                try{
+                    minIndex = int.Parse(parameters[0]);
+                }catch{}
+                try{
+                    if(parameters.Length>1)
+                    maxIndex = int.Parse(parameters[1]);
+                }catch{}
+            }
+
+            string str = value?.ToString()??"";
+            int pos = str.IndexOf("\n",Math.Min(minIndex,str.Length));
+            if(pos<0) pos = Math.Min(maxIndex,str.Length);
+            return (str).Substring(0,pos);
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
+            return null;
+        }
+        public override object ProvideValue(IServiceProvider serviceProvider){            
+            return this;
+        }
+    }
+
     [ValueConversion(typeof(WatchStatus), typeof(String))]
     public class WatchStatusToStringConverter : System.Windows.Markup.MarkupExtension,IValueConverter{
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
