@@ -55,7 +55,7 @@ namespace SiteWatcher
             }
         }
 
-        private static LinkedList<CheckItem> Q = new();
+        private static List<CheckItem> Q = new();
         public static int parallelTasks = 3;
         private static List<Task> tasks =new();
 
@@ -101,14 +101,15 @@ namespace SiteWatcher
         private static Task createTask(){
             return Task.Run(async ()=>{
                     while(Q.Count>0){
-                        CheckItem? i = Q.First?.Value;
-                        Q.RemoveFirst();
+                        CheckItem? i = Q[0];
+                        Q.RemoveAt(0);
+                        if(i!=null)i.SourceWatch.IsQueued=false;
                         await CheckAsync(i);
                     }
             });
         }
         private static void RunTasks(){
-            for (var i = 0; i < Math.Max(Math.Min(parallelTasks,Q.Count),tasks.Count); i++){
+            for (var i = 0; i < parallelTasks; i++){
                 if(i>(tasks.Count-1)) tasks.Add(createTask());
                 else if(tasks[i]?.IsCompleted??true) tasks[i]=createTask();
             }
@@ -116,15 +117,15 @@ namespace SiteWatcher
         public static void Check(Watch sourceWatch, Action<List<SelectorResult>>? onData, Action<string>? onError,Action<List<SelectorResult>,string>? onFinally){
             CheckItem newCheck = new(sourceWatch,onData, onError, onFinally);
             if(Q.Contains(newCheck)){
-                if(Q.First.Value!=newCheck){
+                if(Q[0]!=newCheck){
                     newCheck.SourceWatch.IsQueued=false;
                     Q.Remove(newCheck);
                     newCheck.SourceWatch.IsQueued=true;
-                    Q.AddFirst(newCheck);
+                    Q.Insert(0,newCheck);
                 }
             }else{
                 newCheck.SourceWatch.IsQueued=true;
-                Q.AddLast(newCheck);
+                Q.Add(newCheck);
             }
             RunTasks();
         }
@@ -140,7 +141,6 @@ namespace SiteWatcher
         }
         public static async Task CheckAsync(CheckItem? item){
             if(item==null) return;
-            item.SourceWatch.IsQueued=false;
             item.SourceWatch.IsChecking=true;
             string errors = "";
             List<SelectorResult> results = new();
