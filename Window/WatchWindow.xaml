@@ -179,9 +179,9 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
                 <ColumnDefinition/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <ListView Grid.ColumnSpan="3" x:Name="SelectList" ItemsSource="{Binding Item.Source.Select}" Margin="0 0 0 10">
                 <ListView.View>
@@ -238,10 +238,12 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                 <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Notify}">Показывать уведомления</CheckBox>
             </StackPanel>
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
-                <Label Margin="10 0 10 0">Переходить со страницы</Label>
-                <TextBox Margin="10 0 10 0" Text="{Binding Item.Source.Referer}"/>
+                <Label Margin="5 0 5 0">Переходить со страницы</Label>
+                <TextBox Margin="5 0 5 0" Text="{Binding Item.Source.Referer}"/>
+                <Label Margin="5 0 5 0">Комментарий</Label>
+                <TextBox MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Margin="5 0 5 0" Text="{Binding Item.Comment}"/>
             </StackPanel>
-            <StackPanel Margin="10 0 0 0" Grid.Row="1" Grid.Column="2" Orientation="Vertical">
+            <StackPanel Margin="5 0 0 0" Grid.Row="1" Grid.Column="2" Orientation="Vertical">
                 <Label>Ждать загрузку</Label>
                 <TextBox Text="{Binding Item.Source.WaitTimeout, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;0s&apos;}"></TextBox>
                 

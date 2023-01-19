@@ -62,9 +62,9 @@
 
   <ItemGroup>
     <PackageReference Include="CalcBinding" Version="2.5.2" />
-    <PackageReference Include="CefSharp.OffScreen.NETCore" Version="106.0.290" />
-    <PackageReference Include="CefSharp.Wpf.NETCore" Version="106.0.290" />
-    <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="106.0.29" />
+    <PackageReference Include="CefSharp.OffScreen.NETCore" Version="109.1.110" />
+    <PackageReference Include="CefSharp.Wpf.NETCore" Version="109.1.110" />
+    <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="109.1.11" />
 <!--      <PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.53" /> -->
     <PackageReference Include="Menees.Diffs" Version="5.1.1" />
   </ItemGroup>

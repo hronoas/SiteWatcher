@@ -16,12 +16,16 @@ namespace SiteWatcher
         private ListView CheckpointsList;
 
         public Command DeleteSelectedCommand {get;set;}
+        public Command SaveCommentCommand {get;set;}
+        public Command CopyTextCommand {get;set;}
         public Command CloseWindowCommand {get;set;}
         
         public CheckpointsWindowModel(Watch Source,CheckpointsWindow win) : base(win){
             CheckpointsList = window.CheckpointsList;
             DeleteSelectedCommand=new(o=>DeleteSelected());
-                        CloseWindowCommand = new(o=>win.Close());
+            CloseWindowCommand = new(o=>win.Close());
+            SaveCommentCommand=new(o=>SaveComment());
+            CopyTextCommand = new(o=>CopyTextSelected());
             source=Source;
             Item=(Watch)Source.Clone();
             Item.Checkpoints.Add(new("",""){Time=DateTime.MinValue});
@@ -42,6 +46,21 @@ namespace SiteWatcher
                 var u = source.Checkpoints.Where(d=>d.Time==c).FirstOrDefault();
                 if(u!=null) source.Checkpoints.Remove(u);
             });
+        }
+        private void CopyTextSelected(){
+            string result = "";
+            if(CheckpointsList.SelectedItems.Count==0) return;
+            List<DateTime> toCopy = CheckpointsList.SelectedItems.Cast<CheckpointDiff>().Select(c=>c.Next.Time).ToList();
+            toCopy.ForEach(c=>{
+                var i = Diffs.Where(d=>d.Next.Time==c).FirstOrDefault();
+                if(i!=null) result += (result==""?"":"\n") + i.Next.Text;
+            });
+            System.Windows.Clipboard.SetText(result);
+        }
+
+        private void SaveComment(){
+            if(!Item.Comment.Equals(source.Comment)) source.Comment=Item.Comment;
+            window.Close();
         }
         
     

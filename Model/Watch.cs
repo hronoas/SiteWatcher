@@ -13,6 +13,8 @@ namespace SiteWatcher{
         private bool enabled = true;
         public string Name { get=>name; set=>SetField(ref name, value);}
         private string name="";
+        public string Comment { get=>comment; set=>SetField(ref comment, value);}
+        private string comment = "";
         public WatchSource Source { get; set;} = new();
         public BindingList<WatchTag> Tags {get;set;} = new();
         public string Error { get=>error; set{SetField(ref error, value);ChangedField(nameof(Status));}}

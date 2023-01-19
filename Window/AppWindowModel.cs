@@ -245,7 +245,7 @@ namespace SiteWatcher
                     window.TagsList.Text=textFilter;
                     string lf = textFilter.ToLower();
                     Watches.ToList().ForEach(w=>{
-                        w.IsVisible = w.Name.ToLower().Contains(lf) || w.Source.Url.ToLower().Contains(lf);
+                        w.IsVisible = w.Name.ToLower().Contains(lf) || w.Comment.ToLower().Contains(lf) || w.Source.Url.ToLower().Contains(lf);
                     });
                 }else{
                     ListWatchTagToStringConverter converter = new();

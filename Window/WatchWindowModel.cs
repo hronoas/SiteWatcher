@@ -49,7 +49,6 @@ namespace SiteWatcher
                 if(Item.Source.Url!=(string)e.NewValue && Cef.ParseUrl(Item.Source.Url)!=null) Item.Source.Referer=Item.Source.Url;
                 Item.Source.Url=(string)e.NewValue;
             };
-        
             webBrowser.FrameLoadEnd+=FrameLoaded;
             UpdateTextBoxCommand = new(o=>{
                 DependencyProperty prop = TextBox.TextProperty;
@@ -171,7 +170,7 @@ namespace SiteWatcher
             newBrowser = null;
             return true;
         }
-
+        
         public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser){
             // throw new NotImplementedException();
             return true;

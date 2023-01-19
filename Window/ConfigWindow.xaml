@@ -21,7 +21,7 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
         </DockPanel>
         <GroupBox FontSize="14" Header="Категории" DockPanel.Dock="Top">
             <DockPanel>
-                <Button DockPanel.Dock="Bottom" Content="+" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" Margin="0 2 2 0"/>
+                <Button DockPanel.Dock="Bottom" Content="+" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 2 2 0"/>
                 <ListView Margin="0 5" x:Name="TagsList" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" ItemsSource="{Binding Tags}">
                     <ListView.ItemTemplate>
                         <DataTemplate>

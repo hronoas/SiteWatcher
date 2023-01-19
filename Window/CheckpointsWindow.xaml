@@ -29,7 +29,11 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
         </Style>
   </Window.Resources>
   <DockPanel Margin="5">
-    <ListView x:Name="CheckpointsList" DockPanel.Dock="Top" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Diffs}">
+    <DockPanel DockPanel.Dock="Top">
+      <Button DockPanel.Dock="Right" Content="Сохранить" FontSize="14" Margin="5 0" Padding="7 5" Command="{Binding SaveCommentCommand}" HorizontalAlignment="Right" VerticalAlignment="Top"/>      
+      <TextBox FontSize="14" Padding="2 5" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" MaxLines="5" Text="{Binding Item.Comment}" HorizontalAlignment="Stretch" ToolTip="Комментарий к наблюдателю" Margin="5 0 5 5"/>
+    </DockPanel>
+    <ListView x:Name="CheckpointsList" DockPanel.Dock="Top" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Diffs}" ScrollViewer.CanContentScroll="False">
       <ListView.ItemTemplate>
         <DataTemplate>
           <DockPanel>
@@ -49,6 +53,7 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
       </ListView.ItemTemplate>
       <ListView.ContextMenu>
         <ContextMenu>
+          <MenuItem Header="Скопировать текст" Command="{Binding CopyTextCommand}"></MenuItem>
           <MenuItem Header="Удалить" Command="{Binding DeleteSelectedCommand}"></MenuItem>
         </ContextMenu>
       </ListView.ContextMenu>

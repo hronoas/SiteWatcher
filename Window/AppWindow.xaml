@@ -265,24 +265,36 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
                     <Setter Property="ToolTip">
                         <Setter.Value>
-                            <StackPanel Orientation="Horizontal">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
-                                    <TextBlock Text="{Binding Diff.Prev}" MaxHeight="200" MaxWidth="300"/>
+                            <DockPanel>
+                                <TextBlock FontSize="14" Text="{Binding Comment}"  Visibility="{c:Binding &apos;Comment!=\&apos;\&apos;&apos;, FalseToVisibility=Collapsed}" DockPanel.Dock="Top" />
+                                <Separator Margin="5" DockPanel.Dock="Top" Visibility="{c:Binding &apos;Comment!=\&apos;\&apos;&apos;, FalseToVisibility=Collapsed}"/>
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
+                                        <TextBlock Text="{Binding Diff.Prev}" MaxHeight="200" MaxWidth="300"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="5 0">
+                                        <!--<TextBlock Text="-&gt;"/>-->
+                                        <Canvas Height="40" Width="1">
+                                            <Line
+                                            X1="1" Y1="1"
+                                            X2="1" Y2="40"
+                                            Stroke="Gray"
+                                            StrokeThickness="1"/>
+                                        </Canvas>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Diff.Next.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
+                                        <ContentControl MaxHeight="200" MaxWidth="300"><!-- Content="{Binding Test, Converter={local:DiffTextConverter}, ConverterParameter={Binding TestOld}, Mode=OneTime}"> -->
+                                            <MultiBinding Converter="{local:DiffTextOldToNewConverter}"><!-- &#x0a;&#x0d; -->
+                                                <Binding Path="Diff.Prev.Text"/>
+                                                <Binding Path="Diff.Next.Text"/>
+                                            </MultiBinding>
+                                        </ContentControl>
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Margin="5 0">
-                                    <TextBlock Text="-&gt;"/>
-                                </StackPanel>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Diff.Next.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
-                                    <ContentControl MaxHeight="200" MaxWidth="300"><!-- Content="{Binding Test, Converter={local:DiffTextConverter}, ConverterParameter={Binding TestOld}, Mode=OneTime}"> -->
-                                        <MultiBinding Converter="{local:DiffTextOldToNewConverter}"><!-- &#x0a;&#x0d; -->
-                                            <Binding Path="Diff.Prev.Text"/>
-                                            <Binding Path="Diff.Next.Text"/>
-                                        </MultiBinding>
-                                    </ContentControl>
-                                </StackPanel>
-                            </StackPanel>
+                                
+                            </DockPanel>
                         </Setter.Value>
                     </Setter>
                     <Setter Property="ContextMenu">
