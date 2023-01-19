@@ -118,6 +118,7 @@ namespace SiteWatcher{
         public void CopySettingsFrom(Watch w){
             Enabled=w.Enabled;
             Name=w.Name;
+            Comment=w.Comment;
             Source=(WatchSource)w.Source.Clone(); ChangedField(nameof(Source));
             Interval=w.Interval;
             Tags.Clear();
