@@ -63,6 +63,7 @@ namespace SiteWatcher
         public AppWindowModel(AppWindow win) : base(win){
             WatchList=win.WatchList;
             InitIcon();
+            ConfigBackup();
             ConfigLoad();
             win.Closed+=(o,e)=>{ConfigSave();ConfigSave2();};
             CheckWatchCommand=new(w=>CheckSelectedWatch(w));
@@ -166,6 +167,15 @@ namespace SiteWatcher
                 if(w.Status==WatchStatus.New && w.Notify) ShowToast(w);
                 RefreshList();
             });
+        }
+        private void ConfigBackup(int Count=5){
+            if(File.Exists(WatchesConfig)){
+                if(File.Exists(WatchesConfig+"."+Count) && File.Exists(WatchesConfig+"."+(Count-1))) File.Delete(WatchesConfig+"."+Count);
+                for (int i = Count-1; i >0 ; i--){
+                   if(File.Exists(WatchesConfig+"."+i)) File.Move(WatchesConfig+"."+i,WatchesConfig+"."+(i+1)); 
+                }
+                File.Copy(WatchesConfig,WatchesConfig+".1");
+            }
         }
         private void ConfigLoad(){
             Watches.Clear();
