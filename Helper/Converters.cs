@@ -38,8 +38,8 @@ namespace SiteWatcher
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture){
-            TimeSpan time = StrToTime(value.ToString());
-            TimeSpan min = StrToTime(parameter.ToString());
+            TimeSpan time = StrToTime(value?.ToString()??"");
+            TimeSpan min = StrToTime(parameter?.ToString()??"");
             return min>time?min:time;
         }
     }
@@ -179,21 +179,19 @@ namespace SiteWatcher
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
             string filename = Path.Combine(AppIcons,AppName+".ico");
             if(!File.Exists(filename)){
-                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                Directory.CreateDirectory(Path.GetDirectoryName(filename)??AppIcons);
                 //File.WriteAllBytes(filename,H.Resources.SiteWatcher_ico.AsBytes());
                 using (var stream = new FileStream(filename,FileMode.Create,FileAccess.Write))
                 {
-                    ReadResource("SiteWatcher.ico").BaseStream.CopyTo(stream);
+                    ReadResource("SiteWatcher.ico")?.BaseStream.CopyTo(stream);
                 } 
-                
-                
             }
             try{
                 string url= value as string??"";
                 Uri uri = new(url);
                 string newfilename = Path.Combine(AppIcons, uri.Host+".ico");
                 if(!File.Exists(newfilename)){
-                    Directory.CreateDirectory(Path.GetDirectoryName(newfilename));
+                    Directory.CreateDirectory(Path.GetDirectoryName(newfilename)??AppIcons);
                     CheckBrowser.SaveIconAsync(url,newfilename);
                 }else{
                     filename=newfilename;
