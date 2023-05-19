@@ -101,10 +101,11 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new( Tags.Select(t=>t.Clone()).ToList(), win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
+                NotifySound = model.NotifiySound;
             }
         }
 
@@ -164,7 +165,10 @@ namespace SiteWatcher
 
         private void CheckWatch(Watch w){
             w.Check(()=> {
-                if(w.Status==WatchStatus.New && w.Notify) ShowToast(w);
+                if(w.Status==WatchStatus.New){
+                    if(w.Notify) ShowToast(w);
+                    if(w.SoundNotify) PlaySound(w);
+                }
                 RefreshList();
             });
         }
@@ -182,11 +186,13 @@ namespace SiteWatcher
             if(File.Exists(WatchesConfig))
                 Deserialize<List<Watch>>(File.ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
             if(File.Exists(AppConfig)){
-                SiteWatcherConfig Config = Deserialize<SiteWatcherConfig>(File.ReadAllText(AppConfig))??new SiteWatcherConfig();
+                oldConfig2 = File.ReadAllText(AppConfig);
+                SiteWatcherConfig Config = Deserialize<SiteWatcherConfig>(oldConfig2)??new SiteWatcherConfig();
                 window.Width = Config.WindowSize.X;
                 window.Height = Config.WindowSize.Y;
                 window.Left = Config.WindowPosition.X;
                 window.Top = Config.WindowPosition.Y;
+                NotifySound = Config.NotifySound;
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
                 var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                 if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
@@ -209,6 +215,7 @@ namespace SiteWatcher
             Config.WindowSize = new((int)window.Width,(int)window.Height);
             Config.Tags=Tags.ToList();
             Config.MaxProcesses=CheckBrowser.parallelTasks;
+            Config.NotifySound=NotifySound;
             string newConfig2=Serialize(Config);
             if(newConfig2!= oldConfig2){
                 File.WriteAllText(AppConfig,newConfig2);

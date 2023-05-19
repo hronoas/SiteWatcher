@@ -8,6 +8,7 @@ namespace SiteWatcher{
         public Point WindowSize {get;set;} = new Point(500,500);
         public List<WatchTag> Tags {get;set;} = new();
         public int MaxProcesses {get;set;} = 3;
+        public string NotifySound {get;set;} = "";
 
         public SiteWatcherConfig Clone(){
             return Deserialize<SiteWatcherConfig>(Serialize(this)??"{}")??new SiteWatcherConfig();

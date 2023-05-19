@@ -27,6 +27,8 @@ namespace SiteWatcher{
         private DateTime lastSeen;
         public bool Notify { get=>notify; set=>SetField(ref notify, value);}
         private bool notify = true;
+        public bool SoundNotify { get=>soundNotify; set=>SetField(ref soundNotify, value);}
+        private bool soundNotify = true;
         public BindingList<Checkpoint> Checkpoints { get; set; } = new();
         public int MaxCheckpoints { get=>maxCheckpoints; set=>SetField(ref maxCheckpoints, value);}
         private int maxCheckpoints = 10;
@@ -128,6 +130,7 @@ namespace SiteWatcher{
             IsChecking=false;
             isQueued=false;
             Notify=w.Notify;
+            SoundNotify=w.SoundNotify;
         }
         public object Clone(){
             Watch clone = (Watch)MemberwiseClone();
