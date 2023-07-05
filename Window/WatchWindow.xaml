@@ -128,7 +128,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             <StackPanel VerticalAlignment="Bottom" Grid.Column="2" Margin="10 0 0 0" Orientation="Vertical">
                 <Label>Проверка каждые</Label>
                 <TextBox Text="{Binding Item.Interval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" 
-                local:TextBoxUtils.CheckRegexText="^[0-9]+[смчдsmhd]$"
+                local:TextBoxUtils.CheckRegexText="^([0-9]+[смчдsmhd]?)*$"
                 />
             </StackPanel>
             <Button Grid.Column="3" Margin="10 0 0 0" Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource RedButton}"/>

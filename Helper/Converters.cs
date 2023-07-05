@@ -29,6 +29,8 @@ namespace SiteWatcher
             if(match.Success) Minutes=Int16.Parse(match.Groups[1].Value);
             match = Regex.Match(str.ToString()??"",@"(?:([0-9]+)[sс])",RegexOptions.IgnoreCase);
             if(match.Success) Seconds=Int16.Parse(match.Groups[1].Value);
+            match = Regex.Match(str.ToString()??"",@"([0-9]+)$",RegexOptions.IgnoreCase);
+            if(match.Success) Minutes+=Int16.Parse(match.Groups[1].Value);
             return new TimeSpan(Days,Hours,Minutes,Seconds);
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
