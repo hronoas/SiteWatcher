@@ -10,5 +10,5 @@ using System.Windows;
 [assembly: AssemblyProduct("SiteWatcher")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyCopyright("Copyright © 2023")]
-[assembly: AssemblyVersion("0.9.1.6")]
-[assembly: AssemblyFileVersion("0.9.1.6")]
+[assembly: AssemblyVersion("0.9.1.7")]
+[assembly: AssemblyFileVersion("0.9.1.7")]

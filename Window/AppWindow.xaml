@@ -48,6 +48,13 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
+            <Style x:Key="TextStyle" TargetType="TextBlock">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Status}" Value="0">
+                        <Setter Property="Foreground" Value="Gray"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
             <Style x:Key="HoverUnderline" TargetType="TextBlock">
                 <Setter Property="Cursor" Value="Hand"></Setter>
                 <Setter Property="TextDecorations" Value="Underline"/>
@@ -55,6 +62,12 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="TextDecorations" Value="None"/>
                     </Trigger>
+                    <DataTrigger Binding="{Binding Status}" Value="2">
+                        <Setter Property="Foreground" Value="Green"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Status}" Value="0">
+                        <Setter Property="Foreground" Value="Gray"/>
+                    </DataTrigger>
                 </Style.Triggers>
             </Style>
             <Style TargetType="Run">
@@ -158,7 +171,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
         <DockPanel DockPanel.Dock="Bottom" Margin="5 5" Visibility="{Binding Trashed, Converter={StaticResource BoolToVis}}">
             <Button Command="{Binding UndeleteWatchCommand}">Восстановить</Button>
         </DockPanel>
-        <ListView x:Name="WatchList" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Watches}">
+        <ListView x:Name="WatchList" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Watches}" ScrollViewer.CanContentScroll="False">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
@@ -252,7 +265,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
                                 </TextBlock.InputBindings>
                             </TextBlock>   
-                            <TextBlock Text="{Binding Diff.Next, Converter={local:CutLeftConverter}, ConverterParameter=150-255}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
+                            <TextBlock Style="{StaticResource TextStyle}" Text="{Binding Diff.Next, Converter={local:CutLeftConverter}, ConverterParameter=150-255}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </DockPanel>
                 </DataTemplate>

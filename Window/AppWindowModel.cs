@@ -19,6 +19,7 @@ namespace SiteWatcher
         public SortableBindingList<Watch> Watches {get;set;}=new SortableBindingList<Watch>(new List<Watch>());
         public SortableBindingList<WatchTag> Tags {get;set;}=new(new List<WatchTag>());
         private bool TagsUpdating = false;
+        private bool CheckAllOnlyVisible = false;
         public bool ShowNew { 
             get=>showNew; 
             set{
@@ -70,7 +71,7 @@ namespace SiteWatcher
             AddWatchCommand=new(n=>AddWatch());
             EditWatchCommand =new(w=>EditWatch(w));
             DeleteWatchCommand = new(w=>DeleteSelectedWatch(w));
-            CheckAllCommand = new(w=>CheckAll());
+            CheckAllCommand = new(w=>CheckAll(CheckAllOnlyVisible));
             CopyWatchCommand = new(w=>CopyWatch(w));
             ToggleWatchCommand = new(w=>ToggleSelectedWatch(w));
             NavigateWatchCommand = new(w=>NavigateWatch(w));
@@ -101,11 +102,12 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound,CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
                 NotifySound = model.NotifiySound;
+                CheckAllOnlyVisible = model.CheckAllOnlyVisible;
             }
         }
 
@@ -146,15 +148,18 @@ namespace SiteWatcher
                 Watches.Remove(w);
             }
         }
-        private void CheckAll(){
+        private void CheckAll(bool onlyvisible=false){
             foreach (var watch in Watches){
-                if(watch.Enabled)
+                if(watch.Enabled && (!onlyvisible || watch.IsVisible))
                     CheckWatch(watch);
             }
         }
         public void ToggleSelectedWatch(Watch? w){
             List<Watch> toToggle = (w==null)?WatchList.SelectedItems.Cast<Watch>().ToList():new(){w};
-            toToggle.ForEach(w=>w.Toggle());
+            toToggle.ForEach(w=>{
+                w.Toggle();
+                CheckBrowser.Dequeue(w);
+            });
             FilterWatches();
         }
 
@@ -193,6 +198,7 @@ namespace SiteWatcher
                 window.Left = Config.WindowPosition.X;
                 window.Top = Config.WindowPosition.Y;
                 NotifySound = Config.NotifySound;
+                CheckAllOnlyVisible = Config.CheckAllOnlyVisible;
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
                 var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                 if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
@@ -216,6 +222,8 @@ namespace SiteWatcher
             Config.Tags=Tags.ToList();
             Config.MaxProcesses=CheckBrowser.parallelTasks;
             Config.NotifySound=NotifySound;
+            Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
+            
             string newConfig2=Serialize(Config);
             if(newConfig2!= oldConfig2){
                 File.WriteAllText(AppConfig,newConfig2);
