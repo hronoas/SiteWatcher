@@ -18,7 +18,7 @@ namespace SiteWatcher
     {
         public SortableBindingList<Watch> Watches {get;set;}=new SortableBindingList<Watch>(new List<Watch>());
         public SortableBindingList<WatchTag> Tags {get;set;}=new(new List<WatchTag>());
-        private bool TagsUpdating = false;
+        public bool TagsUpdating = false;
         private bool CheckAllOnlyVisible = false;
         public bool ShowNew { 
             get=>showNew; 
@@ -27,6 +27,8 @@ namespace SiteWatcher
                 FilterWatches();
             }
         }
+
+        public string currentFilterText = "";
         private bool showNew;
         public string? TextFilter { 
             get=>textFilter; 
@@ -261,7 +263,8 @@ namespace SiteWatcher
                 TagsUpdating=true;
                 if(ShowNew){
                     textFilter=null;
-                    window.TagsList.Text="Новые";
+                    currentFilterText = "Новые";
+                    window.TagsList.Text = currentFilterText;
                     Watches.ToList().ForEach(w=>{
                         w.IsVisible = w.Status==WatchStatus.New;
                     });
@@ -274,7 +277,8 @@ namespace SiteWatcher
                     });
                 }else{
                     ListWatchTagToStringConverter converter = new();
-                    window.TagsList.Text=converter.Convert(Tags,typeof(String),"Все",System.Globalization.CultureInfo.CurrentCulture).ToString();
+                    currentFilterText = converter.Convert(Tags,typeof(String),"Все",System.Globalization.CultureInfo.CurrentCulture).ToString();
+                    window.TagsList.Text = currentFilterText;
                     Tags.RaiseListChangedEvents=false;
                     Tags.ToList().ForEach(t=>t.Count=Watches.Where(w=>w.Tags.Where(wt=>wt.Name==t.Name).Count()>0).Count());
                     Tags.RaiseListChangedEvents=true;
