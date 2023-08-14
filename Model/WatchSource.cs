@@ -29,12 +29,13 @@ namespace SiteWatcher{
     }
     public class SelectorResult:PropertyChangedBase{
         public string Text { get=>text; set=>SetField(ref text, value);}
+        
         private string text = "";
         public string Data { get=>data; set=>SetField(ref data, value);}
         private string data = "";
 
     }
-    public enum SourceSelectorType{XPath=0,CSS=1 /* ,JavaScript=2 */}
+    public enum SourceSelectorType{XPath=0,CSS=1,JavaScript=2}
     
     public class SourceSelector:PropertyChangedBase,ICloneable{
         public string Value { get=>sValue; set=>SetField(ref sValue, value);}
@@ -110,8 +111,29 @@ namespace SiteWatcher{
                             }
                         });
                         return result;";
-/*                 case SourceSelectorType.JavaScript:
-                    return Value; */
+                 case SourceSelectorType.JavaScript:
+                    return "let result = []; let funcSelect = ()=>{" +Value+ @" }; let funcResult = funcSelect() ||'';
+                        if(!Array.isArray(funcResult) && funcResult) {
+                            result.push({
+                                Text:funcResult['Text']||(typeof funcResult !== 'object'?funcResult:'')||'',
+                                Data:funcResult['Data']||funcResult['Text']||funcResult||'',
+                            });
+                        }else for (let i = 0; i < funcResult.length; i++) {
+                            let val = funcResult[i]
+                            if(!Array.isArray(val) && val) {
+                                result.push({
+                                    Text:val['Text']||(typeof val !== 'object'?val:'')||'',
+                                    Data:val['Data']||val['Text']||val||'',
+                                });
+                            }else{
+                                result.push({
+                                    Text:val[0]||'',
+                                    Data:val[1]||val[0]||'',
+                                });
+                            }
+                        }
+                        result = result.map((item) => ({ Text:  ''+item.Text, Data: ''+item.Data }));
+                        return result;";
                 default:
                 return @"var result = [];
                         return result;";

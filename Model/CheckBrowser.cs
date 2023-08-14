@@ -188,7 +188,7 @@ namespace SiteWatcher
                         try{
                             var response = await browser.EvaluateScriptAsync(jsCode,timeout);
                             if(!response.Success){
-                                errors+=$"wrong selector {selector.Value}\n";
+                                errors+=$"wrong selector {selector.Value}\n{response.Message}";
                             }else{
                                 if (response.Result != null){
                                     List<SelectorResult> res = Deserialize<List<SelectorResult>>(response.Result.ToString()??"[]")??new List<SelectorResult>();
