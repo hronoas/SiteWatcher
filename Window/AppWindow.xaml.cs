@@ -42,7 +42,7 @@ namespace SiteWatcher
             //TagsList.PreviewLostKeyboardFocus += TagsList_LostFocus;
             TagsList.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent, 
                       new System.Windows.Controls.TextChangedEventHandler(TagsList_TextChanged));
-            
+                      
         }
 
         private void TagsList_LostFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -58,7 +58,9 @@ namespace SiteWatcher
         }
 
         private void TagsList_TextChanged(object sender, TextChangedEventArgs e){
+            if (((AppWindowModel)DataContext).TagsUpdating) return;
             ComboBox cb = sender as ComboBox;
+            if (cb.Text == ((AppWindowModel)DataContext).currentFilterText) return;
             ((AppWindowModel)DataContext).TextFilter = cb.Text;
         }
 

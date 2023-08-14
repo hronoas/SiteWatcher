@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CefSharp;
+using System.Linq;
 using CefSharp.Enums;
 using CefSharp.Handler;
 using CefSharp.OffScreen;
@@ -128,6 +129,13 @@ namespace SiteWatcher
                 Q.Add(newCheck);
             }
             RunTasks();
+        }
+
+        public static void Dequeue(Watch sourceWatch){
+            Q.Where((q)=>q.SourceWatch==sourceWatch).ToList().ForEach((q)=>{
+                q.SourceWatch.IsQueued=false;
+                Q.Remove(q);
+            });
         }
 
         public static async Task simulateMovementAsync(ChromiumWebBrowser browser){
