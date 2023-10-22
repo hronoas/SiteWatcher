@@ -8,6 +8,7 @@ using System.Media;
 namespace SiteWatcher{
     public partial class ConfigWindowModel : BaseWindowModel<ConfigWindow>{
         public SortableBindingList<WatchTag> Tags  {get;set;}
+        public ProxyServer Proxy {get;set;}
         public string NotifiySound {get;set;}
         public bool CheckAllOnlyVisible {get;set;}
         public Command ChooseNotifySoundCommand {get;set;}
@@ -16,9 +17,10 @@ namespace SiteWatcher{
         public Command AddTagCommand {get;set;}
         public Command<WatchTag> RemoveTagCommand {get;set;}
         public Command CloseWindowCommand {get;set;}
-        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
+        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, ProxyServer proxy, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
             win.DataContext = this;
             Tags= new(tags);
+            Proxy = proxy.Clone();
             NotifiySound = NotifyFile;
             CheckAllOnlyVisible = CheckAllOnlyVisibleS;
             SaveCommand=new(o=>{window.DialogResult=true; window.Close();});
@@ -31,7 +33,7 @@ namespace SiteWatcher{
         }
         public void ChooseNotifySound(){
             OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.DefaultExt = "rtf";
+            fileDialog.DefaultExt = "wav";
             fileDialog.Filter = "wav files (*.wav) | *.wav";
             DialogResult result = fileDialog.ShowDialog();
              if(result == DialogResult.OK) {

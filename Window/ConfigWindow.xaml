@@ -19,46 +19,73 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                 <Button Content="Сохранить" Command="{Binding SaveCommand}" FontSize="14" Margin="5 0" Padding="7 5" TabIndex="1000"/>
             </StackPanel>
         </DockPanel>
-        <GroupBox FontSize="14" Header="Категории" DockPanel.Dock="Top">
-            <DockPanel>
-                <Button DockPanel.Dock="Bottom" Content="+" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 2 2 0"/>
-                <ListView Margin="0 5" x:Name="TagsList" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" ItemsSource="{Binding Tags}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel HorizontalAlignment="Stretch">
-                                <Button DockPanel.Dock="Right" IsTabStop="false" Content="-" Width="24" Height="24" FontSize="14" Margin="5 0 0 0" Command="{Binding Source={StaticResource Proxy}, Path=Data.RemoveTagCommand}" CommandParameter="{Binding}"/>
-                                <TextBox DockPanel.Dock="Right" MinWidth="120" Height="24" Margin="5 0 0 0" Text="{Binding Description}" ToolTip="Description"/>
-                                <Border x:Name="b">
-                                    <TextBox Text="{Binding Name}" Height="24" TextWrapping="NoWrap" HorizontalAlignment="Stretch" MaxWidth="{Binding ActualWidth, ElementName=b}"></TextBox>
-                                </Border>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Margin" Value="0 2 0 0"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                            <Setter Property="IsTabStop" Value="False"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-                
-            </DockPanel>
-        </GroupBox>
-        <DockPanel DockPanel.Dock="Top">
-            <StackPanel Orientation="Vertical">
-                <DockPanel HorizontalAlignment="Stretch" Margin="0 5 0 5">
-                    <Label>Звук уведомления</Label>
-                    <Button Content="Выбрать" Command="{Binding ChooseNotifySoundCommand}" DockPanel.Dock="Right" Margin="3 0 0 0" Padding="2 2 2 2"/>
-                    <TextBox Text="{Binding NotifiySound}" Padding="2 2 2 2"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5 5 5 5">
+        <DockPanel>
+            <GroupBox FontSize="14" Header="Категории" DockPanel.Dock="Top">
+                <DockPanel>
+                    <Button DockPanel.Dock="Bottom" Content="+" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 2 2 0"/>
+                    <ListView Margin="0 5" x:Name="TagsList" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" ItemsSource="{Binding Tags}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel HorizontalAlignment="Stretch">
+                                    <Button DockPanel.Dock="Right" IsTabStop="false" Content="-" Width="24" Height="24" FontSize="14" Margin="5 0 0 0" Command="{Binding Source={StaticResource Proxy}, Path=Data.RemoveTagCommand}" CommandParameter="{Binding}"/>
+                                    <TextBox DockPanel.Dock="Right" MinWidth="120" Height="24" Margin="5 0 0 0" Text="{Binding Description}" ToolTip="Описание"/>
+                                    <Border x:Name="b">
+                                        <TextBox Text="{Binding Name}" Height="24" TextWrapping="NoWrap" HorizontalAlignment="Stretch" MaxWidth="{Binding ActualWidth, ElementName=b}"></TextBox>
+                                    </Border>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Margin" Value="0 2 0 0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                <Setter Property="IsTabStop" Value="False"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
                 </DockPanel>
-                <CheckBox Margin="0 15 0 5" IsChecked="{Binding CheckAllOnlyVisible}">"Проверить все" только для видимых наблюдателей</CheckBox>
-            </StackPanel>
-            
-            
+            </GroupBox>
+            <DockPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Vertical">
+                    <DockPanel HorizontalAlignment="Stretch" Margin="0 5 0 5">
+                        <Label>Звук уведомления</Label>
+                        <Button Content="Выбрать" Command="{Binding ChooseNotifySoundCommand}" DockPanel.Dock="Right" Margin="3 0 0 0" Padding="2 2 2 2"/>
+                        <TextBox Text="{Binding NotifiySound}" Padding="2 2 2 2"/>
+                    </DockPanel>
+                    <GroupBox Header="Настройки Proxy">
+                        <Grid Margin="0 5 0 5">
+                            <Grid.Resources>
+                                <Style TargetType="Label">
+                                    <Setter Property="Width" Value="120"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="30"/>
+                            </Grid.RowDefinitions>
+                            <DockPanel Grid.Row="0" Margin="2 2 2 2" ToolTip="Пример: 127.0.0.1:8080">
+                                <Label Content="Сервер"/>
+                                <TextBox Text="{Binding Proxy.server}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                            <DockPanel Grid.Row="1" Margin="2 2 2 2">
+                                <Label Content="Имя пользователя"/>
+                                <TextBox Text="{Binding Proxy.user}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                            <DockPanel Grid.Row="2" Margin="2 2 2 2">
+                                <Label Content="Пароль"/>
+                                <TextBox Text="{Binding Proxy.password}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                        </Grid>
+                    </GroupBox>
+                    <CheckBox Margin="0 15 0 5" IsChecked="{Binding CheckAllOnlyVisible}">"Проверить все" только для видимых наблюдателей</CheckBox>
+                </StackPanel>
+            </DockPanel>
+            <DockPanel></DockPanel>
         </DockPanel>
-        <DockPanel></DockPanel>
+        </ScrollViewer>
     </DockPanel>
 </Window>

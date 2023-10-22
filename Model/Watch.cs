@@ -42,6 +42,8 @@ namespace SiteWatcher{
         public bool IsVisible { get=>isVisible; set=>SetField(ref isVisible, value);}
         private bool isVisible = true;
 
+        public bool UseProxy { get=>useProxy; set=>SetField(ref useProxy, value);}
+        private bool useProxy = false;
 
         public void Check(Action onReady){
             if(IsChecking && (DateTime.Now-LastCheck) < new TimeSpan(0,5,0)) return;
@@ -130,6 +132,7 @@ namespace SiteWatcher{
             IsChecking=false;
             isQueued=false;
             Notify=w.Notify;
+            UseProxy=w.UseProxy;
             SoundNotify=w.SoundNotify;
         }
         public object Clone(){

@@ -24,6 +24,7 @@ namespace SiteWatcher
         public Command BeginSelectCommand {get;set;}
         public bool Selecting { get=>selecting; set=>SetField(ref selecting, value);}
         private bool selecting = false;
+        private bool ignoreRedirect = false;
         public Command<SourceSelector> SelectDeleteCommand {get;set;}
 
         public Command UpdateTextBoxCommand {get;set;}
@@ -31,9 +32,10 @@ namespace SiteWatcher
         private string jsObjectName = "callBackJS";
 
         public Command CloseWindowCommand {get;set;}
-        public WatchWindowModel(Watch Source,List<WatchTag> alltags,WatchWindow win) : base(win){
+        public WatchWindowModel(Watch Source,List<WatchTag> alltags,WatchWindow win, bool ignoreFirstRedirect=false) : base(win){
             Item=(Watch)Source.Clone();
             Item.Source.Select.ListChanged+=(o,e)=>SelectAll();
+            ignoreRedirect=ignoreFirstRedirect;
             webBrowser = (window.FindName("web") as ChromiumWebBrowser);
             webBrowser.LifeSpanHandler = new MyCustomLifeSpanHandler();
             webBrowser.TitleChanged+=(o,s)=>{if(String.IsNullOrEmpty(Item.Name)) Item.Name = s.NewValue.ToString()??"";};
@@ -45,10 +47,7 @@ namespace SiteWatcher
             CloseWindowCommand = new(o=>win.Close());
             BeginSelectCommand = new(o=>BeginSelect());
             webBrowser.JavascriptObjectRepository.Register(jsObjectName,new CallBackJS(s=>{EndSelect(s);}),options: BindingOptions.DefaultBinder);
-            webBrowser.AddressChanged+=(object sender, DependencyPropertyChangedEventArgs e)=>{
-                if(Item.Source.Url!=(string)e.NewValue && Cef.ParseUrl(Item.Source.Url)!=null) Item.Source.Referer=Item.Source.Url;
-                Item.Source.Url=(string)e.NewValue;
-            };
+            webBrowser.AddressChanged+=AddressChanged;
             webBrowser.FrameLoadEnd+=FrameLoaded;
             UpdateTextBoxCommand = new(o=>{
                 DependencyProperty prop = TextBox.TextProperty;
@@ -63,6 +62,16 @@ namespace SiteWatcher
             });
             Item.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             Tags.ListChanged+=(o,e)=>ChangedField(nameof(Tags));
+            win.Loaded+=(o,e)=>UrlOpen(Item.Source.Url);
+        }
+
+        private void AddressChanged(object sender, DependencyPropertyChangedEventArgs e){
+            if(ignoreRedirect){
+                ignoreRedirect=false;
+                return;
+            }
+            if(Item.Source.Url!=(string)e.NewValue && Cef.ParseUrl(Item.Source.Url)!=null) Item.Source.Referer=Item.Source.Url;
+            Item.Source.Url=(string)e.NewValue;
         }
 
         private void SelectDelete(SourceSelector? s){
@@ -70,7 +79,7 @@ namespace SiteWatcher
             else Item.Source.Select.Remove(s);
         }
 
-        private void FrameLoaded(object? sender, FrameLoadEndEventArgs e){
+        private async void FrameLoaded(object? sender, FrameLoadEndEventArgs e){
             if(e.Frame.IsMain){
                 SelectAll();
                 if(Selecting) BeginSelect();
@@ -145,7 +154,7 @@ namespace SiteWatcher
             window.DialogResult=true;
             window.Close();
         }
-        void UrlOpen(string Url){
+        async void UrlOpen(string Url){
             if(webBrowser!=null && !String.IsNullOrWhiteSpace(Url)){
                 if(!Url.ToLower().StartsWith("http")){
                     if(Regex.Match(Url,@"^[a-z0-9\.\-]+\.[a-z]{2,5}$",RegexOptions.IgnoreCase).Success) Url = "http://"+Url;
@@ -154,6 +163,10 @@ namespace SiteWatcher
                 Uri uri;
                 try{
                     uri = new Uri(Url);
+                    await Cef.UIThreadTaskFactory.StartNew(delegate{
+                        CheckBrowser.SetUseProxy(webBrowser.GetBrowser().GetHost().RequestContext,Item.UseProxy);
+                        webBrowser.RequestHandler = new ProxyHandler(CheckBrowser.proxy.user, CheckBrowser.proxy.password);
+                    });
                     webBrowser.Load(Url);
                 } catch (System.Exception ex) {
                     MessageBox.Show(ex.Message);
