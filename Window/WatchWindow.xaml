@@ -237,6 +237,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                 <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Проверять HTML вместо тегов">Проверять HTML</CheckBox>
                 <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Notify}">Показывать уведомления</CheckBox>
                 <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.SoundNotify}">Уведомление звуком</CheckBox>
+                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.UseProxy}">Использовать прокси</CheckBox>
             </StackPanel>
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
                 <Label Margin="5 0 5 0">Переходить со страницы</Label>
@@ -253,7 +254,8 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             </StackPanel>
         </Grid>
         <Border BorderBrush="Silver" BorderThickness="1" Margin="0 10 0 10">
-            <wpf:ChromiumWebBrowser Address="{Binding Item.Source.Url}" x:Name="web" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="300"></wpf:ChromiumWebBrowser>
+            <wpf:ChromiumWebBrowser  x:Name="web" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="300"></wpf:ChromiumWebBrowser>
+            <!--Address="{Binding Item.Source.Url}"-->
         </Border>
     </DockPanel>
 </Window>

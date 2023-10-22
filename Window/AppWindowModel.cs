@@ -104,12 +104,14 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound,CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
                 NotifySound = model.NotifiySound;
                 CheckAllOnlyVisible = model.CheckAllOnlyVisible;
+                CheckBrowser.proxy = model.Proxy.Clone();
+                ConfigSave2();
             }
         }
 
@@ -202,6 +204,7 @@ namespace SiteWatcher
                 NotifySound = Config.NotifySound;
                 CheckAllOnlyVisible = Config.CheckAllOnlyVisible;
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
+                CheckBrowser.proxy = Config.Proxy.Clone();
                 var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                 if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
 
@@ -224,6 +227,7 @@ namespace SiteWatcher
             Config.Tags=Tags.ToList();
             Config.MaxProcesses=CheckBrowser.parallelTasks;
             Config.NotifySound=NotifySound;
+            Config.Proxy=CheckBrowser.proxy;
             Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
             
             string newConfig2=Serialize(Config);
@@ -305,7 +309,7 @@ namespace SiteWatcher
 
         private void EditWatch(Watch w){
             WatchWindow win = new();
-            WatchWindowModel model = new(w,Tags.ToList(),win);
+            WatchWindowModel model = new(w,Tags.ToList(),win,true);
             if(win.ShowDialog()??false){
                 w.CopySettingsFrom(model.Item);
                 RefreshList();

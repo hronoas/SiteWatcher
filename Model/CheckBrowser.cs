@@ -9,6 +9,7 @@ using CefSharp.Enums;
 using CefSharp.Handler;
 using CefSharp.OffScreen;
 using CefSharp.Structs;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SiteWatcher
 {
@@ -58,10 +59,11 @@ namespace SiteWatcher
 
         private static List<CheckItem> Q = new();
         public static int parallelTasks = 3;
-        private static List<Task> tasks =new();
+        private static List<Task> tasks = new();
 
-        public class CheckItem
-        {
+        public static ProxyServer proxy = new();
+
+        public class CheckItem{
             public Watch SourceWatch {get;set;}
             public Action<List<SelectorResult>>? onData;
             public Action<string>? onError;
@@ -147,6 +149,23 @@ namespace SiteWatcher
             wbHost.SendMouseWheelEvent(10,10,0,1000,CefEventFlags.None);
             await Task.Delay(3000);
         }
+
+        public static bool SetUseProxy(IRequestContext rc, bool useProxy){
+            rc.GetAllPreferences(true);
+            var dict = new Dictionary<string, object>();
+            if (useProxy && !String.IsNullOrWhiteSpace(proxy.server)){
+                dict.Add("mode", "fixed_servers");
+                dict.Add("server", proxy.server);
+            }else{
+                dict.Add("mode", "direct");
+            }
+            string error2;
+            bool success = rc.SetPreference("proxy", dict, out error2);
+            if (!success){
+                Console.WriteLine("something happen with the prerence set up" + error2);
+            }
+            return success;
+        }
         public static async Task CheckAsync(CheckItem? item){
             if(item==null) return;
             item.SourceWatch.IsChecking=true;
@@ -164,7 +183,15 @@ namespace SiteWatcher
                 WindowlessFrameRate = 1
             };
             TimeSpan timeout = new TimeSpan(0,0,15);
-            using (var browser = new ChromiumWebBrowser(Source.Referer==""?Source.Url:Source.Referer, browserSettings)){
+            var rc = new RequestContext();
+            using (var browser = new ChromiumWebBrowser(Source.Referer==""?Source.Url:Source.Referer, browserSettings,requestContext:rc)){
+                if (item.SourceWatch.UseProxy && !String.IsNullOrWhiteSpace(proxy.server)){
+                    await Cef.UIThreadTaskFactory.StartNew(delegate{
+                            SetUseProxy(rc,true);
+                    });
+                    browser.RequestHandler = new ProxyHandler(proxy.user, proxy.password);
+                }
+
                 await browser.WaitForInitialLoadAsync();
                 if(Source.SimulateMouse) await simulateMovementAsync(browser);
                 int waitTimeout =  Math.Max(Math.Min((int)Source.WaitTimeout.TotalMilliseconds,2*60000),0); //Max 2 minutes
@@ -184,7 +211,6 @@ namespace SiteWatcher
                     if(Source.SimulateMouse) await simulateMovementAsync(browser);
                     await Task.Delay(waitTimeout);
                 }
-                await Cef.UIThreadTaskFactory.StartNew(()=>{});
                 var onUi = Cef.CurrentlyOnThread(CefThreadIds.TID_UI);
 
                 if(browser.CanExecuteJavascriptInMainFrame){
@@ -240,6 +266,73 @@ namespace SiteWatcher
                     }
             } catch {
             }
+        }
+    }
+
+    public class ProxyServer {
+        public string server {get;set;}
+        public string user {get;set;}
+        public string password {get;set;}
+
+        // Default constructor with default values
+        public ProxyServer() {
+            this.server = "";
+            this.user = "";
+            this.password = "";
+        }
+
+        // Parameterized constructor
+        public ProxyServer(string server, string user, string password) {
+            this.server = server;
+            this.user = user;
+            this.password = password;
+        }
+        public ProxyServer Clone() {
+            return (ProxyServer)MemberwiseClone();
+        }
+    }
+    public class ProxyHandler : IRequestHandler{
+        private string userName;
+        private string password;
+        public ProxyHandler(string userName, string password){
+            this.userName = userName;
+            this.password = password;
+        }
+
+        bool IRequestHandler.OnBeforeBrowse(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool userGesture, bool isRedirect){
+            return false;
+        }
+        bool IRequestHandler.OnOpenUrlFromTab(IWebBrowser browserControl, IBrowser browser, IFrame frame, string targetUrl, WindowOpenDisposition targetDisposition, bool userGesture){
+            return OnOpenUrlFromTab(browserControl, browser, frame, targetUrl, targetDisposition, userGesture);
+        }
+        protected virtual bool OnOpenUrlFromTab(IWebBrowser browserControl, IBrowser browser, IFrame frame, string targetUrl, WindowOpenDisposition targetDisposition, bool userGesture){
+            return false;
+        }
+        bool IRequestHandler.OnCertificateError(IWebBrowser browserControl, IBrowser browser, CefErrorCode errorCode, string requestUrl, ISslInfo sslInfo, IRequestCallback callback){
+            return false;
+        }
+        bool IRequestHandler.GetAuthCredentials(IWebBrowser chromiumWebBrowser, IBrowser browser, string originUrl, bool isProxy, string host, int port, string realm, string scheme, IAuthCallback callback){
+            if (isProxy == true){
+                callback.Continue(userName, password);
+                return true;
+            }
+            return false;
+        }
+        public bool OnSelectClientCertificate(IWebBrowser browserControl, IBrowser browser, bool isProxy, string host, int port,
+            X509Certificate2Collection certificates, ISelectClientCertificateCallback callback){
+            return false;
+        }
+        void IRequestHandler.OnRenderProcessTerminated(IWebBrowser browserControl, IBrowser browser, CefTerminationStatus status){}
+        bool IRequestHandler.OnQuotaRequest(IWebBrowser browserControl, IBrowser browser, string originUrl, long newSize, IRequestCallback callback){
+            return false;
+        }
+        public void OnResourceRedirect(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request,
+            IResponse response, ref string newUrl){
+        }
+        void IRequestHandler.OnRenderViewReady(IWebBrowser browserControl, IBrowser browser){}
+        void IRequestHandler.OnDocumentAvailableInMainFrame(IWebBrowser chromiumWebBrowser, IBrowser browser){}
+        IResourceRequestHandler IRequestHandler.GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling){
+            return null;
         }
     }
 }
