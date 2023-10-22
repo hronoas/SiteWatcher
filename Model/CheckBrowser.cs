@@ -10,17 +10,16 @@ using CefSharp.Handler;
 using CefSharp.OffScreen;
 using CefSharp.Structs;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Documents;
+using System.Configuration;
 
 namespace SiteWatcher
 {
     public class CheckBrowser{
-        public static void Init(){
-#if ANYCPU
-            //Only required for PlatformTarget of AnyCPU
-            CefRuntime.SubscribeAnyCpuAssemblyResolver();
-#endif
+
+        public static CefSettings GetSettingsDefault(bool useProxy=false){
             var settings = new CefSettings(){
-                CachePath = AppCache
+                CachePath = AppCache+(useProxy?"\\proxy":"")
             };
 
             //settings.BrowserSubprocessPath = @"runtimes\win-x64\native\CefSharp.BrowserSubprocess.exe";
@@ -43,6 +42,14 @@ namespace SiteWatcher
             settings.LogSeverity = CefSharp.LogSeverity.Error;
             settings.IgnoreCertificateErrors = true;
             settings.SetOffScreenRenderingBestPerformanceArgs();
+            return settings;
+        }
+        public static void Init(){
+#if ANYCPU
+            //Only required for PlatformTarget of AnyCPU
+            CefRuntime.SubscribeAnyCpuAssemblyResolver();
+#endif
+            var settings = GetSettingsDefault();
 
             if (!CefSharp.Cef.IsInitialized){
                 CefSharp.Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
@@ -166,6 +173,16 @@ namespace SiteWatcher
             }
             return success;
         }
+
+        public static RequestContextSettings GetContextSettingsDefault(bool useProxy=false){
+            RequestContextSettings settings = new()
+            {
+                CachePath = AppCache + (useProxy ? "\\proxy" : ""),                
+            };
+            
+
+            return settings;
+        }
         public static async Task CheckAsync(CheckItem? item){
             if(item==null) return;
             item.SourceWatch.IsChecking=true;
@@ -183,13 +200,20 @@ namespace SiteWatcher
                 WindowlessFrameRate = 1
             };
             TimeSpan timeout = new TimeSpan(0,0,15);
-            var rc = new RequestContext();
+            //var rc = new RequestContext(Cef.GetGlobalRequestContext());
+            bool needProxy = item.SourceWatch.UseProxy && !String.IsNullOrWhiteSpace(proxy.server);
+            var rc = new RequestContext(GetContextSettingsDefault(needProxy));
+            
             using (var browser = new ChromiumWebBrowser(Source.Referer==""?Source.Url:Source.Referer, browserSettings,requestContext:rc)){
-                if (item.SourceWatch.UseProxy && !String.IsNullOrWhiteSpace(proxy.server)){
+                if (needProxy){
                     await Cef.UIThreadTaskFactory.StartNew(delegate{
                             SetUseProxy(rc,true);
                     });
                     browser.RequestHandler = new ProxyHandler(proxy.user, proxy.password);
+                }else{
+                    await Cef.UIThreadTaskFactory.StartNew(delegate{
+                            SetUseProxy(rc,false);
+                    });
                 }
 
                 await browser.WaitForInitialLoadAsync();

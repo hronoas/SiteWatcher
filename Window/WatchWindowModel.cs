@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using CefSharp;
+using CefSharp.DevTools.CacheStorage;
 using CefSharp.Wpf;
 
 namespace SiteWatcher
@@ -36,9 +37,7 @@ namespace SiteWatcher
             Item=(Watch)Source.Clone();
             Item.Source.Select.ListChanged+=(o,e)=>SelectAll();
             ignoreRedirect=ignoreFirstRedirect;
-            webBrowser = (window.FindName("web") as ChromiumWebBrowser);
-            webBrowser.LifeSpanHandler = new MyCustomLifeSpanHandler();
-            webBrowser.TitleChanged+=(o,s)=>{if(String.IsNullOrEmpty(Item.Name)) Item.Name = s.NewValue.ToString()??"";};
+            //webBrowser = (window.FindName("web") as ChromiumWebBrowser);
             UrlOpenCommand=new(s=>UrlOpen(s));
             SaveCommand=new(o=>{Save();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
@@ -46,15 +45,13 @@ namespace SiteWatcher
             SelectDeleteCommand=new(s=>SelectDelete(s));
             CloseWindowCommand = new(o=>win.Close());
             BeginSelectCommand = new(o=>BeginSelect());
-            webBrowser.JavascriptObjectRepository.Register(jsObjectName,new CallBackJS(s=>{EndSelect(s);}),options: BindingOptions.DefaultBinder);
-            webBrowser.AddressChanged+=AddressChanged;
-            webBrowser.FrameLoadEnd+=FrameLoaded;
             UpdateTextBoxCommand = new(o=>{
                 DependencyProperty prop = TextBox.TextProperty;
                 BindingExpression binding = BindingOperations.GetBindingExpression(o as DependencyObject, prop);
                 if (binding != null) 
                     binding.UpdateSource();
             });
+            //TODO: add UrlOpen on UseProxy changed
 
             alltags.Select(t=>t.Clone()).ToList().ForEach(t=>{
                 t.Selected = Item.Tags.Where(it=>t.Name==it.Name).Count()>0;
@@ -62,7 +59,21 @@ namespace SiteWatcher
             });
             Item.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             Tags.ListChanged+=(o,e)=>ChangedField(nameof(Tags));
-            win.Loaded+=(o,e)=>UrlOpen(Item.Source.Url);
+            if (!string.IsNullOrWhiteSpace(Item.Source.Url)) win.Loaded+=(o,e)=>UrlOpen(Item.Source.Url);
+        }
+
+        private RequestContext createBrowser(){
+            var rc = new RequestContext(CheckBrowser.GetContextSettingsDefault(Item.UseProxy));                    
+            webBrowser = new ChromiumWebBrowser();
+            Border border = (window.FindName("BrowserBorder") as Border);
+            webBrowser.RequestContext = rc;
+            border.Child=webBrowser;
+            webBrowser.LifeSpanHandler = new MyCustomLifeSpanHandler();
+            webBrowser.TitleChanged+=(o,s)=>{if(String.IsNullOrEmpty(Item.Name)) Item.Name = s.NewValue.ToString()??"";};
+            webBrowser.JavascriptObjectRepository.Register(jsObjectName,new CallBackJS(s=>{EndSelect(s);}),options: BindingOptions.DefaultBinder);
+            webBrowser.AddressChanged+=AddressChanged;
+            webBrowser.FrameLoadEnd+=FrameLoaded;
+            return rc;
         }
 
         private void AddressChanged(object sender, DependencyPropertyChangedEventArgs e){
@@ -155,7 +166,8 @@ namespace SiteWatcher
             window.Close();
         }
         async void UrlOpen(string Url){
-            if(webBrowser!=null && !String.IsNullOrWhiteSpace(Url)){
+            if(!String.IsNullOrWhiteSpace(Url)){
+                
                 if(!Url.ToLower().StartsWith("http")){
                     if(Regex.Match(Url,@"^[a-z0-9\.\-]+\.[a-z]{2,5}$",RegexOptions.IgnoreCase).Success) Url = "http://"+Url;
                     else Url = "https://www.google.com/search?q="+Url;
@@ -163,8 +175,9 @@ namespace SiteWatcher
                 Uri uri;
                 try{
                     uri = new Uri(Url);
+                    RequestContext rc = createBrowser();
                     await Cef.UIThreadTaskFactory.StartNew(delegate{
-                        CheckBrowser.SetUseProxy(webBrowser.GetBrowser().GetHost().RequestContext,Item.UseProxy);
+                        CheckBrowser.SetUseProxy(rc,Item.UseProxy);
                         webBrowser.RequestHandler = new ProxyHandler(CheckBrowser.proxy.user, CheckBrowser.proxy.password);
                     });
                     webBrowser.Load(Url);
