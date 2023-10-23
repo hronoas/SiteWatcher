@@ -19,6 +19,7 @@ namespace SiteWatcher
         public SortableBindingList<WatchTag> Tags {get;set;} = new(new List<WatchTag>());
         private ChromiumWebBrowser webBrowser;
         public Command<string> UrlOpenCommand {get;set;}
+        public Command<string> UrlUpdateCommand {get;set;}
         public Command SaveCommand {get;set;}
         public Command CancelCommand {get;set;}
         public Command SelectAddCommand {get;set;}
@@ -37,8 +38,8 @@ namespace SiteWatcher
             Item=(Watch)Source.Clone();
             Item.Source.Select.ListChanged+=(o,e)=>SelectAll();
             ignoreRedirect=ignoreFirstRedirect;
-            //webBrowser = (window.FindName("web") as ChromiumWebBrowser);
             UrlOpenCommand=new(s=>UrlOpen(s));
+            UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
             SaveCommand=new(o=>{Save();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
             SelectAddCommand=new(o=>Item.Source.Select.Add(new("")));
@@ -51,7 +52,6 @@ namespace SiteWatcher
                 if (binding != null) 
                     binding.UpdateSource();
             });
-            //TODO: add UrlOpen on UseProxy changed
 
             alltags.Select(t=>t.Clone()).ToList().ForEach(t=>{
                 t.Selected = Item.Tags.Where(it=>t.Name==it.Name).Count()>0;

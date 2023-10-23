@@ -157,7 +157,7 @@ namespace SiteWatcher
             await Task.Delay(3000);
         }
 
-        public static bool SetUseProxy(IRequestContext rc, bool useProxy){
+        public static bool SetUseProxy(IRequestContext rc, bool useProxy){ //use proxy if useProxy and server is set
             rc.GetAllPreferences(true);
             var dict = new Dictionary<string, object>();
             if (useProxy && !String.IsNullOrWhiteSpace(proxy.server)){
@@ -174,7 +174,7 @@ namespace SiteWatcher
             return success;
         }
 
-        public static RequestContextSettings GetContextSettingsDefault(bool useProxy=false){
+        public static RequestContextSettings GetContextSettingsDefault(bool useProxy=false){ //change CachePath if useProxy
             RequestContextSettings settings = new()
             {
                 CachePath = AppCache + (useProxy ? "\\proxy" : ""),                
@@ -202,7 +202,7 @@ namespace SiteWatcher
             TimeSpan timeout = new TimeSpan(0,0,15);
             //var rc = new RequestContext(Cef.GetGlobalRequestContext());
             bool needProxy = item.SourceWatch.UseProxy && !String.IsNullOrWhiteSpace(proxy.server);
-            var rc = new RequestContext(GetContextSettingsDefault(needProxy));
+            var rc = new RequestContext(GetContextSettingsDefault(item.SourceWatch.UseProxy));
             
             using (var browser = new ChromiumWebBrowser(Source.Referer==""?Source.Url:Source.Referer, browserSettings,requestContext:rc)){
                 if (needProxy){
