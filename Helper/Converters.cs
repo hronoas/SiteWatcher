@@ -34,7 +34,6 @@ namespace SiteWatcher
             return new TimeSpan(Days,Hours,Minutes,Seconds);
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
-            // TODO something like:
             TimeSpan val=(TimeSpan)value;
             return (val.Days>0?$"{val.Days}д":"")+(val.Hours>0?$"{val.Hours}ч":"")+(val.Minutes>0?$"{val.Minutes}м":"")+(val.Seconds>0?$"{val.Seconds}с":"");
         }
@@ -69,7 +68,6 @@ namespace SiteWatcher
     [ValueConversion(typeof(DateTime), typeof(String))]
     public class DateToNowRelevanceConverter : System.Windows.Markup.MarkupExtension,IValueConverter{
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
-            // TODO something like:
             TimeSpan span=DateTime.Now - (DateTime)value;
             string result = "";
             if(span.Days>0) result = span.Days+" "+ chisl(span.Days,"день","дня","дней")+" назад";
@@ -121,7 +119,6 @@ namespace SiteWatcher
     [ValueConversion(typeof(WatchStatus), typeof(String))]
     public class WatchStatusToStringConverter : System.Windows.Markup.MarkupExtension,IValueConverter{
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
-            // TODO something like:
             WatchStatus status = (WatchStatus)value;
             switch (status){
                 case WatchStatus.Fail: return "Ошибка";
