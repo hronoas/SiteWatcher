@@ -10,6 +10,7 @@ namespace SiteWatcher{
         public int MaxProcesses {get;set;} = 3;
         public bool CheckAllOnlyVisible {get;set;} = false;
         public ProxyServer Proxy {get;set;} = new();
+        public TelegramConfig Telegram {get;set;} = new();
         public string NotifySound {get;set;} = "";
 
         public SiteWatcherConfig Clone(){

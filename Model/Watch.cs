@@ -23,6 +23,11 @@ namespace SiteWatcher{
         private TimeSpan interval = new TimeSpan(3,0,0);
         public DateTime LastCheck { get=>lastCheck; set=>SetField(ref lastCheck, value);}
         private DateTime lastCheck;
+        public DateTime LastNotify { get=>lastNotify; set=>SetField(ref lastNotify, value);}
+        private DateTime lastNotify;
+        public bool RepeatNotify { get=>repeatNotify; set=>SetField(ref repeatNotify, value);}
+        private bool repeatNotify = false;
+
         public DateTime LastSeen { get=>lastSeen; set{SetField(ref lastSeen, value);ChangedField(nameof(IsNew));ChangedField(nameof(Status));}}
         private DateTime lastSeen;
         public bool Notify { get=>notify; set=>SetField(ref notify, value);}
@@ -44,6 +49,15 @@ namespace SiteWatcher{
 
         public bool UseProxy { get=>useProxy; set=>SetField(ref useProxy, value);}
         private bool useProxy = false;
+
+        public bool NotifyAfterError { get=>notifyAfterError; set=>SetField(ref notifyAfterError, value);}
+        private bool notifyAfterError = false;
+
+        public bool NotifyTelegram { get=>notifyTelegram; set=>SetField(ref notifyTelegram, value);}
+        private bool notifyTelegram = false;
+
+        public string TelegramChat { get=>telegramChat; set=>SetField(ref telegramChat, value);}
+        private string telegramChat = "";
 
         public void Check(Action onReady){
             if(IsChecking && (DateTime.Now-LastCheck) < new TimeSpan(0,5,0)) return;
@@ -111,6 +125,10 @@ namespace SiteWatcher{
         [JsonIgnoreAttribute()]
         public bool IsNew {get=>LastSeen<Diff.Next.Time;}
         [JsonIgnoreAttribute()]
+        public bool IsNeedNotify {get=> Status==WatchStatus.New && (RepeatNotify || LastNotify<Diff.Next.Time); set=>LastNotify=value?DateTime.MinValue:DateTime.Now;}
+        [JsonIgnoreAttribute()]
+        public string LastError {get;set;} = ""; //last error sent to notify
+        [JsonIgnoreAttribute()]
         public WatchStatus Status { get {
             if(isChecking) return WatchStatus.Checking;
             if(isQueued) return WatchStatus.Queued;
@@ -133,7 +151,12 @@ namespace SiteWatcher{
             isQueued=false;
             Notify=w.Notify;
             UseProxy=w.UseProxy;
+            NotifyTelegram=w.NotifyTelegram;
+            LastNotify=w.LastNotify;
+            RepeatNotify=w.RepeatNotify;
+            TelegramChat=w.TelegramChat;
             SoundNotify=w.SoundNotify;
+            NotifyAfterError=w.NotifyAfterError;
         }
         public object Clone(){
             Watch clone = (Watch)MemberwiseClone();

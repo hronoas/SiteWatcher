@@ -104,13 +104,15 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
                 NotifySound = model.NotifiySound;
                 CheckAllOnlyVisible = model.CheckAllOnlyVisible;
                 CheckBrowser.proxy = model.Proxy.Clone();
+                telegram = model.Telegram.Clone();
+                if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 ConfigSave2();
             }
         }
@@ -174,10 +176,20 @@ namespace SiteWatcher
 
         private void CheckWatch(Watch w){
             w.Check(()=> {
-                if(w.Status==WatchStatus.New){
+                if(w.IsNeedNotify){
                     if(w.Notify) ShowToast(w);
                     if(w.SoundNotify) PlaySound(w);
+                    if(w.NotifyTelegram) SendTelegram(w);
+                    w.IsNeedNotify=false;
+                }else if(w.LastError!=w.Error){
+                    if(!string.IsNullOrEmpty(w.Error)){
+                        if(w.NotifyTelegram && telegram.Template.Contains("{error}")){
+                            SendTelegram(w);
+                        }
+                        if(w.NotifyAfterError) w.IsNeedNotify=true;
+                    }
                 }
+                w.LastError=w.Error;
                 RefreshList();
             });
         }
@@ -205,6 +217,8 @@ namespace SiteWatcher
                 CheckAllOnlyVisible = Config.CheckAllOnlyVisible;
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
                 CheckBrowser.proxy = Config.Proxy.Clone();
+                telegram = Config.Telegram;
+                if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                 if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
 
@@ -228,6 +242,7 @@ namespace SiteWatcher
             Config.MaxProcesses=CheckBrowser.parallelTasks;
             Config.NotifySound=NotifySound;
             Config.Proxy=CheckBrowser.proxy;
+            Config.Telegram=telegram;
             Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
             
             string newConfig2=Serialize(Config);
