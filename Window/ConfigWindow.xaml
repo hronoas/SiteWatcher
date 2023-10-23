@@ -6,7 +6,7 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 xmlns:local="clr-namespace:SiteWatcher" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" mc:Ignorable="d" 
-Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher {0} - настройки}" Height="450" Width="570" MinWidth="300" MinHeight="300" WindowStartupLocation="CenterScreen">
+Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher {0} - настройки}" Height="720" Width="570" MinWidth="300" MinHeight="400" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <local:BindingProxy x:Key="Proxy" Data="{Binding}"></local:BindingProxy>
     </Window.Resources>
@@ -78,6 +78,32 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                             <DockPanel Grid.Row="2" Margin="2 2 2 2">
                                 <Label Content="Пароль"/>
                                 <TextBox Text="{Binding Proxy.password}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Настройки Telegram бота">
+                        <Grid Margin="0 5 0 5">
+                            <Grid.Resources>
+                                <Style TargetType="Label">
+                                    <Setter Property="Width" Value="120"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <DockPanel Grid.Row="0" Margin="2 2 2 2">
+                                <Label Content="Токен бота"/>
+                                <TextBox Text="{Binding Telegram.BotToken}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                            <DockPanel Grid.Row="1" Margin="2 2 2 2" ToolTip="Бот должен присутствовать в чате, и должен иметь права отправлять сообщения.">
+                                <Label Content="ID чата"/>
+                                <TextBox Text="{Binding Telegram.ChatId}" Padding="2 2 2 2"/>
+                            </DockPanel>
+                            <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="Доступные замены: {status}, {name}, {url}, {content}, {comment}, {error}, {tags}.&#x0a;Если присутствует {error}, будут работать уведомления об ошибках.">
+                                <Label DockPanel.Dock="Left" Content="Шаблон сообщения"/>
+                                <TextBox  DockPanel.Dock="Right" Text="{Binding Telegram.Template}" VerticalScrollBarVisibility="Auto" MaxLines="5" AcceptsReturn="true" Padding="2 2 2 2"/>
                             </DockPanel>
                         </Grid>
                     </GroupBox>

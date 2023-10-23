@@ -38,7 +38,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             <Style TargetType="TextBox" BasedOn="{StaticResource FontSize}"/>
             <Style TargetType="ComboBox" BasedOn="{StaticResource FontSize}"/>
             <Style TargetType="CheckBox" BasedOn="{StaticResource FontSize}"/>
-            <Style TargetType="Button" BasedOn="{StaticResource FontSize}"></Style>
+            <Style TargetType="Button" BasedOn="{StaticResource FontSize}" />
             <Style x:Key="RoundButton" BasedOn="{StaticResource FontSize}">
                 <Setter Property="TextBlock.TextAlignment" Value="Center"/>
                 <Setter Property="Control.VerticalContentAlignment" Value="Center"/>
@@ -96,7 +96,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel LastChildFill="True" Margin="5 5 5 5">
-        <Grid DockPanel.Dock="Top">
+        <Grid DockPanel.Dock="Top" Margin="0 0 0 10">
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
@@ -133,129 +133,146 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             </StackPanel>
             <Button Grid.Column="3" Margin="10 0 0 0" Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource RedButton}"/>
         </Grid>
-        <Grid DockPanel.Dock="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="170"/>
-            </Grid.ColumnDefinitions>
-            <Label>Адрес страницы</Label>
-            <TextBox x:Name="url" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Text="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}">
-                <TextBox.InputBindings>
-                    <KeyBinding Command="{Binding UrlOpenCommand}" Key="Enter" CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
-                </TextBox.InputBindings>
-            </TextBox>
-            <Button Grid.Row="1" Margin="0 3 3 3" HorizontalAlignment="Right" Style="{StaticResource BlueButton}" Command="{Binding UrlOpenCommand}" CommandParameter="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Content="&gt;" Width="20" Height="20"/>
-            
-            <Grid Margin="10 0 0 0" Grid.Column="1" Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource BlueButton}" VerticalAlignment="Stretch" ToolTip="Выбрать элемент на странице" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding BeginSelectCommand}">
-                    <TextBlock Padding="5">Выбрать элемент</TextBlock>
-                </Button>
-            
-                <Button Grid.Column="1" Width="24" HorizontalAlignment="Right" Margin="2 0 0 0" Style="{StaticResource RedButton}" VerticalAlignment="Stretch" ToolTip="Очистить выбранные элементы" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding SelectDeleteCommand}">
-                    <ContentControl Content="{StaticResource IconDelete}"/>
-                </Button>
-            </Grid>
+        <TabControl DockPanel.Dock="Top">
+            <TabItem Header="Страница" Padding="5 2 5 2">
+                <DockPanel Margin="5 5 5 5">
+                    <Grid DockPanel.Dock="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="170"/>
+                        </Grid.ColumnDefinitions>
+                        <Label>Адрес страницы</Label>
+                        <TextBox Margin="0 0 10 0" x:Name="url" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Text="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}">
+                            <TextBox.InputBindings>
+                                <KeyBinding Command="{Binding UrlOpenCommand}" Key="Enter" CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <CheckBox Grid.Column="1" Margin="0 5 0 5" IsChecked="{Binding Item.UseProxy}" Command="{Binding UrlUpdateCommand}" CommandParameter="{Binding Item.Source.Url}">Профиль прокси</CheckBox>
+                        <Button Grid.Row="1" Margin="0 3 13 3" HorizontalAlignment="Right" Style="{StaticResource BlueButton}" Command="{Binding UrlOpenCommand}" CommandParameter="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Content="&gt;" Width="20" Height="20"/>
+                        
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Style="{StaticResource BlueButton}" VerticalAlignment="Stretch" ToolTip="Выбрать элемент на странице" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding BeginSelectCommand}">
+                                <TextBlock Padding="5">Выбрать элемент</TextBlock>
+                            </Button>
+                        
+                            <Button Grid.Column="1" Width="24" HorizontalAlignment="Right" Margin="2 0 0 0" Style="{StaticResource RedButton}" VerticalAlignment="Stretch" ToolTip="Очистить выбранные элементы" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding SelectDeleteCommand}">
+                                <ContentControl Content="{StaticResource IconDelete}"/>
+                            </Button>
+                        </Grid>
 
-            <Border Grid.Column="1" Margin="10 0 0 0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Red" Visibility="{Binding Selecting, Converter={StaticResource BoolToVis}}">
-                <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16">Выберите элемент</TextBlock>
-                <Border.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard Storyboard="{StaticResource AnimateFlicker}"/>
-                    </EventTrigger>
-                </Border.Triggers>
-            </Border>
-        </Grid>
-        <Grid DockPanel.Dock="Bottom">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="220"/>
-            </Grid.ColumnDefinitions>
-            <ListView Grid.ColumnSpan="3" x:Name="SelectList" ItemsSource="{Binding Item.Source.Select}" Margin="0 0 0 10">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="Auto">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Style="{StaticResource OrangeButton}" Width="20" Height="20" ToolTip="Удалить" Command="{Binding Source={StaticResource Proxy}, Path=Data.SelectDeleteCommand}" CommandParameter="{Binding}">
-                                        <ContentControl Content="{StaticResource IconDelete}"/>
-                                    </Button>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Тип" Width="Auto">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding Source={StaticResource SSTEnum}}" SelectedItem="{Binding Type}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Выбирать" Width="600">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding Value}" TextWrapping="NoWrap">
-                                        <TextBox.InputBindings>
-                                            <KeyBinding Command="{Binding Source={StaticResource Proxy}, Path=Data.UpdateTextBoxCommand}" Key="Enter" CommandParameter="{Binding ., RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
-                                        </TextBox.InputBindings>
-                                    </TextBox>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Искать/Заменять" Width="160">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
-                                        <TextBox Text="{Binding Filter}" ToolTip="Regex Filter" HorizontalAlignment="Stretch"/>
-                                        <TextBox AcceptsReturn="true" MaxLines="2" Text="{Binding Replace}" HorizontalAlignment="Stretch" ToolTip="Шаблон вывода из найденного: {0} или {имя группы}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Padding" Value="0"/>
-                    </Style>
-                </ListView.ItemContainerStyle>
-            </ListView>
-            <StackPanel Grid.Row="1" Orientation="Vertical">
-                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.SimulateMouse}">Эмулировать движения мыши</CheckBox>
-                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Проверять HTML вместо тегов">Проверять HTML</CheckBox>
-                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Notify}">Показывать уведомления</CheckBox>
-                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.SoundNotify}">Уведомление звуком</CheckBox>
-                <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.UseProxy}" Command="{Binding UrlUpdateCommand}" CommandParameter="{Binding Item.Source.Url}">Использовать профиль прокси</CheckBox>
-            </StackPanel>
-            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
-                <Label Margin="5 0 5 0">Переходить со страницы</Label>
-                <TextBox Margin="5 0 5 0" Text="{Binding Item.Source.Referer}"/>
-                <Label Margin="5 0 5 0">Комментарий</Label>
-                <TextBox MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Margin="5 0 5 0" Text="{Binding Item.Comment}"/>
-            </StackPanel>
-            <StackPanel Margin="5 0 0 0" Grid.Row="1" Grid.Column="2" Orientation="Vertical">
-                <Label>Ждать загрузку</Label>
-                <TextBox Text="{Binding Item.Source.WaitTimeout, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;0s&apos;}"></TextBox>
-                
-                <Label>Хранить последние данные</Label>
-                <TextBox ToolTip="Хранить последние изменения в количестве шт." Text="{Binding Item.MaxCheckpoints}" local:TextBoxUtils.CheckRegexText="^[0-9]{1,2}$"></TextBox>
-            </StackPanel>
-        </Grid>
-        <Border x:Name="BrowserBorder" BorderBrush="Silver" BorderThickness="1" Margin="0 10 0 10">
-            <!--<wpf:ChromiumWebBrowser  x:Name="web" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="300"></wpf:ChromiumWebBrowser>-->
-            <!--Address="{Binding Item.Source.Url}"-->
-        </Border>
+                        <Border Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Red" Visibility="{Binding Selecting, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16">Выберите элемент</TextBlock>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource AnimateFlicker}"/>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                    </Grid>
+
+                    <StackPanel DockPanel.Dock="Bottom" Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+                        <Label>Переходить со страницы (Referer)</Label>
+                        <TextBox Text="{Binding Item.Source.Referer}"/>
+                    </StackPanel>
+
+                    <CheckBox DockPanel.Dock="Bottom" Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Проверять HTML вместо тегов">Проверять HTML</CheckBox>
+                    <ListView DockPanel.Dock="Bottom" x:Name="SelectList" ItemsSource="{Binding Item.Source.Select}" Margin="0 0 0 10">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource OrangeButton}" Width="20" Height="20" ToolTip="Удалить" Command="{Binding Source={StaticResource Proxy}, Path=Data.SelectDeleteCommand}" CommandParameter="{Binding}">
+                                                <ContentControl Content="{StaticResource IconDelete}"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Тип" Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding Source={StaticResource SSTEnum}}" SelectedItem="{Binding Type}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Выбирать" Width="600">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Value}" TextWrapping="NoWrap">
+                                                <TextBox.InputBindings>
+                                                    <KeyBinding Command="{Binding Source={StaticResource Proxy}, Path=Data.UpdateTextBoxCommand}" Key="Enter" CommandParameter="{Binding ., RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
+                                                </TextBox.InputBindings>
+                                            </TextBox>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Искать/Заменять" Width="160">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                                <TextBox Text="{Binding Filter}" ToolTip="Regex Filter" HorizontalAlignment="Stretch"/>
+                                                <TextBox AcceptsReturn="true" MaxLines="2" Text="{Binding Replace}" HorizontalAlignment="Stretch" ToolTip="Шаблон вывода из найденного: {0} или {имя группы}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                    <Border DockPanel.Dock="Top" x:Name="BrowserBorder" BorderBrush="Silver" BorderThickness="1" Margin="0 10 0 10">
+                        <!--<wpf:ChromiumWebBrowser  x:Name="web" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="300"></wpf:ChromiumWebBrowser>-->
+                        <!--Address="{Binding Item.Source.Url}"-->
+                    </Border>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Уведомления">
+                <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.RepeatNotify}" ToolTip="При каждой проверке обновления страницы, будет выводиться уведомление, если наблюдатель не отмечем прочитанным.">Повторять уведомления при проверке до прочтения</CheckBox>
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.NotifyAfterError}" ToolTip="Уведомление сработает, даже если не было изменений на странице.">Уведомлять после ошибки</CheckBox>
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Notify}">Показывать всплывающее уведомление</CheckBox>
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.SoundNotify}">Уведомление звуком</CheckBox>
+                    <GroupBox FontSize="14" Margin="0 0 0 5">
+                        <GroupBox.Header>
+                            <CheckBox IsChecked="{Binding Item.NotifyTelegram}">Уведомление telegram</CheckBox>
+                        </GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" ToolTip="Группа, в которую будет отправлено уведомление. Если группа не указана, используется группа из настроек бота.">
+                            <Label>id группы</Label><TextBox Text="{Binding Item.TelegramChat}" MinWidth="200"></TextBox>
+                        </StackPanel>    
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Настройки">
+                <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.SimulateMouse}">Эмулировать движения мыши</CheckBox>
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical">
+                        <Label>Ожидание загрузки страницы</Label>
+                        <TextBox Text="{Binding Item.Source.WaitTimeout, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;0s&apos;}"></TextBox>
+                    </StackPanel>    
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical">
+                        <Label>Хранить последние данные</Label>
+                        <TextBox ToolTip="Хранить последние изменения в количестве шт." Text="{Binding Item.MaxCheckpoints}" local:TextBoxUtils.CheckRegexText="^[0-9]{1,2}$"></TextBox>
+                    </StackPanel>
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical">
+                        <Label>Комментарий</Label>
+                        <TextBox MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Text="{Binding Item.Comment}"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

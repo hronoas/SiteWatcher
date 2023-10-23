@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using CefSharp;
 using CefSharp.DevTools.CacheStorage;
 using CefSharp.Wpf;
@@ -98,8 +99,8 @@ namespace SiteWatcher
         }
 
         private void BeginSelect(){
-            if(String.IsNullOrWhiteSpace(Item.Source.Url)) {
-                MessageBox.Show("Укажите адрес страницы.","Не указан адрес страницы",MessageBoxButton.OK,MessageBoxImage.Error);
+            if(webBrowser==null) {
+                MessageBox.Show("Откройте страницу перед выбором","Страница не загружена",MessageBoxButton.OK,MessageBoxImage.Error);
                 return;
             }
             string script = ReadResource("inject_choose.js").ReadToEnd();  //H.Resources.inject_choose_js.AsString();

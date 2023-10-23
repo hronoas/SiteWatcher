@@ -145,7 +145,7 @@ xmlns:wpf="clr-namespace:Notifications.Wpf.Core">
                                 <TextBlock HorizontalAlignment="Center" FontWeight="Medium" Text="{Binding Item.Name}" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <DockPanel Margin="0,8,0,0">
-                                <Button Content="Отметить прочтенным" HorizontalAlignment="Right" DockPanel.Dock="Bottom" controls:Notification.CloseOnClick="True" Command="{Binding MarkRead}"/>
+                                <Button Content="Отметить прочитанным" HorizontalAlignment="Right" DockPanel.Dock="Bottom" controls:Notification.CloseOnClick="True" Command="{Binding MarkRead}"/>
                                 <ContentControl MaxHeight="100" FontSize="12" Margin="0 5">
                                     <ContentControl.Resources>
                                         <Style TargetType="Run">
