@@ -42,7 +42,7 @@ namespace SiteWatcher{
     public static class DiffComparer{
 
         const string defSplitter="\n";
-        public static List<DiffPart> CompareStrings(string oldString,string newString,string Splitter = defSplitter,int maxDiffLength=0){
+        public static List<DiffPart> CompareStrings(string oldString,string newString,string Splitter = defSplitter,int maxDiffLength=0, bool oneLevel=false){
             if(String.IsNullOrEmpty(oldString)) return (new List<DiffPart>(){new DiffPart(newString,DiffType.Add,Splitter)} );
             TextDiff diff = new(HashType.Crc32, true, true);
             string[] a = oldString.Split(Splitter);
@@ -86,7 +86,7 @@ namespace SiteWatcher{
                         subs[e.StartA]=(new(){insert,normal});
                         break;
                     case EditType.Change:
-                        if(Splitter == defSplitter && e.Length==1){
+                        if(Splitter == defSplitter && e.Length==1 && !oneLevel){
                             List<DiffPart> sub = CompareStrings(Astr,Bstr," ",3);
                             sub[0].Afix=Splitter;
                             subs[e.StartA]=sub;

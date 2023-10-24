@@ -183,9 +183,11 @@ namespace SiteWatcher
                     w.IsNeedNotify=false;
                 }else if(w.LastError!=w.Error){
                     if(!string.IsNullOrEmpty(w.Error)){
-                        if(w.NotifyTelegram && telegram.Template.Contains("{error}")){
-                            SendTelegram(w);
-                        }
+                        if(w.NotifyTelegram) SendTelegram(w);
+                        //string template = string.IsNullOrEmpty(w.TelegramTemplate)?telegram.Template:w.TelegramTemplate;
+                        //if(w.NotifyTelegram && template.Contains("{error}")){
+                        //    SendTelegram(w);
+                        //}
                         if(w.NotifyAfterError) w.IsNeedNotify=true;
                     }
                 }

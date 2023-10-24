@@ -250,9 +250,16 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                         <GroupBox.Header>
                             <CheckBox IsChecked="{Binding Item.NotifyTelegram}">Уведомление telegram</CheckBox>
                         </GroupBox.Header>
-                        <StackPanel Orientation="Horizontal" ToolTip="Группа, в которую будет отправлено уведомление. Если группа не указана, используется группа из настроек бота.">
-                            <Label>id группы</Label><TextBox Text="{Binding Item.TelegramChat}" MinWidth="200"></TextBox>
-                        </StackPanel>    
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" ToolTip="Группа, в которую будет отправлено уведомление. Если группа не указана, используется группа из настроек бота.">
+                                <Label Width="120">id группы</Label>
+                                <TextBox Text="{Binding Item.TelegramChat}" MinWidth="200"></TextBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" ToolTip="Шаблон сообщения телеграм. Если группа не указана, используется группа из настроек бота.">
+                                <Label Width="120">Шаблон сообщения</Label>
+                                <TextBox Text="{Binding Item.TelegramTemplate}" VerticalScrollBarVisibility="Auto"  MinWidth="200" MaxLines="5" AcceptsReturn="true" Padding="2 2 2 2" ToolTip="{Binding Source={x:Static local:AppWindowModel.AvailableTelegramReplace}, StringFormat=Доступны замены {0} , Mode=OneWay}"/>
+                            </StackPanel>
+                        </StackPanel>
                     </GroupBox>
                 </StackPanel>
             </TabItem>

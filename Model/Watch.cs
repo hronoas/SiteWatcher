@@ -58,6 +58,8 @@ namespace SiteWatcher{
 
         public string TelegramChat { get=>telegramChat; set=>SetField(ref telegramChat, value);}
         private string telegramChat = "";
+        public string TelegramTemplate { get=>telegramTemplate; set=>SetField(ref telegramTemplate, value);}
+        private string telegramTemplate="";
 
         public void Check(Action onReady){
             if(IsChecking && (DateTime.Now-LastCheck) < new TimeSpan(0,5,0)) return;
@@ -155,6 +157,7 @@ namespace SiteWatcher{
             LastNotify=w.LastNotify;
             RepeatNotify=w.RepeatNotify;
             TelegramChat=w.TelegramChat;
+            TelegramTemplate=w.TelegramTemplate;
             SoundNotify=w.SoundNotify;
             NotifyAfterError=w.NotifyAfterError;
         }

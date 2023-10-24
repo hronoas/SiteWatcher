@@ -9,19 +9,39 @@ namespace SiteWatcher
     public partial class AppWindowModel : BaseWindowModel<AppWindow>{
         private const string defaultTelegramTemplate = "{name} ({status})\n{url}\n{content}{error}";
         private TelegramConfig telegram = new (){Template=defaultTelegramTemplate};
+
+        private static Dictionary<string,Func<Watch,string>> defaultDataKeys = new(){
+            {"status",(w)=>(new WatchStatusToStringConverter()).Convert(w.Status,typeof(string),"",CultureInfo.CurrentCulture) as string??""},
+            {"name",(w)=>w.Name},
+            {"url",(w)=>w.Source.Url},
+            {"content",(w)=>string.IsNullOrWhiteSpace(w.Error)?w.Diff.Next.Text:""},
+            {"comment",(w)=>w.Comment},
+            {"error",(w)=>w.Error},
+            {"tags",(w)=>string.Join(", ",w.Tags.Select(t=>t.Name))},
+            {"changed",(w)=>{
+                List<DiffPart> compare = DiffComparer.CompareStrings(w.Diff.Prev.Text,w.Diff.Next.Text,oneLevel:true);
+                return string.Join("\n",compare.Where(d=>d.Type==DiffType.Add || d.Type==DiffType.Change).Select(d=>d.Text));
+            }},
+            {"deleted",(w)=>{
+                List<DiffPart> compare = DiffComparer.CompareStrings(w.Diff.Prev.Text,w.Diff.Next.Text,oneLevel:true);
+                return string.Join("\n",compare.Where(d=>d.Type==DiffType.Delete).Select(d=>d.Text));
+            }}
+            
+        };
         
+        public static string AvailableTelegramReplace {get;set;} = string.Join(", ",defaultDataKeys.Select(d=>"{"+d.Key+"}"));
 
         public void SendTelegram(Watch watch){
-            Dictionary<string,string> data = new(){
-                {"status",(new WatchStatusToStringConverter()).Convert(watch.Status,typeof(string),"",CultureInfo.CurrentCulture) as string??""},
-                {"name",watch.Name},
-                {"url",watch.Source.Url},
-                {"content",string.IsNullOrWhiteSpace(watch.Error)?watch.Diff.Next.Text:""},
-                {"comment",watch.Comment},
-                {"error",watch.Error},
-                {"tags",string.Join(", ",watch.Tags.Select(t=>t.Name))}
+
+            string template = string.IsNullOrEmpty(watch.TelegramTemplate)?telegram.Template:watch.TelegramTemplate;
+            if(!string.IsNullOrEmpty(watch.Error) && !template.Contains("{error}")) return;
+
+            Dictionary<string,string> data = new();
+            foreach(KeyValuePair<string,Func<Watch,string>> kv in defaultDataKeys){
+                data.Add(kv.Key,kv.Value(watch));
             };
-            TelegramNotify.SendMessageAsync(telegram,data:data,chatId:watch.TelegramChat);
+
+            TelegramNotify.SendMessageAsync(telegram,data:data, text_template:watch.TelegramTemplate, chatId:watch.TelegramChat);
         }
     }
 

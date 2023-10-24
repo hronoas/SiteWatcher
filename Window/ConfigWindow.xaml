@@ -101,7 +101,7 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                                 <Label Content="ID чата"/>
                                 <TextBox Text="{Binding Telegram.ChatId}" Padding="2 2 2 2"/>
                             </DockPanel>
-                            <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="Доступные замены: {status}, {name}, {url}, {content}, {comment}, {error}, {tags}.&#x0a;Если присутствует {error}, будут работать уведомления об ошибках.">
+                            <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="{Binding Source={x:Static local:AppWindowModel.AvailableTelegramReplace}, StringFormat=Доступны замены {0} , Mode=OneWay}">
                                 <Label DockPanel.Dock="Left" Content="Шаблон сообщения"/>
                                 <TextBox  DockPanel.Dock="Right" Text="{Binding Telegram.Template}" VerticalScrollBarVisibility="Auto" MaxLines="5" AcceptsReturn="true" Padding="2 2 2 2"/>
                             </DockPanel>
