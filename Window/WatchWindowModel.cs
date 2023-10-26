@@ -38,6 +38,14 @@ namespace SiteWatcher
         public WatchWindowModel(Watch Source,List<WatchTag> alltags,WatchWindow win, bool ignoreFirstRedirect=false) : base(win){
             Item=(Watch)Source.Clone();
             Item.Source.Select.ListChanged+=(o,e)=>SelectAll();
+            if(string.IsNullOrWhiteSpace(Item.Source.Url)){
+                string clipboard = System.Windows.Clipboard.GetText();
+                try{
+                    Uri uri = new Uri(clipboard);
+                    Item.Source.Url=clipboard;
+                }catch{
+                }
+            }
             ignoreRedirect=ignoreFirstRedirect;
             UrlOpenCommand=new(s=>UrlOpen(s));
             UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
