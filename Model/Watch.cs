@@ -70,7 +70,7 @@ namespace SiteWatcher{
                     if(!String.IsNullOrWhiteSpace(item.Text)) CheckpointText+=(CheckpointText==""?"":"\n")+item.Text;
                     if(!String.IsNullOrWhiteSpace(item.Data)) CheckpointData+=(CheckpointData==""?"":"\n")+item.Data;
                 });
-                if(Source.CheckData?Diff.Next.Data!=CheckpointData:Diff.Next.Text!=CheckpointText){
+                if(Diff.Next.Text!=CheckpointText){
                     Checkpoints.RaiseListChangedEvents=false;
                     Checkpoints.Add(new Checkpoint(CheckpointText,CheckpointData));
                     if(Checkpoints.Count>MaxCheckpoints){

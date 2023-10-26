@@ -184,7 +184,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                         <TextBox Padding="2 2 2 2" ToolTip="Переход на страницу, будет проиходить с этой страницы"  Text="{Binding Item.Source.Referer}"/>
                     </StackPanel>
 
-                    <CheckBox DockPanel.Dock="Bottom" Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Проверять HTML вместо тегов">Проверять HTML</CheckBox>
+                    <CheckBox DockPanel.Dock="Bottom" Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Поиск и замена происходят в HTML вместо текста тегов">Поиск и замена в HTML</CheckBox>
                     <ListView DockPanel.Dock="Bottom" x:Name="SelectList" ItemsSource="{Binding Item.Source.Select}" Margin="0 0 0 10">
                         <ListView.View>
                             <GridView>

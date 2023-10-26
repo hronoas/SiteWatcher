@@ -251,7 +251,7 @@ namespace SiteWatcher
                                 if (response.Result != null){
                                     List<SelectorResult> res = Deserialize<List<SelectorResult>>(response.Result.ToString()??"[]")??new List<SelectorResult>();
                                     res.ForEach(r=>{
-                                        if(selector.Filter!="") r.Text=selector.FilterData(r.Data);
+                                        if(selector.Filter!="") r.Text=selector.FilterData(Source.CheckData?r.Data:r.Text);
                                         results.Add(r);
                                     });
                                 }else{

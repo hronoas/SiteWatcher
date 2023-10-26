@@ -348,7 +348,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.Resources>
-                <Style TargetType="ToolTip">
+                <Style TargetType="ToolTip" x:Key="DiffStyle">
                     <Setter Property="Width" Value="{Binding PlacementTarget.ActualWidth, RelativeSource={RelativeSource Self}}" />
                 </Style>
                 <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type ScrollBar}}">

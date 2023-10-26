@@ -56,7 +56,7 @@ namespace SiteWatcher{
             if(!String.IsNullOrWhiteSpace(filter)){
                 try {
                     result="";
-                    Regex regex = new Regex(filter,RegexOptions.Multiline|RegexOptions.Singleline|RegexOptions.IgnoreCase);
+                    Regex regex = new Regex(filter,RegexOptions.Singleline|RegexOptions.IgnoreCase);
                     foreach (Match match in regex.Matches(data)){
                         if(replace!=""){
                             string replaced = replace;
