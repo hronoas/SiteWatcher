@@ -127,7 +127,7 @@ namespace SiteWatcher
         private void TimerCheck(object? sender, ElapsedEventArgs? e){
             foreach (var watch in Watches){
                 if(watch.Enabled && watch.LastCheck+watch.Interval<=DateTime.Now){
-                    CheckWatch(watch);                    
+                    CheckWatch(watch);
                 }
             }
         }
@@ -239,7 +239,7 @@ namespace SiteWatcher
         private void ConfigSave2(){
             SiteWatcherConfig Config = new SiteWatcherConfig();
             Config.WindowPosition = new((int)window.Left,(int)window.Top);
-            Config.WindowSize = new((int)window.Width,(int)window.Height);
+            Config.WindowSize = new((int)window.ActualWidth,(int)window.ActualHeight);
             Config.Tags=Tags.ToList();
             Config.MaxProcesses=CheckBrowser.parallelTasks;
             Config.NotifySound=NotifySound;
