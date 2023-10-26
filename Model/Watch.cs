@@ -78,6 +78,10 @@ namespace SiteWatcher{
                     }
                     Checkpoints.RaiseListChangedEvents=true;
                 }
+                if(Checkpoints.Count<2){ // after first check
+                        IsNeedNotify=false;
+                        LastSeen=DateTime.Now;
+                }
             }
             void onError(string result){
                 Error=result;
