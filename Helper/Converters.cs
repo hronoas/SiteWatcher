@@ -68,6 +68,7 @@ namespace SiteWatcher
     [ValueConversion(typeof(DateTime), typeof(String))]
     public class DateToNowRelevanceConverter : System.Windows.Markup.MarkupExtension,IValueConverter{
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture){
+            if((DateTime)value==DateTime.MinValue) return "никогда";
             TimeSpan span=DateTime.Now - (DateTime)value;
             string result = "";
             if(span.Days>0) result = span.Days+" "+ chisl(span.Days,"день","дня","дней")+" назад";
