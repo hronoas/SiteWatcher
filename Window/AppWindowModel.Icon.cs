@@ -58,7 +58,9 @@ namespace SiteWatcher
                     //window.WindowState=WindowState.Normal;
                     if(window.WindowState==System.Windows.WindowState.Normal){
                         window.WindowState=System.Windows.WindowState.Minimized;
+                        window.Hide();
                     }else{
+                        window.Show();
                         window.WindowState=System.Windows.WindowState.Normal;
                         window.Activate();
                     }
@@ -68,6 +70,7 @@ namespace SiteWatcher
 
             void beforeClose(object? o, CancelEventArgs e){
                 window.WindowState=System.Windows.WindowState.Minimized;
+                window.Hide();
                 e.Cancel=true;
             };
             window.Closing+=beforeClose;
