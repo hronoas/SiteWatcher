@@ -56,14 +56,18 @@ namespace SiteWatcher
             Icon.MouseClick+=(object sender, Forms.MouseEventArgs e)=>{
                 if(e.Button==Forms.MouseButtons.Left){
                     //window.WindowState=WindowState.Normal;
-                    window.Show();
-                    window.Activate();
+                    if(window.WindowState==System.Windows.WindowState.Normal){
+                        window.WindowState=System.Windows.WindowState.Minimized;
+                    }else{
+                        window.WindowState=System.Windows.WindowState.Normal;
+                        window.Activate();
+                    }
+                    
                 }
             };
 
             void beforeClose(object? o, CancelEventArgs e){
-                //window.WindowState=WindowState.Minimized;
-                window.Hide();
+                window.WindowState=System.Windows.WindowState.Minimized;
                 e.Cancel=true;
             };
             window.Closing+=beforeClose;
