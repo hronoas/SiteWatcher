@@ -2,6 +2,7 @@
 xmlns:coll="clr-namespace:System.Collections.ObjectModel;assembly=WindowsBase" 
 xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" 
 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+xmlns:sys="clr-namespace:System;assembly=mscorlib"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 xmlns:icon="https://github.com/nullsoftware/TrayIcon" 
@@ -26,6 +27,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <local:ListWatchTagToStringConverter x:Key="WatchTagsToString"/>
             <local:CutLeftConverter x:Key="CutLeft"/>
+            <sys:String x:Key="CutLeftMax">250-512</sys:String>
             <Style x:Key="StatusStyle" TargetType="TextBlock">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Status}" Value="4">
@@ -265,7 +267,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
                                 </TextBlock.InputBindings>
                             </TextBlock>   
-                            <TextBlock Style="{StaticResource TextStyle}" Text="{Binding Diff.Next, Converter={local:CutLeftConverter}, ConverterParameter=150-255}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
+                            <TextBlock Style="{StaticResource TextStyle}" Text="{Binding Diff.Next, Converter={local:CutLeftConverter}, ConverterParameter={StaticResource CutLeftMax}}" TextWrapping="NoWrap" MaxHeight="30" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </DockPanel>
                 </DataTemplate>
@@ -301,7 +303,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                 </DockPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="0">
                                     <TextBlock Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
-                                    <TextBlock Text="{Binding Diff.Prev}" MaxHeight="200" MaxWidth="300"/>
+                                    <TextBlock Text="{Binding Diff.Prev, Converter={local:CutLeftConverter}, ConverterParameter={StaticResource CutLeftMax}}" MaxHeight="200" MaxWidth="300"/>
                                 </StackPanel>
                                 <Border Grid.Row="2" Grid.Column="1">
                                     <Canvas Height="40" Width="1">
@@ -316,8 +318,8 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     <TextBlock Text="{Binding Diff.Next.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
                                     <ContentControl MaxHeight="200" MaxWidth="300"><!-- Content="{Binding Test, Converter={local:DiffTextConverter}, ConverterParameter={Binding TestOld}, Mode=OneTime}"> -->
                                         <MultiBinding Converter="{local:DiffTextOldToNewConverter}"><!-- &#x0a;&#x0d; -->
-                                            <Binding Path="Diff.Prev.Text"/>
-                                            <Binding Path="Diff.Next.Text"/>
+                                            <Binding Path="Diff.Prev.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
+                                            <Binding Path="Diff.Next.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
                                         </MultiBinding>
                                     </ContentControl>
                                 </StackPanel>                                
