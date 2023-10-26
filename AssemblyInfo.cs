@@ -8,6 +8,7 @@ using System.Windows;
 )]
 [assembly: AssemblyTitle("SiteWatcher")]
 [assembly: AssemblyProduct("SiteWatcher")]
+[assembly: AssemblyDescription("https://github.com/hronoas/SiteWatcher")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyVersion("0.9.2.4")]

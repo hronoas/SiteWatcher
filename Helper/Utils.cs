@@ -31,6 +31,21 @@ namespace SiteWatcher
                 return version;
             }
         } 
+        private static string description ="";
+        public static string Description { 
+            get{
+                if(String.IsNullOrEmpty(description)){
+                    var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    var attributes = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyDescriptionAttribute), false);
+                    if (attributes.Length == 0)
+                        description=""; // No description found
+
+                    var descriptionAttribute = (System.Reflection.AssemblyDescriptionAttribute)attributes[0];
+                    description = descriptionAttribute.Description;
+                }
+                return description;
+            }
+        } 
         public static string AppExe { get; } = System.Reflection.Assembly.GetExecutingAssembly().Location;
         public static string AppName { get; } = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
         public static string AppPath { get; } = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)??".";

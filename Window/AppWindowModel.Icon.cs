@@ -79,6 +79,11 @@ namespace SiteWatcher
             cm.Items.Add("Проверить все",null,(o,e)=>{
                 CheckAll();
             });
+
+            cm.Items.Add("О приложении",null,(o,e)=>{
+                OpenUrl(Utils.Description);
+            });
+            
             cm.Items.Add("Выход",null,(o,e)=>{
                 window.Closing-=beforeClose;
                 window.Close();
