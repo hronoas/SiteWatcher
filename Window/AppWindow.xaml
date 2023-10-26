@@ -230,6 +230,9 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                         <Setter Property="VerticalAlignment" Value="Center"/>
                                     </Style>
                                 </StackPanel.Resources>
+                                <Button Command="{Binding Source={StaticResource Proxy}, Path=Data.ToggleReadWatchCommand}" CommandParameter="{Binding .}">
+                                    <ContentControl Content="{StaticResource IconEye}"/>
+                                </Button>
                                 <Button Command="{Binding Source={StaticResource Proxy}, Path=Data.EditWatchCommand}" CommandParameter="{Binding .}">
                                     <ContentControl Content="{StaticResource IconEdit}"/>
                                 </Button>
