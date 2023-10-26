@@ -16,14 +16,16 @@ namespace SiteWatcher{
         public Command CancelCommand {get;set;}
         public Command AddTagCommand {get;set;}
         public TelegramConfig Telegram  {get;set;}
+        public TimeSpan ErrorInterval  {get;set;}
         public Command<WatchTag> RemoveTagCommand {get;set;}
         public Command CloseWindowCommand {get;set;}
-        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, ProxyServer proxy, TelegramConfig telegram, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
+        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, ProxyServer proxy, TelegramConfig telegram, TimeSpan errorInterval, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
             win.DataContext = this;
             Tags= new(tags);
             Proxy = proxy.Clone();
             Telegram = telegram.Clone();
             NotifiySound = NotifyFile;
+            ErrorInterval = errorInterval;
             CheckAllOnlyVisible = CheckAllOnlyVisibleS;
             SaveCommand=new(o=>{window.DialogResult=true; window.Close();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});

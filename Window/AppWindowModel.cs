@@ -30,6 +30,8 @@ namespace SiteWatcher
 
         public string currentFilterText = "";
         private bool showNew;
+
+        private TimeSpan errorInterval;
         public string? TextFilter { 
             get=>textFilter; 
             set{
@@ -104,7 +106,7 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, errorInterval, CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
@@ -112,6 +114,7 @@ namespace SiteWatcher
                 CheckAllOnlyVisible = model.CheckAllOnlyVisible;
                 CheckBrowser.proxy = model.Proxy.Clone();
                 telegram = model.Telegram.Clone();
+                errorInterval = model.ErrorInterval;
                 if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 ConfigSave2();
             }
@@ -126,7 +129,7 @@ namespace SiteWatcher
 
         private void TimerCheck(object? sender, ElapsedEventArgs? e){
             foreach (var watch in Watches){
-                if(watch.Enabled && watch.LastCheck+watch.Interval<=DateTime.Now){
+                if(watch.Enabled && (watch.LastCheck+watch.Interval<=DateTime.Now || (!string.IsNullOrWhiteSpace(watch.Error) && watch.LastCheck+errorInterval<=DateTime.Now))){
                     CheckWatch(watch);
                 }
             }
@@ -216,6 +219,7 @@ namespace SiteWatcher
                 window.Left = Config.WindowPosition.X;
                 window.Top = Config.WindowPosition.Y;
                 NotifySound = Config.NotifySound;
+                errorInterval = Config.ErrorInterval;
                 CheckAllOnlyVisible = Config.CheckAllOnlyVisible;
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
                 CheckBrowser.proxy = Config.Proxy.Clone();
@@ -246,6 +250,7 @@ namespace SiteWatcher
             Config.Proxy=CheckBrowser.proxy;
             Config.Telegram=telegram;
             Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
+            Config.ErrorInterval = errorInterval;
             
             string newConfig2=Serialize(Config);
             if(newConfig2!= oldConfig2){

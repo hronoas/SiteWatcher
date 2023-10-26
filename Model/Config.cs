@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ namespace SiteWatcher{
         public ProxyServer Proxy {get;set;} = new();
         public TelegramConfig Telegram {get;set;} = new();
         public string NotifySound {get;set;} = "";
+        public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
 
         public SiteWatcherConfig Clone(){
             return Deserialize<SiteWatcherConfig>(Serialize(this)??"{}")??new SiteWatcherConfig();
