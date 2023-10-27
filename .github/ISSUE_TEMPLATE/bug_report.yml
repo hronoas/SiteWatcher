@@ -19,7 +19,7 @@ body:
           required: true
         - label: Убедиться, что ошибка повторяется
           required: false
-  - type: input
+  - type: textarea
     attributes:
       label: Описание ошибки
       description: |
