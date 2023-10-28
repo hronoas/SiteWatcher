@@ -10,6 +10,14 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
     <Window.Resources>
         <local:BindingProxy x:Key="Proxy" Data="{Binding}"></local:BindingProxy>
         <local:HoursMinutesTimeSpanConverter x:Key="TimeSpanConverter"/>
+        <Style TargetType="TabItem">
+            <Setter Property="Padding" Value="5 5 5 5"/>
+        </Style>
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Margin" Value="5 2 0 2"/>
+            <Setter Property="Padding" Value="0 0 5 0"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseWindowCommand}"/>
@@ -20,19 +28,20 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                 <Button Content="Сохранить" Command="{Binding SaveCommand}" FontSize="14" Margin="5 0" Padding="7 5" TabIndex="1000"/>
             </StackPanel>
         </DockPanel>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5 5 5 5">
-        <DockPanel>
-            <GroupBox FontSize="14" Header="Категории" DockPanel.Dock="Top">
+        <TabControl DockPanel.Dock="Top">
+            <TabItem Header="Категории">
                 <DockPanel>
-                    <Button DockPanel.Dock="Bottom" Content="+" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 2 2 0"/>
-                    <ListView Margin="0 5" x:Name="TagsList" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" ItemsSource="{Binding Tags}">
+                    <StackPanel DockPanel.Dock="Top">
+                        <Button Content="+" ToolTip="Добавить категорию" Width="24" Height="24" IsTabStop="false" Command="{Binding AddTagCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 2 2 0"/>
+                    </StackPanel>
+                    <ListView DockPanel.Dock="Top" Margin="0 5 0 5" Padding="0 0 5 0" x:Name="TagsList" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" ItemsSource="{Binding Tags}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel HorizontalAlignment="Stretch">
-                                    <Button DockPanel.Dock="Right" IsTabStop="false" Content="-" Width="24" Height="24" FontSize="14" Margin="5 0 0 0" Command="{Binding Source={StaticResource Proxy}, Path=Data.RemoveTagCommand}" CommandParameter="{Binding}"/>
-                                    <TextBox DockPanel.Dock="Right" MinWidth="120" Height="24" Margin="5 0 0 0" Text="{Binding Description}" ToolTip="Описание"/>
+                                    <Button ToolTip="Удалить категорию" DockPanel.Dock="Right" IsTabStop="false" Content="-" Width="24" Height="24" FontSize="14" Margin="5 0 0 0" Command="{Binding Source={StaticResource Proxy}, Path=Data.RemoveTagCommand}" CommandParameter="{Binding}"/>
+                                    <!--<TextBox DockPanel.Dock="Right" MinWidth="120" Height="24" Margin="5 0 0 0" Text="{Binding Description}" ToolTip="Описание"/>-->
                                     <Border x:Name="b">
-                                        <TextBox Text="{Binding Name}" Height="24" TextWrapping="NoWrap" HorizontalAlignment="Stretch" MaxWidth="{Binding ActualWidth, ElementName=b}"></TextBox>
+                                        <TextBox ToolTip="Название категории" Text="{Binding Name}" Height="24" TextWrapping="NoWrap" HorizontalAlignment="Stretch" MaxWidth="{Binding ActualWidth, ElementName=b}"></TextBox>
                                     </Border>
                                 </DockPanel>
                             </DataTemplate>
@@ -48,75 +57,83 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                         </ListView.ItemContainerStyle>
                     </ListView>
                 </DockPanel>
-            </GroupBox>
-            <DockPanel DockPanel.Dock="Top">
-                <StackPanel Orientation="Vertical">
-                    <DockPanel HorizontalAlignment="Stretch" Margin="0 5 0 5">
-                        <Label>Проверка после ошибки через</Label>
-                        <TextBox Text="{Binding ErrorInterval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" Padding="2 2 2 2"/>
-                    </DockPanel>
-                    <DockPanel HorizontalAlignment="Stretch" Margin="0 5 0 5">
-                        <Label>Звук уведомления</Label>
-                        <Button Content="Выбрать" Command="{Binding ChooseNotifySoundCommand}" DockPanel.Dock="Right" Margin="3 0 0 0" Padding="2 2 2 2"/>
-                        <TextBox Text="{Binding NotifiySound}" Padding="2 2 2 2"/>
-                    </DockPanel>
-                    <GroupBox Header="Настройки Proxy">
-                        <Grid Margin="0 5 0 5">
-                            <Grid.Resources>
-                                <Style TargetType="Label">
-                                    <Setter Property="Width" Value="120"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="30"/>
-                            </Grid.RowDefinitions>
-                            <DockPanel Grid.Row="0" Margin="2 2 2 2" ToolTip="Пример: 127.0.0.1:8080">
-                                <Label Content="Сервер"/>
-                                <TextBox Text="{Binding Proxy.server}" Padding="2 2 2 2"/>
-                            </DockPanel>
-                            <DockPanel Grid.Row="1" Margin="2 2 2 2">
-                                <Label Content="Имя пользователя"/>
-                                <TextBox Text="{Binding Proxy.user}" Padding="2 2 2 2"/>
-                            </DockPanel>
-                            <DockPanel Grid.Row="2" Margin="2 2 2 2">
-                                <Label Content="Пароль"/>
-                                <TextBox Text="{Binding Proxy.password}" Padding="2 2 2 2"/>
-                            </DockPanel>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Настройки Telegram бота">
-                        <Grid Margin="0 5 0 5">
-                            <Grid.Resources>
-                                <Style TargetType="Label">
-                                    <Setter Property="Width" Value="120"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <DockPanel Grid.Row="0" Margin="2 2 2 2">
-                                <Label Content="Токен бота"/>
-                                <TextBox Text="{Binding Telegram.BotToken}" Padding="2 2 2 2"/>
-                            </DockPanel>
-                            <DockPanel Grid.Row="1" Margin="2 2 2 2" ToolTip="Бот должен присутствовать в чате, и должен иметь права отправлять сообщения.">
-                                <Label Content="ID чата"/>
-                                <TextBox Text="{Binding Telegram.ChatId}" Padding="2 2 2 2"/>
-                            </DockPanel>
-                            <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="{Binding Source={x:Static local:AppWindowModel.AvailableTelegramReplace}, StringFormat=Доступны замены {0} , Mode=OneWay}">
-                                <Label DockPanel.Dock="Left" Content="Шаблон сообщения"/>
-                                <TextBox  DockPanel.Dock="Right" Text="{Binding Telegram.Template}" VerticalScrollBarVisibility="Auto" MaxLines="5" AcceptsReturn="true" Padding="2 2 2 2"/>
-                            </DockPanel>
-                        </Grid>
-                    </GroupBox>
-                    <CheckBox Margin="0 15 0 5" IsChecked="{Binding CheckAllOnlyVisible}">"Проверить все" только для видимых наблюдателей</CheckBox>
-                </StackPanel>
-            </DockPanel>
-            <DockPanel></DockPanel>
-        </DockPanel>
-        </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Уведомления">
+                <ScrollViewer>
+                    <StackPanel Orientation="Vertical">
+                        <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0 5 0 5">
+                            <Label ToolTip="Звук уведомления при обнаружении новой информации наблюдателем">Звук уведомления</Label>
+                            <Button Content="Выбрать" Command="{Binding ChooseNotifySoundCommand}" DockPanel.Dock="Right" Margin="3 0 0 0" Padding="2 2 2 2"/>
+                            <TextBox ToolTip="Путь к файлу со звуком для уведомлений" Text="{Binding NotifiySound}" Padding="2 2 2 2"/>
+                        </DockPanel>
+                        <GroupBox Header="Настройки Telegram бота для уведомлений">
+                            <Grid Margin="0 5 0 5">
+                                <Grid.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="120"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <DockPanel ToolTip="Токен телеграм ботя для отправки уведомлений через API" Grid.Row="0" Margin="2 2 2 2">
+                                    <Label Content="Токен бота"/>
+                                    <TextBox Text="{Binding Telegram.BotToken}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="1" Margin="2 2 2 2" ToolTip="Бот должен присутствовать в чате, и должен иметь права отправлять сообщения.">
+                                    <Label Content="ID чата"/>
+                                    <TextBox Text="{Binding Telegram.ChatId}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="{Binding Source={x:Static local:AppWindowModel.AvailableTelegramReplace}, StringFormat=Доступны замены {0} , Mode=OneWay}">
+                                    <Label DockPanel.Dock="Left" Content="Шаблон сообщения"/>
+                                    <TextBox  DockPanel.Dock="Right" Text="{Binding Telegram.Template}" VerticalScrollBarVisibility="Auto" MaxLines="5" AcceptsReturn="true" Padding="2 2 2 2"/>
+                                </DockPanel>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Дополнительно">
+                <ScrollViewer>
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox ToolTip="Кнопка 'Преверить все', будет проверять только отобранные фильтром наблюдатели" Margin="0 15 0 5" IsChecked="{Binding CheckAllOnlyVisible}">"Проверить все" только для видимых наблюдателей</CheckBox>
+                        <DockPanel ToolTip="При обновлении наблюдателя, ошибка вызывает повторную проверку через заданный интервал времени (для всех наблюдателей)" HorizontalAlignment="Stretch" Margin="0 5 0 5">
+                            <Label>Проверка после ошибки через</Label>
+                            <TextBox Text="{Binding ErrorInterval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" Padding="2 2 2 2"/>
+                        </DockPanel>
+                        <GroupBox ToolTip="Профиль прокси будет использовать прокси сервер для соединений" Header="Настройки Proxy">
+                            <Grid Margin="0 5 0 5">
+                                <Grid.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="120"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Для использования прокси, необходимо в настройках наблюдателя включить 'Профиль прокси'" TextWrapping="Wrap" Padding="2 2 2 2"/>
+                                <DockPanel Grid.Row="1" Margin="2 2 2 2" ToolTip="Пример: 127.0.0.1:8080">
+                                    <Label Content="Сервер"/>
+                                    <TextBox Text="{Binding Proxy.server}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="2" Margin="2 2 2 2">
+                                    <Label Content="Имя пользователя"/>
+                                    <TextBox Text="{Binding Proxy.user}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="3" Margin="2 2 2 2">
+                                    <Label Content="Пароль"/>
+                                    <TextBox Text="{Binding Proxy.password}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

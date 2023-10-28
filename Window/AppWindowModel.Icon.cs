@@ -55,7 +55,6 @@ namespace SiteWatcher
             window.Closed+=(o,e)=>{Icon.Dispose();};
             Icon.MouseClick+=(object sender, Forms.MouseEventArgs e)=>{
                 if(e.Button==Forms.MouseButtons.Left){
-                    //window.WindowState=WindowState.Normal;
                     if(window.WindowState==System.Windows.WindowState.Normal){
                         window.WindowState=System.Windows.WindowState.Minimized;
                         window.Hide();

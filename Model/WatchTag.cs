@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace SiteWatcher{
     public class WatchTag:PropertyChangedBase{
         public string Name { get=>name; set=>SetField(ref name, value);}
-        private string name ="<tag>";
+        private string name ="";
         public string Description { get=>description; set=>SetField(ref description, value);}
         private string description = "";
         public bool? Selected { get=>selected; set=>SetField(ref selected, value);}
