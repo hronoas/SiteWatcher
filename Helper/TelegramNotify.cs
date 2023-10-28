@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Drawing;
 using CefSharp.DevTools.DOM;
 using System.Windows.Forms.VisualStyles;
+using System.Net;
 
 namespace SiteWatcher{
     public class TelegramConfig{
@@ -20,6 +21,11 @@ namespace SiteWatcher{
     }
     
     public static class TelegramNotify{
+        
+        public static string StripHtmlTags(string input){
+            var regex = new Regex("<.*?>");
+            return WebUtility.HtmlDecode(regex.Replace(input, string.Empty));
+        }
         public static async Task SendMessageAsync(TelegramConfig config, string text_template="", Dictionary<string,string>? data = null, string? chatId = null){
             chatId = string.IsNullOrWhiteSpace(chatId)?config.ChatId:chatId;
             if (string.IsNullOrWhiteSpace(chatId)) { 
@@ -36,12 +42,22 @@ namespace SiteWatcher{
                 return;
             };
             
-            string uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(messageText)}";
+            string uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&parse_mode=HTML&text={Uri.EscapeDataString(messageText)}";
             HttpClient httpClient = new();
             try{
-                using (HttpResponseMessage response = await httpClient.GetAsync(uri)){
-                    if (!response.IsSuccessStatusCode)
-                        Log($"Send message fail. Chat:{chatId}. Status code: {response.StatusCode}, Reason phrase: {response.ReasonPhrase}","telegram");
+                using (HttpResponseMessage response_html = await httpClient.GetAsync(uri)){
+                    if (!response_html.IsSuccessStatusCode){
+                        Log($"Send HTML message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
+                        if(response_html.StatusCode==HttpStatusCode.BadRequest){
+                            messageText = StripHtmlTags(messageText);
+                            uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(messageText)}";
+                            using (HttpResponseMessage response_text = await httpClient.GetAsync(uri)){
+                                if (!response_text.IsSuccessStatusCode){
+                                    Log($"Send TEXT message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
+                                }
+                            }
+                        }
+                    }
                 }    
             }catch (System.Exception e){
                 Log($"Send message error: Chat: {chatId}, Error: {e} Chat:{chatId}.","telegram");
