@@ -9,6 +9,8 @@ using System.Drawing;
 using CefSharp.DevTools.DOM;
 using System.Windows.Forms.VisualStyles;
 using System.Net;
+using System.Threading;
+using System.Windows.Controls;
 
 namespace SiteWatcher{
     public class TelegramConfig{
@@ -22,19 +24,16 @@ namespace SiteWatcher{
     
     public static class TelegramNotify{
         
-        public static string StripHtmlTags(string input){
-            var regex = new Regex("<.*?>");
-            return WebUtility.HtmlDecode(regex.Replace(input, string.Empty));
-        }
         public static async Task SendMessageAsync(TelegramConfig config, string text_template="", Dictionary<string,string>? data = null, string? chatId = null){
+            string page_url = (data?.ContainsKey("url")??false)?data["url"]:"";
             chatId = string.IsNullOrWhiteSpace(chatId)?config.ChatId:chatId;
             if (string.IsNullOrWhiteSpace(chatId)) { 
                 Log("No destination: empty chat_id","telegram");
                 return;
             }
             
-            string messageText = string.IsNullOrWhiteSpace(text_template)?config.Template:text_template;
-            messageText = Replacer.replacePatterns(messageText,data);
+            string message_template = string.IsNullOrWhiteSpace(text_template)?config.Template:text_template;
+            string messageText = Replacer.replacePatterns(message_template,data);
             if (messageText.Length>4000) messageText=messageText.Substring(0,4000);
 
             if (string.IsNullOrWhiteSpace(messageText)){
@@ -49,12 +48,25 @@ namespace SiteWatcher{
                     if (!response_html.IsSuccessStatusCode){
                         Log($"Send HTML message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
                         if(response_html.StatusCode==HttpStatusCode.BadRequest){
-                            messageText = StripHtmlTags(messageText);
-                            uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(messageText)}";
-                            using (HttpResponseMessage response_text = await httpClient.GetAsync(uri)){
-                                if (!response_text.IsSuccessStatusCode){
-                                    Log($"Send TEXT message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
+                            Dictionary<string,string>? strip_data = new(data?.Select(kv=>new KeyValuePair<string, string>(kv.Key,StripHtmlTags(kv.Value, page_url)))??Enumerable.Empty<KeyValuePair<string, string>>());
+                            string messageText2 = Replacer.replacePatterns(message_template,strip_data);
+                            uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&parse_mode=HTML&text={Uri.EscapeDataString(messageText2)}";
+                            Thread.Sleep(300);
+                            using (HttpResponseMessage response_strip = await httpClient.GetAsync(uri)){
+                                if(response_strip.StatusCode==HttpStatusCode.BadRequest){
+                                    Log($"Send data stripped HTML message fail. Probably error in template. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
+
+                                    messageText = StripHtmlTags(messageText,page_url);
+                                    uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(messageText)}";
+                                    Thread.Sleep(300);
+                                    using (HttpResponseMessage response_text = await httpClient.GetAsync(uri)){
+                                        if (!response_text.IsSuccessStatusCode){
+                                            Log($"Send TEXT message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
+                                        }
+                                    }
+
                                 }
+                                
                             }
                         }
                     }

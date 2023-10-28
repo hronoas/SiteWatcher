@@ -105,6 +105,7 @@ namespace SiteWatcher
             }
 
             string str = value?.ToString()??"";
+            str = Utils.StripHtmlTags(str);
             int pos = str.IndexOf("\n",Math.Min(minIndex,str.Length));
             if(pos<0) pos = Math.Min(maxIndex,str.Length);
             return (str).Substring(0,pos);

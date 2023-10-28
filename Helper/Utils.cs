@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
+using HtmlAgilityPack;
 
 namespace SiteWatcher
 {
     public class Utils
     {
+
+        public static string StripHtmlTags(string input, string savelinks_base = ""){
+            return HtmlUtilities.FormatLineBreaks(input, savelinks_base);
+        }
         private static string[] args = Environment.GetCommandLineArgs();
         public static string? GetArgument(string option) => args
             .SkipWhile(i => i.ToLower() != option.ToLower())

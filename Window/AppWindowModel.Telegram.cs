@@ -7,7 +7,7 @@ using System.Media;
 namespace SiteWatcher
 {
     public partial class AppWindowModel : BaseWindowModel<AppWindow>{
-        private const string defaultTelegramTemplate = "{name} ({status})\n{url}\n{error=}{changed}{/error}{error}";
+        private const string defaultTelegramTemplate = "{error=}✅{/error}{error!=}❌{/error} <a href=\"{url}\">{name}</a>\n{error=}{changed}{/error}{error!=}⚠️ {error}{/error}";
         private TelegramConfig telegram = new (){Template=defaultTelegramTemplate};
 
         private static Dictionary<string,Func<Watch,string>> defaultDataKeys = new(){
