@@ -1,0 +1,44 @@
+---
+name: Добавление новых возможностей в программу
+description: Предложите идею для повышению удобства использования программы
+labels: [enhancement]
+title: "[Add]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за то, что выделили время для описания ошибки! Это поможет быстро найти причину проблемы с меньшим количеством переписки.
+        ---
+  - type: checkboxes
+    attributes:
+      label: Перед отправкой описания ошибки убедитель, что выполнили эти инструкции
+      options:
+        - label: Убедитесь, что предлагаемый функционал отсутствует в программе.
+          required: true
+  - type: textarea
+    attributes:
+      label: Описание функционала
+      description: |
+        Подробно опишите, какой функционал должна добавить в программу ваша идея.
+      palaceholder: |
+        Необходимо добавить ...
+      render: Markdown
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Преимущества и польза для пользователей
+      description: |
+        Опишите, какие преимущества и пользу принесет добавление улучшения в программу.
+      placeholder: |
+        Пользователь сможет ...
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Альтернативы и сравнение с существующими функциями
+      description: Опишите, чем нововведение улучшает или может заменить уже реализованный функционал в программе.
+      palaceholder: |
+        Сейчас невозможно сделать то-то ...
+    validations:
+      required: false
