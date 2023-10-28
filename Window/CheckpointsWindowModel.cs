@@ -55,7 +55,12 @@ namespace SiteWatcher
                 var i = Diffs.Where(d=>d.Next.Time==c).FirstOrDefault();
                 if(i!=null) result += (result==""?"":"\n") + i.Next.Text;
             });
-            System.Windows.Clipboard.SetText(result);
+            try{
+                //System.Windows.Clipboard.SetText(result);
+                System.Windows.Forms.Clipboard.SetDataObject(result,false, 5,200);
+            }catch{
+
+            }
         }
 
         private void SaveComment(){
