@@ -20,7 +20,7 @@ body:
       label: Описание функционала
       description: |
         Подробно опишите, какой функционал должна добавить в программу ваша идея.
-      palaceholder: |
+      placeholder: |
         Необходимо добавить '...'
       render: Markdown
     validations:
@@ -38,7 +38,7 @@ body:
     attributes:
       label: Альтернативы и сравнение с существующими функциями
       description: Опишите, чем нововведение улучшает или может заменить уже реализованный функционал в программе.
-      palaceholder: |
+      placeholder: |
         Сейчас невозможно сделать то-то '...'
     validations:
       required: false
