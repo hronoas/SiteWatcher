@@ -1,0 +1,52 @@
+---
+name: Обнаружена ошибка или неправильное поведение
+description: В программе обнаружена ошибка или неправильное поведение
+labels: [bug]
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за то, что выделили время для описания ошибки! Это поможет быстро найти причину проблемы с меньшим количеством переписки.
+        ---
+  - type: checkboxes
+    attributes:
+      label: Перед отправкой описания ошибки убедитель, что выполнили эти инструкции
+      options:
+        - label: Прочитать [инструкцию](https://github.com/hronoas/SiteWatcher/blob/main/manual/SiteWatcher_GUI_desc.pdf)
+          required: true
+        - label: Убедиться, что в системе установлены все, необходимые для запуска программы, [компоненты](https://github.com/hronoas/SiteWatcher#минимальные-системные-требования-для-запуска)
+          required: true
+        - label: Убедиться, что ошибка повторяется
+          required: false
+  - type: textarea
+    attributes:
+      label: Описание ошибки
+      description: |
+        Кратко и точно опишите ошибку или неправильное поведение программы.
+      value: |
+        Выводится ошибка ...
+      render: Markdown
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Воспроизведение ошибки
+      description: |
+        Опишите необходимые действия для повторения ошибки
+      placeholder: |
+        1. Открыть окно '...'
+        2. Нажать на '...'
+        3. Ввести текст '...' в поле '...'
+        4. Сохранить изменения
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Ожидаемое поведение
+      description: Кратко и точно опишите то, что должно было произойти после выполненных действий, и что произошло на самом деле.
+      value: |
+        Ожидалось: ...
+        Произошло: ...
+    validations:
+      required: false
