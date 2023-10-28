@@ -116,6 +116,22 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                 </Setter.Value>
                             </Setter>
                         </Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="BorderBrush" Value="Silver"/>
+                            <Setter Property="CornerRadius" Value="5"/>
+                            <Setter Property="Margin" Value="2 5 2 5"/>
+                            <Setter Property="Padding" Value="0 0 0 0"/>
+                            <Setter Property="DockPanel.Dock" Value="Right"/>
+                        </Style>
+                        <Style x:Key="CloneBtn" TargetType="Button"
+                            BasedOn="{StaticResource {x:Type Button}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=WatchList, Path=SelectedItem}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
                         <Style TargetType="ContentControl">
                             <Setter Property="Width" Value="24"/>
                             <Setter Property="Height" Value="24"/>
@@ -132,9 +148,16 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     <Button ToolTip="Проверить все" Command="{Binding CheckAllCommand}">
                         <ContentControl Content="{StaticResource IconUpdate}"/>
                     </Button>
-                    <Button ToolTip="Добавить" Command="{Binding AddWatchCommand}">
-                        <ContentControl Content="{StaticResource IconAdd}"/>
-                    </Button>
+                    <Border>
+                        <StackPanel Orientation="Horizontal">
+                            <Button ToolTip="Добавить" Command="{Binding AddWatchCommand}">
+                                <ContentControl Content="{StaticResource IconWatchAdd}"/>
+                            </Button>
+                            <Button Style="{StaticResource CloneBtn}" ToolTip="Дублировать" Command="{Binding CopyWatchCommand}" CommandParameter="{Binding ElementName=WatchList, Path=SelectedItem}">
+                                <ContentControl Content="{StaticResource IconWatchClone}"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
                     <Button ToolTip="Показать новые" Command="{Binding ShowNewCommand}">
                          <Button.Resources>
                             <Style TargetType="Path">
