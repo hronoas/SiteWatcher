@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Timers;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -47,6 +47,14 @@ namespace SiteWatcher
         }}
         private ListView WatchList {get;set;}
         private Timer timer;
+        public int TimerInterval { 
+            get=>timerInterval; 
+            set{
+                SetField(ref timerInterval, value);
+                timer?.Change(0,value*1000);
+            }
+        }
+        private int timerInterval = 60;
         private string oldConfig="";
         private string oldConfig2="";
         public Command CheckAllCommand{get;set;}
@@ -86,14 +94,11 @@ namespace SiteWatcher
             ClearFilterCommand = new(o=>{TextFilter=null;});
             ConfigCommand = new(o=>ShowConfig());
             CloseWindow = new(n=>win.Close());
-            timer = new Timer(1000*60);
-            timer.Elapsed += TimerCheck;
-            timer.AutoReset = true;
-            timer.Enabled = true;
-            TimerCheck(timer,null);
+            CreateTimer();
             Tags.ListChanged+=TagsChanged;
             win.Loaded += (s,e)=>RefreshList();
         }
+
 
         private void TagsChanged(object? sender, ListChangedEventArgs e){
             textFilter=null;
@@ -127,7 +132,11 @@ namespace SiteWatcher
             }
         }
 
-        private void TimerCheck(object? sender, ElapsedEventArgs? e){
+        private void CreateTimer(){
+            timer = new Timer(TimerCheck,null,0,TimerInterval*1000);
+        }
+
+        private void TimerCheck(object? state){
             foreach (var watch in Watches){
                 if(watch.Enabled && (watch.LastCheck+watch.Interval<=DateTime.Now || (!string.IsNullOrWhiteSpace(watch.Error) && watch.LastCheck+errorInterval<=DateTime.Now))){
                     CheckWatch(watch);
