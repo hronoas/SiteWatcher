@@ -18,7 +18,11 @@ namespace SiteWatcher
     {
 
         public static string StripHtmlTags(string input, string savelinks_base = ""){
-            return HtmlUtilities.FormatLineBreaks(input, savelinks_base);
+            if((new Regex(@"<[^>]+>")).Match(input).Success){
+                return HtmlUtilities.FormatLineBreaks(input, savelinks_base);
+            }else{
+                return input;
+            }
         }
         private static string[] args = Environment.GetCommandLineArgs();
         public static string? GetArgument(string option) => args
