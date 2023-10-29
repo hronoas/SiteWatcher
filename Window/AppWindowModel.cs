@@ -111,7 +111,7 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, errorInterval, CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
@@ -119,7 +119,6 @@ namespace SiteWatcher
                 CheckAllOnlyVisible = model.CheckAllOnlyVisible;
                 CheckBrowser.proxy = model.Proxy.Clone();
                 telegram = model.Telegram.Clone();
-                errorInterval = model.ErrorInterval;
                 if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 ConfigSave2();
             }
@@ -137,8 +136,8 @@ namespace SiteWatcher
         }
 
         private void TimerCheck(object? state){
-            foreach (var watch in Watches){
-                if(watch.Enabled && (watch.LastCheck+watch.Interval<=DateTime.Now || (!string.IsNullOrWhiteSpace(watch.Error) && watch.LastCheck+errorInterval<=DateTime.Now))){
+            foreach (Watch watch in Watches){
+                if(watch.IsNeedCheck){
                     CheckWatch(watch);
                 }
             }

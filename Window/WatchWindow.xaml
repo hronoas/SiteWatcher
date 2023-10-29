@@ -284,6 +284,11 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                         <Label>Хранить последние данные</Label>
                         <TextBox Padding="2 2 2 2" ToolTip="Хранить последние изменения в количестве шт." Text="{Binding Item.MaxCheckpoints}" local:TextBoxUtils.CheckRegexText="^[0-9]{1,2}$"></TextBox>
                     </StackPanel>
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical" ToolTip="При обновлении наблюдателя, ошибка вызывает повторную проверку через заданный интервал времени">
+                        <Label>При ошибках проверять каждые</Label>
+                        <TextBox Padding="2 2 2 2" Text="{Binding Item.ErrorInterval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" 
+                        local:TextBoxUtils.CheckRegexText="^([0-9]+[смчдsmhd]?)*$"/>
+                    </StackPanel>
                     <StackPanel Margin="0 0 0 5" Orientation="Vertical">
                         <Label>Комментарий</Label>
                         <TextBox Padding="2 2 2 2" ToolTip="Выводится во всплывающей подсказке списка наблюдателей."  MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Text="{Binding Item.Comment}"/>

@@ -99,10 +99,6 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                 <ScrollViewer>
                     <StackPanel Orientation="Vertical">
                         <CheckBox ToolTip="Кнопка 'Преверить все', будет проверять только отобранные фильтром наблюдатели" Margin="0 15 0 5" IsChecked="{Binding CheckAllOnlyVisible}">"Проверить все" только для видимых наблюдателей</CheckBox>
-                        <DockPanel ToolTip="При обновлении наблюдателя, ошибка вызывает повторную проверку через заданный интервал времени (для всех наблюдателей)" HorizontalAlignment="Stretch" Margin="0 5 0 5">
-                            <Label>Проверка после ошибки через</Label>
-                            <TextBox Text="{Binding ErrorInterval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" Padding="2 2 2 2"/>
-                        </DockPanel>
                         <GroupBox ToolTip="Профиль прокси будет использовать прокси сервер для соединений" Header="Настройки Proxy">
                             <Grid Margin="0 5 0 5">
                                 <Grid.Resources>

@@ -21,6 +21,8 @@ namespace SiteWatcher{
         private string error="";
         public TimeSpan Interval { get=>interval; set=>SetField(ref interval, value);}
         private TimeSpan interval = new TimeSpan(3,0,0);
+        public TimeSpan ErrorInterval { get=>errorInterval; set=>SetField(ref errorInterval, value);}
+        private TimeSpan errorInterval = new TimeSpan(0,30,0);
         public DateTime LastCheck { get=>lastCheck; set=>SetField(ref lastCheck, value);}
         private DateTime lastCheck;
         public DateTime LastNotify { get=>lastNotify; set=>SetField(ref lastNotify, value);}
@@ -133,6 +135,11 @@ namespace SiteWatcher{
         [JsonIgnoreAttribute()]
         public bool IsNeedNotify {get=> Status==WatchStatus.New && (RepeatNotify || LastNotify<Diff.Next.Time); set=>LastNotify=value?DateTime.MinValue:DateTime.Now;}
         [JsonIgnoreAttribute()]
+        public bool IsNeedCheck {
+            get=>Enabled && (LastCheck+Interval<=DateTime.Now || (!string.IsNullOrWhiteSpace(Error) && LastCheck+ErrorInterval<=DateTime.Now));
+            set=>LastCheck=value?(DateTime.Now-Interval):DateTime.Now;
+        }
+        [JsonIgnoreAttribute()]
         public string LastError {get;set;} = ""; //last error sent to notify
         [JsonIgnoreAttribute()]
         public WatchStatus Status { get {
@@ -149,6 +156,7 @@ namespace SiteWatcher{
             Comment=w.Comment;
             Source=(WatchSource)w.Source.Clone(); ChangedField(nameof(Source));
             Interval=w.Interval;
+            ErrorInterval=w.ErrorInterval;
             Tags.Clear();
             w.Tags.ToList().ForEach(t=>Tags.Add(t));
             Tags.ResetBindings();
