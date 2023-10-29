@@ -196,11 +196,11 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
         <DockPanel DockPanel.Dock="Bottom" Margin="5 5" Visibility="{Binding Trashed, Converter={StaticResource BoolToVis}}">
             <Button Command="{Binding UndeleteWatchCommand}">Восстановить</Button>
         </DockPanel>
-        <ListView x:Name="WatchList" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Watches}" ScrollViewer.CanContentScroll="False">
+        <ListView x:Name="WatchList" Margin="5 0 0 5" Padding="0 0 5 0" BorderThickness="0" ItemsSource="{Binding Watches}" ScrollViewer.CanContentScroll="False">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
-                        <DockPanel Width="105" DockPanel.Dock="Right" HorizontalAlignment="Right"><!-- <TextBlock Text="{Binding Diff.Next.Time, StringFormat='dd.MM.yyyy HH:mm'}" Style="{StaticResource StatusStyle}" FontSize="12" TextWrapping="NoWrap" DockPanel.Dock="Top" TextAlignment="Right"/> -->
+                        <DockPanel Width="105" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"><!-- <TextBlock Text="{Binding Diff.Next.Time, StringFormat='dd.MM.yyyy HH:mm'}" Style="{StaticResource StatusStyle}" FontSize="12" TextWrapping="NoWrap" DockPanel.Dock="Top" TextAlignment="Right"/> -->
                             <TextBlock Text="{Binding Diff.Next.Time, Converter={local:DateToNowRelevanceConverter}}" Style="{StaticResource StatusStyle}" FontSize="12" TextWrapping="NoWrap" DockPanel.Dock="Top" TextAlignment="Right"/>
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <StackPanel.Resources>
@@ -371,6 +371,10 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.Resources>
+                <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">5</sys:Double>
+                <Style TargetType="{x:Type RepeatButton}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </Style>
                 <Style TargetType="ToolTip" x:Key="DiffStyle">
                     <Setter Property="Width" Value="{Binding PlacementTarget.ActualWidth, RelativeSource={RelativeSource Self}}" />
                 </Style>
