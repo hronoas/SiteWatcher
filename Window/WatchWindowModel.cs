@@ -47,7 +47,7 @@ namespace SiteWatcher
                 }
             }
             ignoreRedirect=ignoreFirstRedirect;
-            UrlOpenCommand=new(s=>UrlOpen(s));
+            UrlOpenCommand=new((s)=>{ Item.Source.Referer=""; ignoreRedirect=true; UrlOpen(s);});
             UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
             SaveCommand=new(o=>{Save();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
