@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
+using SiteWatcher.Plugins;
 
 namespace SiteWatcher{
     public class SiteWatcherConfig{
@@ -14,6 +16,9 @@ namespace SiteWatcher{
         public TelegramConfig Telegram {get;set;} = new();
         public string NotifySound {get;set;} = "";
         public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
+        
+        [JsonPropertyName("plugins")]
+        public Dictionary<string,PluginParamsData> pluginsConfig {get;set;} = new();
 
         public SiteWatcherConfig Clone(){
             return Deserialize<SiteWatcherConfig>(Serialize(this)??"{}")??new SiteWatcherConfig();

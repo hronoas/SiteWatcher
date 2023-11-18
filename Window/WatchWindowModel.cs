@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,11 +13,13 @@ using System.Windows.Documents;
 using CefSharp;
 using CefSharp.DevTools.CacheStorage;
 using CefSharp.Wpf;
+using SiteWatcher.Plugins;
 
 namespace SiteWatcher
 {
     public class WatchWindowModel : BaseWindowModel<WatchWindow>
     {
+        
         public Watch Item {get;set;} = new();
         public SortableBindingList<WatchTag> Tags {get;set;} = new(new List<WatchTag>());
         private ChromiumWebBrowser webBrowser;
@@ -34,6 +38,44 @@ namespace SiteWatcher
         
         private string jsObjectName = "callBackJS";
 
+        public class CPlugin : INotifyPropertyChanged{
+            public string Key {get;set;}
+            public ObservableCollection<CParam> Value {get;set;}
+            public event PropertyChangedEventHandler? PropertyChanged;
+        }
+        public class CParam : INotifyPropertyChanged{
+            public string Key {get;set;}
+            public PluginParam Value {get;set;}
+            public event PropertyChangedEventHandler? PropertyChanged;
+        }
+        public ObservableCollection<CPlugin> PluginsParams { 
+            get{
+                if(pluginsParams==null) pluginsParams = GetPluginsParams();
+                return pluginsParams;
+            } set=>SetField(ref pluginsParams, value);}
+        private ObservableCollection<CPlugin> pluginsParams;
+        public ObservableCollection<CPlugin> GetPluginsParams(){
+            ObservableCollection<CPlugin> ret = new();
+            foreach (var plugin in Item.plugins){
+                string pluginName = plugin.GetType().Name;
+                CPlugin pParams = new(){Key=pluginName, Value = new ()};
+                PluginParamsData? pData;
+                Item.pluginsConfig.TryGetValue(pluginName,out pData);
+                foreach (var item in plugin.ItemParams){
+                    if(item.Value.Hidden) continue;
+                    CParam cParam = new(){Key=item.Key,Value=item.Value};
+                    if(pData!=null){
+                        string? val;
+                        pData.TryGetValue(cParam.Key,out val);
+                        if(val!=null) cParam.Value.Value=val;
+                    }
+                    pParams.Value.Add(cParam);
+                }
+                if(pParams.Value.Count>0) ret.Add(pParams);
+            }
+            return ret;
+        }
+
         public Command CloseWindowCommand {get;set;}
         public WatchWindowModel(Watch Source,List<WatchTag> alltags,WatchWindow win, bool ignoreFirstRedirect=false) : base(win){
             Item=(Watch)Source.Clone();
@@ -47,7 +89,7 @@ namespace SiteWatcher
                 }
             }
             ignoreRedirect=ignoreFirstRedirect;
-            UrlOpenCommand=new(s=>UrlOpen(s));
+            UrlOpenCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
             UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
             SaveCommand=new(o=>{Save();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
@@ -170,6 +212,12 @@ namespace SiteWatcher
             if(Item.Source.Select.Count==0){
                 if(MessageBox.Show("Отслеживать всю страницу?","Не выбраны элементы для отслеживания",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.No) return;
                 Item.Source.Select.Add(new("//body"));
+            }
+            foreach (CPlugin plugin in PluginsParams){
+                if(!Item.pluginsConfig.ContainsKey(plugin.Key)) Item.pluginsConfig[plugin.Key] = new();
+                foreach (CParam param in plugin.Value){
+                    Item.pluginsConfig[plugin.Key][param.Key]=param.Value.Value;
+                }
             }
             window.DialogResult=true;
             window.Close();

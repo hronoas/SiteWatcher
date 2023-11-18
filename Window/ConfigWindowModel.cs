@@ -4,6 +4,10 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using System.Media;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using SiteWatcher.Plugins;
+using System.Reflection;
 
 namespace SiteWatcher{
     public partial class ConfigWindowModel : BaseWindowModel<ConfigWindow>{
@@ -18,11 +22,56 @@ namespace SiteWatcher{
         public TelegramConfig Telegram  {get;set;}
         public Command<WatchTag> RemoveTagCommand {get;set;}
         public Command CloseWindowCommand {get;set;}
-        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, ProxyServer proxy, TelegramConfig telegram, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
+        public Dictionary<string,PluginParamsData> PluginsConfig {get;set;} = new();
+
+        public class CPlugin : INotifyPropertyChanged{
+            public string Key {get;set;}
+            public ObservableCollection<CParam> Value {get;set;}
+            public event PropertyChangedEventHandler? PropertyChanged;
+        }
+        public class CParam : INotifyPropertyChanged{
+            public string Key {get;set;}
+            public PluginParam Param {get;set;}
+            public string Value {get;set;}
+            
+            public event PropertyChangedEventHandler? PropertyChanged;
+        }
+        public ObservableCollection<CPlugin> PluginsParams { 
+            get{
+                if(pluginsParams==null) pluginsParams = GetPluginsParams();
+                return pluginsParams;
+            } set=>SetField(ref pluginsParams, value);}
+        private ObservableCollection<CPlugin> pluginsParams;
+        public ObservableCollection<CPlugin> GetPluginsParams(){
+            ObservableCollection<CPlugin> ret = new();
+            foreach (var pluginType in Share.Plugins){
+                string pluginName = pluginType.Name;
+                CPlugin pParams = new(){Key=pluginName, Value = new ()};
+                PluginParamsData? pData;
+                PluginsConfig.TryGetValue(pluginName,out pData);
+                PluginParams? pluginParams = (PluginParams?)pluginType.GetProperties(BindingFlags.Public | BindingFlags.Static).Where(p=>p.Name=="Params"&&p.PropertyType==typeof(PluginParams)).Single().GetValue(null);
+                PluginParamsData? pluginParamsData = pluginParams?.ToData();
+                if(pluginParamsData!=null && pluginParams!=null) foreach (var item in pluginParamsData){
+                    if(pluginParams[item.Key].Hidden) continue;
+                    CParam cParam = new(){Key=item.Key,Param=pluginParams[item.Key],Value=item.Value};
+                    if(pData!=null){
+                        string? val;
+                        pData.TryGetValue(item.Key,out val);
+                        if(val!=null) cParam.Value=val;
+                    }
+                    pParams.Value.Add(cParam);
+                }
+                if(pParams.Value.Count>0) ret.Add(pParams);
+            }
+            return ret;
+        }
+
+        public ConfigWindowModel(List<WatchTag> tags, string NotifyFile, ProxyServer proxy, TelegramConfig telegram, Dictionary<string,PluginParamsData> pluginsConfig, bool CheckAllOnlyVisibleS, ConfigWindow win) : base(win){
             win.DataContext = this;
             Tags= new(tags);
             Proxy = proxy.Clone();
             Telegram = telegram.Clone();
+            PluginsConfig = Deserialize<Dictionary<string,PluginParamsData>>(Serialize(pluginsConfig))??new();
             NotifiySound = NotifyFile;
             CheckAllOnlyVisible = CheckAllOnlyVisibleS;
             SaveCommand=new(o=>{window.DialogResult=true; window.Close();});

@@ -10,7 +10,7 @@ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding" 
 xmlns:local="clr-namespace:SiteWatcher" 
 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
-mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" MinWidth="570" MinHeight="80" WindowStyle="None">
+mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" MinWidth="570" MinHeight="180" WindowStyle="None">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

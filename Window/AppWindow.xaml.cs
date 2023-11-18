@@ -17,8 +17,8 @@ using System.Windows.Shapes;
 
 namespace SiteWatcher
 {
-    public partial class AppWindow : Window
-    {
+    public partial class AppWindow : Window{
+
         public void BringToForeground(){
             if (this.WindowState == WindowState.Minimized || this.Visibility == Visibility.Hidden){
                 this.Show();
@@ -41,8 +41,7 @@ namespace SiteWatcher
             TagsList.DropDownOpened += TagsList_DropDown;
             //TagsList.PreviewLostKeyboardFocus += TagsList_LostFocus;
             TagsList.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent, 
-                      new System.Windows.Controls.TextChangedEventHandler(TagsList_TextChanged));
-                      
+                      new System.Windows.Controls.TextChangedEventHandler(TagsList_TextChanged));                      
         }
 
         private void TagsList_LostFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -53,8 +52,11 @@ namespace SiteWatcher
 
         private void TagsList_DropDown(object? sender, EventArgs e)
         {
-            ((AppWindowModel)DataContext).TextFilter = null;
-            ((AppWindowModel)DataContext).ShowNew=false;
+            AppWindowModel winModel = (AppWindowModel)DataContext;
+            winModel.TagsUpdating=true;
+            winModel.ShowNew=false;
+            winModel.TagsUpdating=false;
+            winModel.TextFilter=null;
         }
 
         private void TagsList_TextChanged(object sender, TextChangedEventArgs e){

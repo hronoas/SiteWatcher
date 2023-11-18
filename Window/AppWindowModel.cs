@@ -5,11 +5,14 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using SiteWatcher.Plugins;
+using static SiteWatcher.ConfigWindowModel;
 using Forms = System.Windows.Forms;
 
 namespace SiteWatcher
@@ -72,6 +75,7 @@ namespace SiteWatcher
         public Command ConfigCommand {get;set;}
         public Command ShowNewCommand {get;set;}
         public Command ClearFilterCommand {get;set;}
+        public Dictionary<string,PluginParamsData> pluginsConfig {get;} = new();
         
         public AppWindowModel(AppWindow win) : base(win){
             WatchList=win.WatchList;
@@ -111,7 +115,7 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, pluginsConfig, CheckAllOnlyVisible, win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
                 model.Tags.ToList().ForEach(t=>Tags.Add(t));
@@ -119,8 +123,39 @@ namespace SiteWatcher
                 CheckAllOnlyVisible = model.CheckAllOnlyVisible;
                 CheckBrowser.proxy = model.Proxy.Clone();
                 telegram = model.Telegram.Clone();
+                Dictionary<string,PluginParamsData> newParams= new();
+                foreach (ConfigWindowModel.CPlugin plugin in model.PluginsParams){
+                    if(!newParams.ContainsKey(plugin.Key)) newParams[plugin.Key] = new();
+                    foreach (CParam param in plugin.Value){
+                        newParams[plugin.Key][param.Key]=param.Value;
+                    }
+                }
+                updatePluginsConfig(newParams);
                 if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 ConfigSave2();
+            }
+        }
+
+        private void updatePluginsConfig(Dictionary<string,PluginParamsData> newParams){
+            foreach (var item in newParams){
+                if(!pluginsConfig.ContainsKey(item.Key)) pluginsConfig[item.Key] = new();
+                foreach (var param in item.Value){
+                    pluginsConfig[item.Key][param.Key]=param.Value;
+                }
+            }
+            updatePluginStaticParams();
+        }
+        private void updatePluginStaticParams(){
+            foreach (var pluginType in Share.Plugins){
+                string pluginName = pluginType.Name;
+                PluginParams? pluginParams = (PluginParams?)pluginType.GetProperties(BindingFlags.Public | BindingFlags.Static).Where(p=>p.Name=="Params"&&p.PropertyType==typeof(PluginParams)).Single().GetValue(null);
+                if(pluginsConfig.ContainsKey(pluginName) && pluginsConfig[pluginName].Count>0 && pluginParams!=null){
+                    foreach (var item in pluginsConfig[pluginName]){
+                        if(pluginParams.ContainsKey(item.Key) && pluginParams[item.Key]!=null){
+                            pluginParams[item.Key].Value=item.Value;
+                        }
+                    }
+                }
             }
         }
 
@@ -187,14 +222,25 @@ namespace SiteWatcher
 
         private void CheckWatch(Watch w){
             w.Check(()=> {
+                PluginParamsData data = new();
                 if(w.IsNeedNotify){
+                    w.OnDataPrepare(data);
+                    w.OnNotify(data);
                     if(w.Notify) ShowToast(w);
                     if(w.SoundNotify) PlaySound(w);
                     if(w.NotifyTelegram) SendTelegram(w);
                     w.IsNeedNotify=false;
                 }else if(w.LastError!=w.Error){
                     if(!string.IsNullOrEmpty(w.Error)){
-                        if(w.NotifyTelegram) SendTelegram(w);
+                        if(w.NotifyOnError){
+                            foreach (IPlugin plugin in w.plugins){    
+                                plugin.OnDataPrepare(w.pluginsConfig[plugin.GetType().Name],data);
+                            }
+                            foreach (IPlugin plugin in w.plugins){
+                                plugin.OnError(w.pluginsConfig[plugin.GetType().Name],data);
+                            }
+                            if(w.NotifyTelegram) SendTelegram(w);
+                        }
                         if(w.NotifyAfterError) w.IsNeedNotify=true;
                     }
                 }
@@ -212,9 +258,10 @@ namespace SiteWatcher
             }
         }
         private void ConfigLoad(){
-            Watches.Clear();
-            if(File.Exists(WatchesConfig))
-                Deserialize<List<Watch>>(File.ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
+            Share.Plugins.Add(typeof(DataPlugin));
+            Share.Plugins.Add(typeof(LogPlugin));
+
+            LoadPlugins(Path.Join(AppPath,"plugins"));
             if(File.Exists(AppConfig)){
                 oldConfig2 = File.ReadAllText(AppConfig);
                 SiteWatcherConfig Config = Deserialize<SiteWatcherConfig>(oldConfig2)??new SiteWatcherConfig();
@@ -228,6 +275,7 @@ namespace SiteWatcher
                 CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
                 CheckBrowser.proxy = Config.Proxy.Clone();
                 telegram = Config.Telegram;
+                updatePluginsConfig(Config.pluginsConfig);
                 if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
                 var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                 if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
@@ -235,6 +283,13 @@ namespace SiteWatcher
                 Tags.Clear();
                 Config.Tags.ForEach(t=>Tags.Add(t));
             }
+            Watches.Clear();
+            if(File.Exists(WatchesConfig))
+                Deserialize<List<Watch>>(File.ReadAllText(WatchesConfig))?.ForEach(x=>{
+                    Watches.Add(x);
+                    InitPlugins(x);
+                    x.OnInit();
+                });
         }
 
         private void ConfigSave(){
@@ -253,6 +308,7 @@ namespace SiteWatcher
             Config.NotifySound=NotifySound;
             Config.Proxy=CheckBrowser.proxy;
             Config.Telegram=telegram;
+            Config.pluginsConfig=pluginsConfig;
             Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
             Config.ErrorInterval = errorInterval;
             
@@ -264,7 +320,9 @@ namespace SiteWatcher
         }
         private void AddWatch(){
             WatchWindow win = new();
-            WatchWindowModel model = new(new Watch(),Tags.ToList(), win);
+            Watch watch = new();
+            InitPlugins(watch);
+            WatchWindowModel model = new(watch,Tags.ToList(), win);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
             }
@@ -273,6 +331,7 @@ namespace SiteWatcher
             Watch n = (Watch)w.Clone();
             n.Checkpoints=new();
             n.LastCheck=DateTime.MinValue;
+            InitPlugins(n);
             WatchWindow win = new();
             WatchWindowModel model = new(n,Tags.ToList(), win);
             if(win.ShowDialog()??false){
@@ -335,7 +394,7 @@ namespace SiteWatcher
 
         private void EditWatch(Watch w){
             WatchWindow win = new();
-            WatchWindowModel model = new(w,Tags.ToList(),win,true);
+            WatchWindowModel model = new(w,Tags.ToList(),win, true);
             if(win.ShowDialog()??false){
                 w.CopySettingsFrom(model.Item);
                 RefreshList();

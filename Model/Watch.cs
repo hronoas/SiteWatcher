@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using SiteWatcher.Plugins;
 
 namespace SiteWatcher{
     public class Watch:PropertyChangedBase,ICloneable,IComparable<Watch>{
@@ -27,6 +28,40 @@ namespace SiteWatcher{
         private DateTime lastCheck;
         public DateTime LastNotify { get=>lastNotify; set=>SetField(ref lastNotify, value);}
         private DateTime lastNotify;
+        [JsonPropertyName("plugins")]
+        public Dictionary<string,PluginParamsData> pluginsConfig {get;set;} = new();
+
+        [JsonIgnoreAttribute()]
+        public List<IPlugin> plugins = new();
+
+        public void OnInit(){
+            foreach (var plugin in plugins){
+                string pluginName = plugin.GetType().Name;
+                PluginParamsData? pConfig;
+                pluginsConfig.TryGetValue(pluginName,out pConfig);
+                if (pConfig==null) pConfig = new();
+                foreach(var kv in plugin.ItemParams.ToData()){
+                    if(!pConfig.ContainsKey(kv.Key)) pConfig[kv.Key]=kv.Value;
+                }
+                if(pConfig.Count>0)
+                    pluginsConfig[pluginName]=pConfig;
+                plugin.Init(this);
+            }
+        }
+        public void OnNotify(PluginParamsData data){
+            foreach (var plugin in plugins){
+                PluginParamsData iPluginConfig;
+                pluginsConfig.TryGetValue(plugin.GetType().Name,out iPluginConfig);
+                plugin.OnNotify(iPluginConfig,data);
+            }
+        }
+        public void OnDataPrepare(PluginParamsData data){
+            foreach (var plugin in plugins){
+                PluginParamsData iPluginConfig;
+                pluginsConfig.TryGetValue(plugin.GetType().Name,out iPluginConfig);
+                plugin.OnDataPrepare(iPluginConfig,data);
+            }
+        }
         public bool RepeatNotify { get=>repeatNotify; set=>SetField(ref repeatNotify, value);}
         private bool repeatNotify = false;
 
@@ -54,6 +89,9 @@ namespace SiteWatcher{
 
         public bool NotifyAfterError { get=>notifyAfterError; set=>SetField(ref notifyAfterError, value);}
         private bool notifyAfterError = false;
+
+        public bool NotifyOnError { get=>notifyOnError; set=>SetField(ref notifyOnError, value);}
+        private bool notifyOnError;
 
         public bool NotifyTelegram { get=>notifyTelegram; set=>SetField(ref notifyTelegram, value);}
         private bool notifyTelegram = false;
@@ -160,6 +198,13 @@ namespace SiteWatcher{
             Tags.Clear();
             w.Tags.ToList().ForEach(t=>Tags.Add(t));
             Tags.ResetBindings();
+            pluginsConfig=new Dictionary<string, PluginParamsData>();
+            foreach (var item in w.pluginsConfig){
+                if(!pluginsConfig.ContainsKey(item.Key)) pluginsConfig[item.Key]=new();
+                foreach (var ditem in item.Value){
+                    pluginsConfig[item.Key][ditem.Key]=ditem.Value;
+                }
+            }
             MaxCheckpoints=w.MaxCheckpoints;
             IsChecking=false;
             isQueued=false;
@@ -172,6 +217,7 @@ namespace SiteWatcher{
             TelegramTemplate=w.TelegramTemplate;
             SoundNotify=w.SoundNotify;
             NotifyAfterError=w.NotifyAfterError;
+            NotifyOnError=w.NotifyOnError;
         }
         public object Clone(){
             Watch clone = (Watch)MemberwiseClone();
@@ -179,6 +225,15 @@ namespace SiteWatcher{
             clone.Tags = new BindingList<WatchTag>(Tags.Select(x=>x.Clone()).ToList());
             clone.CheckpointTrace();
             clone.Source = (WatchSource)(Source.Clone());
+            clone.pluginsConfig=new Dictionary<string, PluginParamsData>();
+            foreach (var item in pluginsConfig){
+                PluginParamsData data = new PluginParamsData();
+                foreach (var ditem in item.Value){
+                    data.Add(ditem.Key,ditem.Value);
+                }
+                clone.pluginsConfig.Add(item.Key,data);
+            }
+
             clone.isChecking=false;
             clone.isQueued=false;
             return clone;

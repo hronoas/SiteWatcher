@@ -130,6 +130,28 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+            <TabItem Header="Плагины">
+                <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                    <ItemsControl ItemsSource="{Binding PluginsParams}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <GroupBox Header="{Binding Key}" Margin="0 5 0 5">
+                                    <ItemsControl ItemsSource="{Binding Value}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Margin="0 5 0 5">
+                                                    <Label DockPanel.Dock="Left" Content="{Binding Key}" Width="150" HorizontalContentAlignment="Right" />
+                                                    <TextBox AcceptsReturn="true" DockPanel.Dock="Left" Text="{Binding Value}" MaxLines="5" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" Padding="3" />
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </GroupBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </Window>
