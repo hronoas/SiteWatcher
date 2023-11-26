@@ -86,10 +86,7 @@ namespace SiteWatcher
         }
 
         private void AddressChanged(object sender, DependencyPropertyChangedEventArgs e){
-            if(ignoreRedirect){
-                ignoreRedirect=false;
-                return;
-            }
+            if(ignoreRedirect) return;
             if(Item.Source.Url!=(string)e.NewValue && Cef.ParseUrl(Item.Source.Url)!=null) Item.Source.Referer=Item.Source.Url;
             Item.Source.Url=(string)e.NewValue;
         }
@@ -101,6 +98,7 @@ namespace SiteWatcher
 
         private async void FrameLoaded(object? sender, FrameLoadEndEventArgs e){
             if(e.Frame.IsMain){
+                ignoreRedirect=false;
                 SelectAll();
                 if(Selecting) BeginSelect();
             }

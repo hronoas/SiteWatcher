@@ -274,7 +274,7 @@ namespace SiteWatcher
             n.Checkpoints=new();
             n.LastCheck=DateTime.MinValue;
             WatchWindow win = new();
-            WatchWindowModel model = new(n,Tags.ToList(), win);
+            WatchWindowModel model = new(n,Tags.ToList(), win, true);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
             }
@@ -335,7 +335,7 @@ namespace SiteWatcher
 
         private void EditWatch(Watch w){
             WatchWindow win = new();
-            WatchWindowModel model = new(w,Tags.ToList(),win,true);
+            WatchWindowModel model = new(w,Tags.ToList(),win, true);
             if(win.ShowDialog()??false){
                 w.CopySettingsFrom(model.Item);
                 RefreshList();
