@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using Forms = System.Windows.Forms;
 
@@ -237,10 +240,23 @@ namespace SiteWatcher
             }
         }
 
+        private void RewriteFile(string path, string contents){
+            var tempPath = Path.GetTempFileName();
+            var backup = path + ".backup";
+            if (File.Exists(backup))
+                File.Delete(backup);
+            var data = Encoding.UTF8.GetBytes(contents);
+
+            using (var tempFile = File.Create(tempPath, 4096, FileOptions.WriteThrough))
+                tempFile.Write(data, 0, data.Length);
+
+            File.Replace(tempPath, path, backup);
+        }
+
         private void ConfigSave(){
             string newConfig=Serialize(Watches);
             if(newConfig!= oldConfig){
-                File.WriteAllText(WatchesConfig,newConfig);
+                RewriteFile(WatchesConfig,newConfig);
                 oldConfig=newConfig;
             }
         }
@@ -258,7 +274,7 @@ namespace SiteWatcher
             
             string newConfig2=Serialize(Config);
             if(newConfig2!= oldConfig2){
-                File.WriteAllText(AppConfig,newConfig2);
+                RewriteFile(AppConfig,newConfig2);
                 oldConfig2=newConfig2;
             }
         }
