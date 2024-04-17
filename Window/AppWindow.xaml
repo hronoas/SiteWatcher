@@ -357,6 +357,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                         <Setter.Value>
                             <ContextMenu>
                                 <MenuItem Header="Проверить" Command="{Binding Source={StaticResource Proxy}, Path=Data.CheckWatchCommand}"></MenuItem>
+                                <MenuItem Header="Открыть выделенные" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateAllWatchCommand}"></MenuItem>
                                 <MenuItem Header="{c:Binding &apos;LastSeen &gt;= Diff.Next.Time ? \&apos;Отметить непрочитанным\&apos;:\&apos;Отметить прочитанным\&apos;&apos;}" Command="{Binding Source={StaticResource Proxy}, Path=Data.ToggleReadWatchCommand}" CommandParameter="{Binding .}"></MenuItem>
                                 <MenuItem Header="История" Command="{Binding Source={StaticResource Proxy}, Path=Data.CheckpointsCommand}" CommandParameter="{Binding .}" FontWeight="Bold"></MenuItem>
                                 <Separator/>

@@ -71,6 +71,7 @@ namespace SiteWatcher
         public Command<Watch> EditWatchCommand{get;set;}
         public Command<Watch> CopyWatchCommand{get;set;}
         public Command<Watch> NavigateWatchCommand{get;set;}
+        public Command<Watch> NavigateAllWatchCommand{get;set;}
         public Command<Watch> ToggleReadWatchCommand{get;set;}
         public Command<Watch> CheckpointsCommand{get;set;}
         public Command UndeleteWatchCommand {get;set;}
@@ -92,6 +93,7 @@ namespace SiteWatcher
             CopyWatchCommand = new(w=>CopyWatch(w));
             ToggleWatchCommand = new(w=>ToggleSelectedWatch(w));
             NavigateWatchCommand = new(w=>NavigateWatch(w));
+            NavigateAllWatchCommand = new(w=>NavigateAllWatch(w));
             ToggleReadWatchCommand = new(w=>ToggleReadSelectedWatch(w));
             CheckpointsCommand = new(w=>CheckpointsWatch(w));
             UndeleteWatchCommand = new(o=>UndeleteWatch());
@@ -161,6 +163,13 @@ namespace SiteWatcher
         public void NavigateWatch(Watch? w,bool open=true){
             w?.Navigate(open);
             needSave=true;
+        }
+
+        public void NavigateAllWatch(Watch? w){
+            List<Watch> toNavigate = (w==null)?WatchList.SelectedItems.Cast<Watch>().ToList():new(){w};
+            toNavigate.ForEach(w=>{
+                w?.Navigate();
+            });
         }
 
         public void DeleteSelectedWatch(Watch? w){
