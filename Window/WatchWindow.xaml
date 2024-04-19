@@ -108,11 +108,13 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             </Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Bottom" Orientation="Vertical">
                 <Label>Название</Label>
-                <TextBox Text="{Binding Item.Name}"/>
+                <TextBox Text="{Binding Item.Name}" ToolTip="Эта строка будет отображаться в списке наблюдателей как ссылка"/>
             </StackPanel>
             <StackPanel VerticalAlignment="Bottom" Grid.Column="1" Margin="10 0 0 0" Orientation="Vertical">
                 <Label>Категории</Label>
-                <ComboBox IsEditable="True" IsReadOnly="True" ItemsSource="{Binding Tags}" Text="{Binding Tags, Converter={StaticResource WatchTagsToString}, ConverterParameter=&apos;не выбрано&apos;, Mode=OneWay}">
+                <ComboBox IsEditable="True" IsReadOnly="True" ItemsSource="{Binding Tags}" Text="{Binding Tags, Converter={StaticResource WatchTagsToString}, ConverterParameter=&apos;не выбрано&apos;, Mode=OneWay}"
+                ToolTip="Список категорий в которые входит наблюдатель&#x0a;Используется в фильтре по категориям"
+                >
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:WatchTag}">
                             <CheckBox Content="{Binding Name}" IsChecked="{Binding Selected}"/>
@@ -129,9 +131,10 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                 <Label>Проверка каждые</Label>
                 <TextBox Text="{Binding Item.Interval, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;1m&apos;}" 
                 local:TextBoxUtils.CheckRegexText="^([0-9]+[смчдsmhd]?)*$"
+                ToolTip="пример: &#x0a;2д3ч5м или 2d3h5m = 2 дня 3 часа 5 минут&#x0a;Время, через которое будет произведена очередная проверка"
                 />
             </StackPanel>
-            <Button Grid.Column="3" Margin="10 0 0 0" Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource RedButton}"/>
+            <Button Grid.Column="3" Margin="10 0 0 0" Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource RedButton}" ToolTip="Сохранить изменения"/>
         </Grid>
         <TabControl DockPanel.Dock="Top">
             <TabItem Header="Страница" Padding="5 2 5 2">
@@ -147,20 +150,22 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                             <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
                         <Label>Адрес страницы</Label>
-                        <TextBox Margin="0 0 10 0" Padding="2 2 2 2" x:Name="url" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Text="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}">
+                        <TextBox Margin="0 0 10 0" Padding="2 2 2 2" x:Name="url" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Text="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}"
+                        ToolTip="Адрес страницы для проверки содержимого">
                             <TextBox.InputBindings>
                                 <KeyBinding Command="{Binding UrlOpenCommand}" Key="Enter" CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"/>
                             </TextBox.InputBindings>
                         </TextBox>
-                        <CheckBox Grid.Column="1" Margin="0 5 0 5" IsChecked="{Binding Item.UseProxy}" Command="{Binding UrlUpdateCommand}" CommandParameter="{Binding Item.Source.Url}">Профиль прокси</CheckBox>
-                        <Button Grid.Row="1" Margin="0 3 13 3" HorizontalAlignment="Right" Style="{StaticResource BlueButton}" Command="{Binding UrlOpenCommand}" CommandParameter="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Content="&gt;" Width="20" Height="20"/>
+                        <CheckBox Grid.Column="1" Margin="0 5 0 5" IsChecked="{Binding Item.UseProxy}" Command="{Binding UrlUpdateCommand}" CommandParameter="{Binding Item.Source.Url}" ToolTip="Использовать отдельный профиль с использованием прокси-сервера">Профиль прокси</CheckBox>
+                        <Button Grid.Row="1" Margin="0 3 13 3" HorizontalAlignment="Right" Style="{StaticResource BlueButton}" Command="{Binding UrlOpenCommand}" CommandParameter="{Binding Item.Source.Url}" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Content="&gt;" Width="20" Height="20"
+                        ToolTip="Открыть страницу по адресу"/>
                         
                         <Grid Grid.Column="1" Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Style="{StaticResource BlueButton}" VerticalAlignment="Stretch" ToolTip="Выбрать элемент на странице" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding BeginSelectCommand}">
+                            <Button Grid.Column="0" Style="{StaticResource BlueButton}" VerticalAlignment="Stretch" ToolTip="Выбрать элемент на странице для отслеживания" IsEnabled="{Binding Selecting, Converter={StaticResource InverseBool}}" Command="{Binding BeginSelectCommand}">
                                 <TextBlock Padding="5">Выбрать элемент</TextBlock>
                             </Button>
                         
@@ -181,7 +186,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
 
                     <StackPanel DockPanel.Dock="Bottom" Grid.Row="1" Grid.Column="1" Orientation="Vertical">
                         <Label>Переходить со страницы (Referer)</Label>
-                        <TextBox Padding="2 2 2 2" ToolTip="Переход на страницу, будет проиходить с этой страницы"  Text="{Binding Item.Source.Referer}"/>
+                        <TextBox Padding="2 2 2 2" ToolTip="Переход на страницу, будет происходить с этой страницы"  Text="{Binding Item.Source.Referer}"/>
                     </StackPanel>
 
                     <CheckBox DockPanel.Dock="Bottom" Margin="0 0 0 5" IsChecked="{Binding Item.Source.CheckData}" ToolTip="Поиск и замена происходят в HTML вместо текста тегов">Поиск и замена в HTML</CheckBox>
@@ -275,14 +280,14 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
             </TabItem>
             <TabItem Header="Настройки">
                 <StackPanel Orientation="Vertical" Margin="5 5 5 5">
-                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.SimulateMouse}">Эмулировать движения мыши</CheckBox>
-                    <StackPanel Margin="0 0 0 5" Orientation="Vertical">
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Source.SimulateMouse}" ToolTip="После загрузкуи страницы будет выполнена эмуляция движения мыши и прокрутки колесом">Эмулировать движения мыши</CheckBox>
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical" ToolTip="Время ожидания полной загрузки страницы">
                         <Label>Ожидание загрузки страницы</Label>
                         <TextBox Padding="2 2 2 2" Text="{Binding Item.Source.WaitTimeout, Converter={StaticResource TimeSpanConverter}, ConverterParameter=&apos;0s&apos;}"></TextBox>
                     </StackPanel>    
-                    <StackPanel Margin="0 0 0 5" Orientation="Vertical">
+                    <StackPanel Margin="0 0 0 5" Orientation="Vertical" ToolTip="Хранить последние изменения в количестве шт.">
                         <Label>Хранить последние данные</Label>
-                        <TextBox Padding="2 2 2 2" ToolTip="Хранить последние изменения в количестве шт." Text="{Binding Item.MaxCheckpoints}" local:TextBoxUtils.CheckRegexText="^[0-9]{1,2}$"></TextBox>
+                        <TextBox Padding="2 2 2 2" Text="{Binding Item.MaxCheckpoints}" local:TextBoxUtils.CheckRegexText="^[0-9]{1,2}$"></TextBox>
                     </StackPanel>
                     <StackPanel Margin="0 0 0 5" Orientation="Vertical" ToolTip="При обновлении наблюдателя, ошибка вызывает повторную проверку через заданный интервал времени">
                         <Label>При ошибках проверять каждые</Label>
@@ -291,7 +296,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                     </StackPanel>
                     <StackPanel Margin="0 0 0 5" Orientation="Vertical">
                         <Label>Комментарий</Label>
-                        <TextBox Padding="2 2 2 2" ToolTip="Выводится во всплывающей подсказке списка наблюдателей."  MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Text="{Binding Item.Comment}"/>
+                        <TextBox Padding="2 2 2 2" ToolTip="Выводится во всплывающей подсказке списка наблюдателей и истории изменений"  MaxLines="3" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" Text="{Binding Item.Comment}"/>
                     </StackPanel>
                 </StackPanel>
             </TabItem>
