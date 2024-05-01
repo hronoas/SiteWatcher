@@ -1,20 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Input;
-using Forms = System.Windows.Forms;
 
 namespace SiteWatcher
 {
@@ -207,6 +198,7 @@ namespace SiteWatcher
 
         private void CheckWatch(Watch w){
             DateTime prevDate = w.Diff.Next.Time;
+            WatchStatus oldStatus = w.Status;
             w.Check(()=> {
                 if(w.IsNeedNotify){
                     if(w.Notify) ShowToast(w);
@@ -222,6 +214,8 @@ namespace SiteWatcher
                 w.LastError=w.Error;
                 if (prevDate<w.Diff.Next.Time){
                     needSave = true;
+                }
+                if (oldStatus!=w.Status || w.Status==WatchStatus.New){
                     RefreshList();
                 }
             });
