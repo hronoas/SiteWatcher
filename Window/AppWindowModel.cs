@@ -188,7 +188,7 @@ namespace SiteWatcher
                 CheckBrowser.Dequeue(w);
             });
             needSave=true;
-            FilterWatches();
+            //FilterWatches();
         }
 
         private void CheckSelectedWatch(Watch? w){
