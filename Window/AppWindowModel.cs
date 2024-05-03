@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using Forms = System.Windows.Forms;
 
 namespace SiteWatcher
 {
@@ -54,6 +49,7 @@ namespace SiteWatcher
                 timer?.Change(0,value*1000);
             }
         }
+        private bool needSave = false;
         private int timerInterval = 60;
         private string oldConfig="";
         private string oldConfig2="";
@@ -66,6 +62,7 @@ namespace SiteWatcher
         public Command<Watch> EditWatchCommand{get;set;}
         public Command<Watch> CopyWatchCommand{get;set;}
         public Command<Watch> NavigateWatchCommand{get;set;}
+        public Command<Watch> NavigateAllWatchCommand{get;set;}
         public Command<Watch> ToggleReadWatchCommand{get;set;}
         public Command<Watch> CheckpointsCommand{get;set;}
         public Command UndeleteWatchCommand {get;set;}
@@ -87,6 +84,7 @@ namespace SiteWatcher
             CopyWatchCommand = new(w=>CopyWatch(w));
             ToggleWatchCommand = new(w=>ToggleSelectedWatch(w));
             NavigateWatchCommand = new(w=>NavigateWatch(w));
+            NavigateAllWatchCommand = new(w=>NavigateAllWatch(w));
             ToggleReadWatchCommand = new(w=>ToggleReadSelectedWatch(w));
             CheckpointsCommand = new(w=>CheckpointsWatch(w));
             UndeleteWatchCommand = new(o=>UndeleteWatch());
@@ -129,6 +127,7 @@ namespace SiteWatcher
                 Watches.Add(Trash.Pop());
                 ChangedField(nameof(Trashed));
             }
+            needSave=true;
         }
 
         private void CreateTimer(){
@@ -136,6 +135,7 @@ namespace SiteWatcher
         }
 
         private void TimerCheck(object? state){
+            ConfigSave();
             foreach (Watch watch in Watches){
                 if(watch.IsNeedCheck){
                     CheckWatch(watch);
@@ -149,9 +149,18 @@ namespace SiteWatcher
                 if(w.Status==WatchStatus.New) NavigateWatch(w,false);
                 else w.LastSeen= w.Diff.Prev.Time;
             });
+            needSave=true;
         }
         public void NavigateWatch(Watch? w,bool open=true){
             w?.Navigate(open);
+            needSave=true;
+        }
+
+        public void NavigateAllWatch(Watch? w){
+            List<Watch> toNavigate = (w==null)?WatchList.SelectedItems.Cast<Watch>().ToList():new(){w};
+            toNavigate.ForEach(w=>{
+                w?.Navigate();
+            });
         }
 
         public void DeleteSelectedWatch(Watch? w){
@@ -164,6 +173,7 @@ namespace SiteWatcher
                 ChangedField(nameof(Trashed));
                 Watches.Remove(w);
             }
+            needSave=true;
         }
         private void CheckAll(bool onlyvisible=false){
             foreach (var watch in Watches){
@@ -177,7 +187,8 @@ namespace SiteWatcher
                 w.Toggle();
                 CheckBrowser.Dequeue(w);
             });
-            FilterWatches();
+            needSave=true;
+            //FilterWatches();
         }
 
         private void CheckSelectedWatch(Watch? w){
@@ -186,6 +197,8 @@ namespace SiteWatcher
         }
 
         private void CheckWatch(Watch w){
+            DateTime prevDate = w.Diff.Next.Time;
+            WatchStatus oldStatus = w.Status;
             w.Check(()=> {
                 if(w.IsNeedNotify){
                     if(w.Notify) ShowToast(w);
@@ -199,7 +212,12 @@ namespace SiteWatcher
                     }
                 }
                 w.LastError=w.Error;
-                RefreshList();
+                if (prevDate<w.Diff.Next.Time){
+                    needSave = true;
+                }
+                if (oldStatus!=w.Status || w.Status==WatchStatus.New){
+                    RefreshList();
+                }
             });
         }
         private void ConfigBackup(int Count=5){
@@ -211,12 +229,13 @@ namespace SiteWatcher
                 File.Copy(WatchesConfig,WatchesConfig+".1");
             }
         }
+
         private void ConfigLoad(){
             Watches.Clear();
             if(File.Exists(WatchesConfig))
-                Deserialize<List<Watch>>(File.ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
+                Deserialize<List<Watch>>(ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
             if(File.Exists(AppConfig)){
-                oldConfig2 = File.ReadAllText(AppConfig);
+                oldConfig2 = ReadAllText(AppConfig);
                 SiteWatcherConfig Config = Deserialize<SiteWatcherConfig>(oldConfig2)??new SiteWatcherConfig();
                 window.Width = Config.WindowSize.X;
                 window.Height = Config.WindowSize.Y;
@@ -237,12 +256,34 @@ namespace SiteWatcher
             }
         }
 
-        private void ConfigSave(){
+        static string ReadAllText(string file){
+            using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var textReader = new StreamReader(fileStream);
+            return textReader.ReadToEnd();
+        }
+        private void RewriteFile(string path, string contents){
+            var tempPath = Path.GetTempFileName();
+            var backup = path + ".backup";
+            if (File.Exists(backup))
+                File.Delete(backup);
+            var data = Encoding.UTF8.GetBytes(contents);
+
+            using (var tempFile = File.Create(tempPath, 4096, FileOptions.WriteThrough))
+                tempFile.Write(data, 0, data.Length);
+
+            File.Move(path,backup);
+            File.Move(tempPath,path);
+            //File.Replace(tempPath, path, backup);
+        }
+
+        private void ConfigSave(){ // save config to disk only with needSave is true
+            if (!needSave) return;
             string newConfig=Serialize(Watches);
             if(newConfig!= oldConfig){
-                File.WriteAllText(WatchesConfig,newConfig);
+                RewriteFile(WatchesConfig,newConfig);
                 oldConfig=newConfig;
             }
+            needSave=false;
         }
         private void ConfigSave2(){
             SiteWatcherConfig Config = new SiteWatcherConfig();
@@ -258,7 +299,7 @@ namespace SiteWatcher
             
             string newConfig2=Serialize(Config);
             if(newConfig2!= oldConfig2){
-                File.WriteAllText(AppConfig,newConfig2);
+                RewriteFile(AppConfig,newConfig2);
                 oldConfig2=newConfig2;
             }
         }
@@ -267,6 +308,7 @@ namespace SiteWatcher
             WatchWindowModel model = new(new Watch(),Tags.ToList(), win);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
+                needSave=true;
             }
         }
         private void CopyWatch(Watch w){
@@ -277,6 +319,7 @@ namespace SiteWatcher
             WatchWindowModel model = new(n,Tags.ToList(), win, true);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
+                needSave=true;
             }
         }
 
@@ -329,7 +372,6 @@ namespace SiteWatcher
             });
         }
         private void RefreshList(){
-            ConfigSave();
             FilterWatches();
         }
 
@@ -338,6 +380,7 @@ namespace SiteWatcher
             WatchWindowModel model = new(w,Tags.ToList(),win, true);
             if(win.ShowDialog()??false){
                 w.CopySettingsFrom(model.Item);
+                needSave=true;
                 RefreshList();
             }
         }
@@ -347,6 +390,7 @@ namespace SiteWatcher
             CheckpointsWindowModel model = new(w,win);
             win.Show();
             NavigateWatch(w,false);
+            needSave=true;
         }
     }
 }

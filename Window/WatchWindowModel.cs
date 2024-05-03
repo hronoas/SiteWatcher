@@ -143,7 +143,7 @@ namespace SiteWatcher
 
         }
         private void SelectAll(){
-            if(!webBrowser.CanExecuteJavascriptInMainFrame) return;
+            if(webBrowser==null || !webBrowser.CanExecuteJavascriptInMainFrame) return;
             List<jsSelector> list = new();
             Item.Source.Select.ToList().ForEach(selector=>{
                 list.Add(new(selector));
@@ -177,7 +177,10 @@ namespace SiteWatcher
                 
                 if(!Url.ToLower().StartsWith("http")){
                     if(Regex.Match(Url,@"^[a-z0-9\.\-]+\.[a-z]{2,5}$",RegexOptions.IgnoreCase).Success) Url = "http://"+Url;
-                    else Url = "https://www.google.com/search?q="+Url;
+                    else {
+                        Url = "https://www.google.com/search?q="+Url;
+                        ignoreRedirect=false;
+                    }
                 } 
                 Uri uri;
                 try{

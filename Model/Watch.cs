@@ -186,8 +186,9 @@ namespace SiteWatcher{
 
         public int CompareTo(Watch? other){
             if (other == null) return -1;
-            DateTime thistime = Enabled?Diff.Next.Time:DateTime.MinValue;
-            DateTime othertime = other.Enabled?other.Diff.Next.Time:DateTime.MinValue;
+            long now = DateTime.Now.Ticks;
+            long thistime = Diff.Next.Time.Ticks-(Enabled?0:now);
+            long othertime = other.Diff.Next.Time.Ticks-(other.Enabled?0:now);
             if (thistime > othertime)
                 return 1;
             if (thistime < othertime)
