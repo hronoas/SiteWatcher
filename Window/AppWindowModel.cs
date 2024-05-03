@@ -204,14 +204,15 @@ namespace SiteWatcher
                     if(w.Notify) ShowToast(w);
                     if(w.SoundNotify) PlaySound(w);
                     if(w.NotifyTelegram) SendTelegram(w);
+                    if(w.NotifyRepeatedError) w.LastError="";
                     w.IsNeedNotify=false;
                 }else if(w.LastError!=w.Error){
                     if(!string.IsNullOrEmpty(w.Error)){
                         if(w.NotifyTelegram) SendTelegram(w);
                         if(w.NotifyAfterError) w.IsNeedNotify=true;
                     }
+                    w.LastError=w.Error;
                 }
-                w.LastError=w.Error;
                 if (prevDate<w.Diff.Next.Time){
                     needSave = true;
                 }

@@ -30,7 +30,8 @@ namespace SiteWatcher
         
         public static string AvailableTelegramReplace {get;set;} = "Доступные замены: "+string.Join(", ",defaultDataKeys.Select(d=>"{"+d.Key+"}"))+"\n"+
                                                                     "Проверкой значений: {status=Новое}ВНИМАНИЕ{/status} - выведет 'ВНИМАНИЕ' при статусе 'Новое'\n"+
-                                                                    "Операторы сравнения:\n'=' - совпадает\n'!=' - не совпадает\n'~' - содержит\n'!~' - не содержит";
+                                                                    "Операторы сравнения:\n'=' - совпадает\n'!=' - не совпадает\n'~' - содержит\n'!~' - не содержит\n"+
+                                                                    "Уведомления об ошибке быдут отправлены только при наличии {error} в шаблоне.";
 
         public void SendTelegram(Watch watch){
 

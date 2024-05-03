@@ -249,6 +249,7 @@ xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
                 <StackPanel Orientation="Vertical" Margin="5 5 5 5">
                     <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.RepeatNotify}" ToolTip="При каждой проверке обновления страницы, будет выводиться уведомление, если наблюдатель не отмечем прочитанным.">Повторять уведомления при проверке до прочтения</CheckBox>
                     <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.NotifyAfterError}" ToolTip="Уведомление сработает, даже если не было изменений на странице.">Уведомлять после ошибки</CheckBox>
+                    <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.NotifyRepeatedError}" ToolTip="Уведомление сработает, на повторяющуюся ошибку после устранения ошибки.">Уведомлять при повторяющейся ошибке</CheckBox>
                     <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.Notify}">Показывать всплывающее уведомление</CheckBox>
                     <CheckBox Margin="0 0 0 5" IsChecked="{Binding Item.SoundNotify}">Уведомление звуком</CheckBox>
                     <GroupBox>
