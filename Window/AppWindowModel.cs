@@ -14,7 +14,6 @@ namespace SiteWatcher
         public SortableBindingList<Watch> Watches {get;set;}=new SortableBindingList<Watch>(new List<Watch>());
         public SortableBindingList<WatchTag> Tags {get;set;}=new(new List<WatchTag>());
         public bool TagsUpdating = false;
-        private bool CheckAllOnlyVisible = false;
         public bool ShowNew { 
             get=>showNew; 
             set{
@@ -26,7 +25,6 @@ namespace SiteWatcher
         public string currentFilterText = "";
         private bool showNew;
 
-        private TimeSpan errorInterval;
         public string? TextFilter { 
             get=>textFilter; 
             set{
@@ -52,7 +50,6 @@ namespace SiteWatcher
         private bool needSave = false;
         private int timerInterval = 60;
         private string oldConfig="";
-        private string oldConfig2="";
         public Command CheckAllCommand{get;set;}
         public Command AddWatchCommand{get;set;}
         public Command CloseWindow{get;set;}
@@ -71,6 +68,7 @@ namespace SiteWatcher
         public Command ClearFilterCommand {get;set;}
         
         public AppWindowModel(AppWindow win) : base(win){
+            Log("Started");
             WatchList=win.WatchList;
             InitIcon();
             ConfigBackup();
@@ -80,7 +78,7 @@ namespace SiteWatcher
             AddWatchCommand=new(n=>AddWatch());
             EditWatchCommand =new(w=>EditWatch(w));
             DeleteWatchCommand = new(w=>DeleteSelectedWatch(w));
-            CheckAllCommand = new(w=>CheckAll(CheckAllOnlyVisible));
+            CheckAllCommand = new(w=>CheckAll(CurrentConfig.CheckAllOnlyVisible));
             CopyWatchCommand = new(w=>CopyWatch(w));
             ToggleWatchCommand = new(w=>ToggleSelectedWatch(w));
             NavigateWatchCommand = new(w=>NavigateWatch(w));
@@ -109,15 +107,12 @@ namespace SiteWatcher
             Watches.Where(w=>w.Tags.Count>0).ToList().ForEach(w=>{
                 w.Tags.Where(wt=>!Tags.Any(t=>t.Name==wt.Name)).ToList().ForEach(t=>Tags.Add(t));
             });
-            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), NotifySound, CheckBrowser.proxy, telegram, CheckAllOnlyVisible, win);
+            ConfigWindowModel model = new(Tags.Select(t=>t.Clone()).ToList(), win);
             if(win.ShowDialog()??false){
                 Tags.Clear();
-                model.Tags.ToList().ForEach(t=>Tags.Add(t));
-                NotifySound = model.NotifiySound;
-                CheckAllOnlyVisible = model.CheckAllOnlyVisible;
-                CheckBrowser.proxy = model.Proxy.Clone();
-                telegram = model.Telegram.Clone();
-                if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
+                CurrentConfig.Tags.ToList().ForEach(t=>Tags.Add(t));
+                NotifySound = CurrentConfig.NotifySound; // load wav
+                CheckBrowser.proxy = CurrentConfig.Proxy.Clone();
                 ConfigSave2();
             }
         }
@@ -235,46 +230,19 @@ namespace SiteWatcher
             Watches.Clear();
             if(File.Exists(WatchesConfig))
                 Deserialize<List<Watch>>(ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
-            if(File.Exists(AppConfig)){
-                oldConfig2 = ReadAllText(AppConfig);
-                SiteWatcherConfig Config = Deserialize<SiteWatcherConfig>(oldConfig2)??new SiteWatcherConfig();
-                window.Width = Config.WindowSize.X;
-                window.Height = Config.WindowSize.Y;
-                window.Left = Config.WindowPosition.X;
-                window.Top = Config.WindowPosition.Y;
-                NotifySound = Config.NotifySound;
-                errorInterval = Config.ErrorInterval;
-                CheckAllOnlyVisible = Config.CheckAllOnlyVisible;
-                CheckBrowser.parallelTasks = Math.Max(Config.MaxProcesses,1);
-                CheckBrowser.proxy = Config.Proxy.Clone();
-                telegram = Config.Telegram;
-                if(string.IsNullOrWhiteSpace(telegram.Template)) telegram.Template=defaultTelegramTemplate;
-                var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
-                if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
 
-                Tags.Clear();
-                Config.Tags.ForEach(t=>Tags.Add(t));
-            }
-        }
+            window.Width = CurrentConfig.WindowSize.X;
+            window.Height = CurrentConfig.WindowSize.Y;
+            window.Left = CurrentConfig.WindowPosition.X;
+            window.Top = CurrentConfig.WindowPosition.Y;
+            NotifySound = CurrentConfig.NotifySound; // load wav
+            CheckBrowser.parallelTasks = Math.Min(Math.Max(CurrentConfig.MaxProcesses,1),20);
+            CheckBrowser.proxy = CurrentConfig.Proxy.Clone();
+            var b = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            if(window.Top>b.Height-50 || window.Left>b.Width) window.BringToForeground();
+            Tags.Clear();
+            CurrentConfig.Tags.ForEach(t=>Tags.Add(t));
 
-        static string ReadAllText(string file){
-            using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var textReader = new StreamReader(fileStream);
-            return textReader.ReadToEnd();
-        }
-        private void RewriteFile(string path, string contents){
-            var tempPath = Path.GetTempFileName();
-            var backup = path + ".backup";
-            if (File.Exists(backup))
-                File.Delete(backup);
-            var data = Encoding.UTF8.GetBytes(contents);
-
-            using (var tempFile = File.Create(tempPath, 4096, FileOptions.WriteThrough))
-                tempFile.Write(data, 0, data.Length);
-
-            File.Move(path,backup);
-            File.Move(tempPath,path);
-            //File.Replace(tempPath, path, backup);
         }
 
         private void ConfigSave(){ // save config to disk only with needSave is true
@@ -287,22 +255,10 @@ namespace SiteWatcher
             needSave=false;
         }
         private void ConfigSave2(){
-            SiteWatcherConfig Config = new SiteWatcherConfig();
-            Config.WindowPosition = new((int)window.Left,(int)window.Top);
-            Config.WindowSize = new((int)window.ActualWidth,(int)window.ActualHeight);
-            Config.Tags=Tags.ToList();
-            Config.MaxProcesses=CheckBrowser.parallelTasks;
-            Config.NotifySound=NotifySound;
-            Config.Proxy=CheckBrowser.proxy;
-            Config.Telegram=telegram;
-            Config.CheckAllOnlyVisible=CheckAllOnlyVisible;
-            Config.ErrorInterval = errorInterval;
-            
-            string newConfig2=Serialize(Config);
-            if(newConfig2!= oldConfig2){
-                RewriteFile(AppConfig,newConfig2);
-                oldConfig2=newConfig2;
-            }
+            CurrentConfig.WindowPosition = new((int)window.Left,(int)window.Top);
+            CurrentConfig.WindowSize = new((int)window.ActualWidth,(int)window.ActualHeight);
+            CurrentConfig.Tags=Tags.ToList();
+            SaveConfig();
         }
         private void AddWatch(){
             WatchWindow win = new();

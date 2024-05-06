@@ -46,7 +46,6 @@ namespace SiteWatcher{
             try{
                 using (HttpResponseMessage response_html = await httpClient.GetAsync(uri)){
                     if (!response_html.IsSuccessStatusCode){
-                        Log($"Send HTML message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
                         if(response_html.StatusCode==HttpStatusCode.BadRequest){
                             Dictionary<string,string>? strip_data = new(data?.Select(kv=>new KeyValuePair<string, string>(kv.Key,StripHtmlTags(kv.Value, page_url)))??Enumerable.Empty<KeyValuePair<string, string>>());
                             string messageText2 = Replacer.replacePatterns(message_template,strip_data);
@@ -54,8 +53,6 @@ namespace SiteWatcher{
                             Thread.Sleep(300);
                             using (HttpResponseMessage response_strip = await httpClient.GetAsync(uri)){
                                 if(response_strip.StatusCode==HttpStatusCode.BadRequest){
-                                    Log($"Send data stripped HTML message fail. Probably error in template. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
-
                                     messageText = StripHtmlTags(messageText,page_url);
                                     uri = $"https://api.telegram.org/bot{config.BotToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(messageText)}";
                                     Thread.Sleep(300);
@@ -64,15 +61,17 @@ namespace SiteWatcher{
                                             Log($"Send TEXT message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
                                         }
                                     }
-
+                                }else{
+                                    Log($"Send data stripped HTML message fail. Probably error in template. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
                                 }
-                                
                             }
+                        }else{
+                            Log($"Send HTML message fail. Chat:{chatId}. Status code: {response_html.StatusCode}, Reason phrase: {response_html.ReasonPhrase}","telegram");
                         }
                     }
                 }    
             }catch (System.Exception e){
-                Log($"Send message error: Chat: {chatId}, Error: {e} Chat:{chatId}.","telegram");
+                Log($"Send message error: Chat: {chatId}, Error: {e}","telegram");
             }finally{
                 httpClient.Dispose();
             }

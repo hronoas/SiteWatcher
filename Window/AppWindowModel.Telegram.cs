@@ -7,9 +7,7 @@ using System.Media;
 namespace SiteWatcher
 {
     public partial class AppWindowModel : BaseWindowModel<AppWindow>{
-        private const string defaultTelegramTemplate = "{error=}✅{/error}{error!=}❌{/error} <a href=\"{url}\">{name}</a>\n{error=}{changed}{/error}{error!=}⚠️ {error}{/error}";
-        private TelegramConfig telegram = new (){Template=defaultTelegramTemplate};
-
+        
         private static Dictionary<string,Func<Watch,string>> defaultDataKeys = new(){
             {"status",(w)=>(new WatchStatusToStringConverter()).Convert(w.Status,typeof(string),"",CultureInfo.CurrentCulture) as string??""},
             {"name",(w)=>w.Name},
@@ -35,7 +33,7 @@ namespace SiteWatcher
 
         public void SendTelegram(Watch watch){
 
-            string template = string.IsNullOrEmpty(watch.TelegramTemplate)?telegram.Template:watch.TelegramTemplate;
+            string template = string.IsNullOrEmpty(watch.TelegramTemplate)?CurrentConfig.Telegram.Template:watch.TelegramTemplate;
             if(!string.IsNullOrEmpty(watch.Error) && !template.Contains("{error}")) return;
 
             Dictionary<string,string> data = new();
@@ -43,7 +41,7 @@ namespace SiteWatcher
                 data.Add(kv.Key,kv.Value(watch));
             };
 
-            TelegramNotify.SendMessageAsync(telegram,data:data, text_template:watch.TelegramTemplate, chatId:watch.TelegramChat);
+            _ = TelegramNotify.SendMessageAsync(CurrentConfig.Telegram, data: data, text_template: watch.TelegramTemplate, chatId: watch.TelegramChat);
         }
     }
 

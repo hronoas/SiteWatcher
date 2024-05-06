@@ -127,6 +127,8 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                                 </DockPanel>
                             </Grid>
                         </GroupBox>
+                        <CheckBox ToolTip="Записывать лог на диск" Margin="0 15 0 5" IsChecked="{Binding WriteLog}">Записывать лог</CheckBox>
+                        
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

@@ -5,14 +5,11 @@ namespace SiteWatcher
 {
     public partial class AppWindowModel : BaseWindowModel<AppWindow>{
         private SoundPlayer soundPlayer = new SoundPlayer(ReadResource("notify.wav").BaseStream);
-        private string notifySound = "";
-
         public string NotifySound { 
-            get => notifySound; 
+            get => CurrentConfig.NotifySound; 
             set{
-                notifySound = value;
                 try{
-                    SoundPlayer newPlayer = new SoundPlayer(notifySound);
+                    SoundPlayer newPlayer = new SoundPlayer(CurrentConfig.NotifySound);
                     newPlayer.Play();
                     newPlayer.Stop();
                     soundPlayer.Dispose();

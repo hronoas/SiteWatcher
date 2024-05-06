@@ -38,8 +38,8 @@ namespace SiteWatcher
             settings.CefCommandLineArgs.Add("renderer-process-limit", "10");
             settings.CefCommandLineArgs.Add("js-flags", "--lite_mode");
             //settings.CefCommandLineArgs.Add("disable-image-loading", "1");
-            settings.LogFile = AppLog;
-            settings.LogSeverity = CefSharp.LogSeverity.Error;
+            settings.LogFile = AppLog+".cef";
+            settings.LogSeverity = CefSharp.LogSeverity.Disable;
             settings.IgnoreCertificateErrors = true;
             settings.SetOffScreenRenderingBestPerformanceArgs();
             return settings;

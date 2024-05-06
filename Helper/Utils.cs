@@ -63,11 +63,59 @@ namespace SiteWatcher
         public static string CurrentDir { get; } = Directory.GetCurrentDirectory();
         public static string WatchesConfig {get; } = getConfigFileName("Watches.json");
         public static string AppConfig {get; } = getConfigFileName("Config.json");
-        public static string AppLog { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),AppName,AppName+".log");
+        public static string AppLog { get; } = getFileNameForConfig(AppName+".log");
+        // Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),AppName,AppName+".log");
         public static string AppResources { get; } = Path.Combine(AppPath,"Resources");
-        public static string AppCache { get; } = Path.GetDirectoryName(WatchesConfig)==AppPath?Path.Combine(AppPath,"Cache"):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),AppName,"Cache");
-        public static string AppIcons { get; } = Path.GetDirectoryName(WatchesConfig)==AppPath?Path.Combine(AppPath,"Icons"):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),AppName,"Icons");
+        public static string AppCache { get; } = getFileNameForConfig("Cache");
+        public static string AppIcons { get; } = getFileNameForConfig("Icons");
 
+        private static SiteWatcherConfig? _currentConfig;
+        private static string _oldConfig = "";
+        public static SiteWatcherConfig CurrentConfig { 
+            get{
+                if(_currentConfig==null) {
+                    if(File.Exists(AppConfig)){
+                        _oldConfig = ReadAllText(AppConfig);
+                        _currentConfig = Deserialize<SiteWatcherConfig>(_oldConfig)??new SiteWatcherConfig();
+                    }else{
+                        _currentConfig = new();
+                    }
+                }
+                return _currentConfig;
+            }
+        }
+        public static void SaveConfig(){
+            string newConfig=Serialize(CurrentConfig);
+            if(newConfig!= _oldConfig){
+                RewriteFile(AppConfig,newConfig);
+                _oldConfig=newConfig;
+            }
+        }
+
+        private static string getFileNameForConfig(string file){
+            return Path.GetDirectoryName(WatchesConfig)==AppPath?Path.Combine(AppPath,file):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),AppName,file);
+        }
+        public static void RewriteFile(string path, string contents, bool create_backup = true){
+            var tempPath = Path.GetTempFileName();
+            var data = System.Text.Encoding.UTF8.GetBytes(contents);
+
+            using (var tempFile = File.Create(tempPath, 4096, FileOptions.WriteThrough))
+                tempFile.Write(data, 0, data.Length);
+
+            var backup = path + ".backup";
+            if (File.Exists(backup))
+                File.Delete(backup);
+
+            File.Move(path,backup);
+            File.Move(tempPath,path);
+            if (!create_backup) File.Delete(backup);
+            //File.Replace(tempPath, path, backup); not working?
+        }
+        public static string ReadAllText(string file){
+            using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var textReader = new StreamReader(fileStream);
+            return textReader.ReadToEnd();
+        }
         private static string getConfigFileName(string file){
             string filenameLocal = Path.Combine(AppPath,file);
             string filenameRoaming = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),AppName,file);
@@ -113,8 +161,9 @@ namespace SiteWatcher
             return true;
         }
 
-        public static void Log(object str, string section = "", bool writefile = false)
+        public static void Log(object str, string section = "")
         {
+            bool writefile = CurrentConfig.WriteLog;
             section = section == "" ? "" : "[" + section + "] ";
             string outstr = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss ") + section + str.ToString();
             Console.Error.WriteLine(outstr);
