@@ -346,10 +346,7 @@ namespace SiteWatcher
             X509Certificate2Collection certificates, ISelectClientCertificateCallback callback){
             return false;
         }
-        void IRequestHandler.OnRenderProcessTerminated(IWebBrowser browserControl, IBrowser browser, CefTerminationStatus status){}
-        bool IRequestHandler.OnQuotaRequest(IWebBrowser browserControl, IBrowser browser, string originUrl, long newSize, IRequestCallback callback){
-            return false;
-        }
+        void IRequestHandler.OnRenderProcessTerminated(CefSharp.IWebBrowser chromiumWebBrowser, CefSharp.IBrowser browser, CefSharp.CefTerminationStatus status, int errorCode, string errorMessage){}
         public void OnResourceRedirect(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request,
             IResponse response, ref string newUrl){
         }
