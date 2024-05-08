@@ -19,7 +19,7 @@
 
 ### Минимальные системные требования для запуска
 
-* Windows 7+ x64
+* Windows 10+ x64
 * [.NET Framework 4](https://www.microsoft.com/download/details.aspx?id=17718)
 * [.NET Desktop Runtime 6.0.6 x64](https://dotnet.microsoft.com/en-us/download)
 * [C++ Redistributable for Visual Studio 2015 x64](https://learn.microsoft.com/ru-ru/cpp/windows/latest-supported-vc-redist)
