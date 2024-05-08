@@ -346,7 +346,7 @@ namespace SiteWatcher
             X509Certificate2Collection certificates, ISelectClientCertificateCallback callback){
             return false;
         }
-        void IRequestHandler.OnRenderProcessTerminated(CefSharp.IWebBrowser chromiumWebBrowser, CefSharp.IBrowser browser, CefSharp.CefTerminationStatus status, int errorCode, string errorMessage){}
+        //void IRequestHandler.OnRenderProcessTerminated(CefSharp.IWebBrowser chromiumWebBrowser, CefSharp.IBrowser browser, CefSharp.CefTerminationStatus status, int errorCode, string errorMessage){}
         public void OnResourceRedirect(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request,
             IResponse response, ref string newUrl){
         }
@@ -354,6 +354,11 @@ namespace SiteWatcher
         void IRequestHandler.OnDocumentAvailableInMainFrame(IWebBrowser chromiumWebBrowser, IBrowser browser){}
         IResourceRequestHandler IRequestHandler.GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling){
             return null;
+        }
+
+        public void OnRenderProcessTerminated(IWebBrowser chromiumWebBrowser, IBrowser browser, CefTerminationStatus status)
+        {
+            //throw new NotImplementedException();
         }
     }
 }
