@@ -211,7 +211,7 @@ namespace SiteWatcher
                 if (prevDate<w.Diff.Next.Time){
                     needSave = true;
                 }
-                if (oldStatus!=w.Status || w.Status==WatchStatus.New){
+                if (oldStatus!=w.Status || w.Status==WatchStatus.New || prevDate<w.Diff.Next.Time){
                     RefreshList();
                 }
             });
@@ -265,6 +265,7 @@ namespace SiteWatcher
             WatchWindowModel model = new(new Watch(),Tags.ToList(), win);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
+                CheckWatch(model.Item);
                 needSave=true;
             }
         }
@@ -276,6 +277,7 @@ namespace SiteWatcher
             WatchWindowModel model = new(n,Tags.ToList(), win, true);
             if(win.ShowDialog()??false){
                 Watches.Add(model.Item);
+                CheckWatch(model.Item);
                 needSave=true;
             }
         }
