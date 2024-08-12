@@ -76,7 +76,7 @@ namespace SiteWatcher
                 if(_currentConfig==null) {
                     if(File.Exists(AppConfig)){
                         _oldConfig = ReadAllText(AppConfig);
-                        _currentConfig = Deserialize<SiteWatcherConfig>(_oldConfig)??new SiteWatcherConfig();
+                        _currentConfig = Deserialize<SiteWatcherConfig>(_oldConfig)?? new();
                     }else{
                         _currentConfig = new();
                     }
@@ -130,8 +130,8 @@ namespace SiteWatcher
                     }
                 }
             } else {
-                string dir = Path.GetDirectoryName(filenameRoaming);
-                if(!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                if (!File.Exists(filenameRoaming))
+                    File.Create(filenameRoaming);
                 return filenameRoaming;
             }
         }
@@ -190,7 +190,6 @@ namespace SiteWatcher
             }
             catch (System.Exception e)
             {
-                Log(e.Message,"error");
                 return default(T);
             }
         }
