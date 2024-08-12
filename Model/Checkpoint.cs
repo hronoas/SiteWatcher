@@ -10,6 +10,9 @@ namespace SiteWatcher{
         public string Data { get=>data; set=>SetField(ref data, value);}
         private string data;
 
+        public bool Marked { get=>marked; set=>SetField(ref marked, value);}
+        private bool marked=false;
+
         
         public static CheckpointDiff operator -(Checkpoint? chp1, Checkpoint? chp2) => new(chp1, chp2);
         public static bool operator ==(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Text == chp2?.Text && chp1?.Data == chp2?.Data;

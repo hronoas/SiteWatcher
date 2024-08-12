@@ -37,6 +37,11 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
       <ListView.ItemTemplate>
         <DataTemplate>
           <DockPanel>
+            <CheckBox Margin="5 5 5 5" Background="Transparent" IsChecked="{Binding Next.Marked}" IsEnabled="False" BorderThickness="0">
+              <CheckBox.LayoutTransform>  
+                <ScaleTransform ScaleX="2" ScaleY="2" />
+              </CheckBox.LayoutTransform>
+            </CheckBox>
             <TextBlock DockPanel.Dock="Top">
                 <Run FontSize="16" FontWeight="Bold" Text="{Binding Next.Time,StringFormat=dd.MM.yyyy HH:mm:ss}" />
                 <Run Text=" &lt;- " />
@@ -53,6 +58,7 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
       </ListView.ItemTemplate>
       <ListView.ContextMenu>
         <ContextMenu>
+          <MenuItem Header="Поставить/Снять отметку" Command="{Binding ToggleMarkedCommand}"></MenuItem>
           <MenuItem Header="Скопировать текст" Command="{Binding CopyTextCommand}"></MenuItem>
           <MenuItem Header="Удалить" Command="{Binding DeleteSelectedCommand}"></MenuItem>
         </ContextMenu>

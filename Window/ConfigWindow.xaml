@@ -18,6 +18,16 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
             <Setter Property="Padding" Value="0 0 5 0"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
+        <Style x:Key="HoverUnderline" TargetType="TextBlock">
+            <Setter Property="Cursor" Value="Hand"></Setter>
+            <Setter Property="TextDecorations" Value="Underline"/>
+            <Setter Property="Foreground" Value="Gray"></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextDecorations" Value="None"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseWindowCommand}"/>
@@ -128,7 +138,16 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                             </Grid>
                         </GroupBox>
                         <CheckBox ToolTip="Записывать лог на диск" Margin="0 15 0 5" IsChecked="{Binding WriteLog}">Записывать лог</CheckBox>
-                        
+                        <TextBlock Style="{StaticResource HoverUnderline}" Text="Папка с настройками" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock.InputBindings>
+                                <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.OpenConfigFolder}" CommandParameter="{Binding}"/>
+                            </TextBlock.InputBindings>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource HoverUnderline}" Text="Папка с наблюдателями" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock.InputBindings>
+                                <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.OpenWatchesFolder}" CommandParameter="{Binding}"/>
+                            </TextBlock.InputBindings>
+                        </TextBlock>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

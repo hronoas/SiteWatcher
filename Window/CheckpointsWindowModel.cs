@@ -15,6 +15,7 @@ namespace SiteWatcher
         public List<CheckpointDiff> Diffs {get;set;} = new();
         private ListView CheckpointsList;
 
+        public Command ToggleMarkedCommand {get;set;}
         public Command DeleteSelectedCommand {get;set;}
         public Command SaveCommentCommand {get;set;}
         public Command CopyTextCommand {get;set;}
@@ -22,6 +23,7 @@ namespace SiteWatcher
         
         public CheckpointsWindowModel(Watch Source,CheckpointsWindow win) : base(win){
             CheckpointsList = window.CheckpointsList;
+            ToggleMarkedCommand = new(o=>ToggleMarked());
             DeleteSelectedCommand=new(o=>DeleteSelected());
             CloseWindowCommand = new(o=>win.Close());
             SaveCommentCommand=new(o=>SaveComment());
@@ -36,6 +38,17 @@ namespace SiteWatcher
             }
         }
 
+        private void ToggleMarked(){
+            if(CheckpointsList.SelectedItems.Count==0) return;
+            List<DateTime> toMark = CheckpointsList.SelectedItems.Cast<CheckpointDiff>().Select(c=>c.Next.Time).ToList();
+            toMark.ForEach(c=>{
+                var i = Diffs.Where(d=>d.Next.Time==c).FirstOrDefault();
+                if(i!=null) i.Next.Marked=!i.Next.Marked;
+                CheckpointsList.Items.Refresh();
+                var u = source.Checkpoints.Where(d=>d.Time==c).FirstOrDefault();
+                if(u!=null) u.Marked=!u.Marked;
+            });
+        }
         private void DeleteSelected(){
             if(CheckpointsList.SelectedItems.Count==0) return;
             List<DateTime> toDelete = CheckpointsList.SelectedItems.Cast<CheckpointDiff>().Select(c=>c.Next.Time).ToList();

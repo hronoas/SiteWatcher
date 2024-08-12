@@ -103,10 +103,11 @@ namespace SiteWatcher
                 tempFile.Write(data, 0, data.Length);
 
             var backup = path + ".backup";
-            if (File.Exists(backup))
-                File.Delete(backup);
-
-            File.Move(path,backup);
+            if (File.Exists(path)){
+                if (File.Exists(backup))
+                    File.Delete(backup);
+                File.Move(path,backup);
+            }
             File.Move(tempPath,path);
             if (!create_backup) File.Delete(backup);
             //File.Replace(tempPath, path, backup); not working?
@@ -163,7 +164,7 @@ namespace SiteWatcher
 
         public static void Log(object str, string section = "")
         {
-            bool writefile = CurrentConfig.WriteLog;
+            bool writefile = _currentConfig!=null && CurrentConfig.WriteLog; // no write log before config loaded
             section = section == "" ? "" : "[" + section + "] ";
             string outstr = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss ") + section + str.ToString();
             Console.Error.WriteLine(outstr);

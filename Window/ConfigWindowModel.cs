@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using System.Media;
+using System.Diagnostics;
+using System.IO;
 
 namespace SiteWatcher{
     public partial class ConfigWindowModel : BaseWindowModel<ConfigWindow>{
@@ -17,6 +19,8 @@ namespace SiteWatcher{
         public Command ChooseNotifySoundCommand {get;set;}
         public Command SaveCommand {get;set;}
         public Command CancelCommand {get;set;}
+        public Command OpenConfigFolder {get;set;}
+        public Command OpenWatchesFolder {get;set;}
         public Command AddTagCommand {get;set;}
         public TelegramConfig Telegram  {get;set;}
         public Command<WatchTag> RemoveTagCommand {get;set;}
@@ -25,6 +29,8 @@ namespace SiteWatcher{
             win.DataContext = this;
             SaveCommand=new(o=>{SaveAll(); window.DialogResult=true; window.Close();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
+            OpenConfigFolder=new(o=>{Process.Start("explorer.exe",Path.GetDirectoryName(AppConfig));});
+            OpenWatchesFolder=new(o=>{Process.Start("explorer.exe",Path.GetDirectoryName(WatchesConfig));});
             ChooseNotifySoundCommand=new(o=>ChooseNotifySound());
             AddTagCommand=new(o=>Tags.Add(new WatchTag()));
             RemoveTagCommand=new(t=>Tags.Remove(t));

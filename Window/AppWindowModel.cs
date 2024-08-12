@@ -68,6 +68,7 @@ namespace SiteWatcher
         public Command ClearFilterCommand {get;set;}
         
         public AppWindowModel(AppWindow win) : base(win){
+            if (CurrentConfig==null) Log("Config not loaded!"); // force init config
             Log("Started");
             WatchList=win.WatchList;
             InitIcon();
