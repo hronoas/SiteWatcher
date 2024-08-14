@@ -10,6 +10,5 @@ using System.Windows;
 [assembly: AssemblyProduct("SiteWatcher")]
 [assembly: AssemblyDescription("https://github.com/hronoas/SiteWatcher")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyCopyright("Copyright © 2024")]
-[assembly: AssemblyVersion("0.9.3.2")]
-[assembly: AssemblyFileVersion("0.9.3.2")]
+[assembly: AssemblyVersion("0.9.3.3")]
+[assembly: AssemblyFileVersion("0.9.3.3")]

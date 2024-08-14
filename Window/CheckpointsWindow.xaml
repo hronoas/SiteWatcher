@@ -27,17 +27,18 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}"></local:BindingProxy>
   </Window.Resources>
   <DockPanel Margin="5">
     <DockPanel DockPanel.Dock="Top">
       <Button DockPanel.Dock="Right" Content="Сохранить" FontSize="14" Margin="5 0" Padding="7 5" Command="{Binding SaveCommentCommand}" HorizontalAlignment="Right" VerticalAlignment="Top"/>      
       <TextBox FontSize="14" Padding="2 5" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="true" MaxLines="5" Text="{Binding Item.Comment}" HorizontalAlignment="Stretch" ToolTip="Комментарий к наблюдателю" Margin="5 0 5 5"/>
     </DockPanel>
-    <ListView x:Name="CheckpointsList" DockPanel.Dock="Top" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Diffs}" ScrollViewer.CanContentScroll="False">
+    <ListView x:Name="CheckpointsList" MouseDoubleClick="CheckpointsList_DoubleClick" DockPanel.Dock="Top" Margin="5 0" BorderThickness="0" ItemsSource="{Binding Diffs}" ScrollViewer.CanContentScroll="False">
       <ListView.ItemTemplate>
         <DataTemplate>
           <DockPanel>
-            <CheckBox Margin="5 5 5 5" Background="Transparent" IsChecked="{Binding Next.Marked}" IsEnabled="False" BorderThickness="0">
+            <CheckBox Margin="5 5 5 5" Background="Transparent" IsChecked="{Binding Next.Marked}" IsEnabled="True" BorderThickness="0">
               <CheckBox.LayoutTransform>  
                 <ScaleTransform ScaleX="2" ScaleY="2" />
               </CheckBox.LayoutTransform>
@@ -58,7 +59,6 @@ xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf">
       </ListView.ItemTemplate>
       <ListView.ContextMenu>
         <ContextMenu>
-          <MenuItem Header="Поставить/Снять отметку" Command="{Binding ToggleMarkedCommand}"></MenuItem>
           <MenuItem Header="Скопировать текст" Command="{Binding CopyTextCommand}"></MenuItem>
           <MenuItem Header="Удалить" Command="{Binding DeleteSelectedCommand}"></MenuItem>
         </ContextMenu>
