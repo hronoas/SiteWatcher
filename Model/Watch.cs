@@ -113,6 +113,7 @@ namespace SiteWatcher{
         public void CheckpointTrace(){
             Checkpoints.AddingNew+=(o,e)=>{
                 ChangedField(nameof(Diff));
+                ChangedField(nameof(MarkDiff));
                 ChangedField(nameof(IsNew));
                 ChangedField(nameof(Status));
                 };
@@ -129,6 +130,14 @@ namespace SiteWatcher{
                 Checkpoint max = Checkpoints.Max() ?? new();
                 Checkpoint prev = Checkpoints.Where(c => c < max).Max() ?? new() { Time = DateTime.MinValue };
                 return max - prev;
+            }
+        }
+        [JsonIgnoreAttribute()]
+        public CheckpointDiff MarkDiff{
+            get{
+                Checkpoint next = Diff.Next;
+                Checkpoint mark = Checkpoints.Where(c => c <= next && c.Marked).Max() ?? Diff.Prev;
+                return next - mark;
             }
         }
         [JsonIgnoreAttribute()]

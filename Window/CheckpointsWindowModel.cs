@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -40,6 +41,10 @@ namespace SiteWatcher
 
         public void ToggleMarked(CheckpointDiff diff){
             diff.Next.Marked=!diff.Next.Marked;
+            for (int i=0; i < source.Checkpoints.Count; i++){
+                if (source.Checkpoints[i].Time == diff.Next.Time)
+                    source.Checkpoints[i].Marked=diff.Next.Marked;
+            }
         }
         private void DeleteSelected(){
             if(CheckpointsList.SelectedItems.Count==0) return;
@@ -70,15 +75,8 @@ namespace SiteWatcher
 
         private void SaveComment(){
             if(!Item.Comment.Equals(source.Comment)) source.Comment=Item.Comment;
-            foreach (Checkpoint c in Item.Checkpoints){
-                int index = source.Checkpoints.IndexOf(c);
-                if (index>-1){
-                    source.Checkpoints[index].Marked=c.Marked;
-                }
-            }
             window.Close();
         }
-        
     
     }
 }

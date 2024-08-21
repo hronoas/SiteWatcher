@@ -57,6 +57,14 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
+            <Style x:Key="DateStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Padding" Value="0 0 0 5"/>
+                <Setter Property="Foreground" Value="DarkOliveGreen"/>
+            </Style>
+            <Style x:Key="DateOldStyle" TargetType="TextBlock" BasedOn="{StaticResource DateStyle}">
+                <Setter Property="Foreground" Value="IndianRed"/>
+            </Style>
             <Style x:Key="HoverUnderline" TargetType="TextBlock">
                 <Setter Property="Cursor" Value="Hand"></Setter>
                 <Setter Property="TextDecorations" Value="Underline"/>
@@ -173,7 +181,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                     </Button>
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
                         <TextBlock Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" ToolTip="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher {0}}" FontSize="20" Margin="10 0" Foreground="Gray" VerticalAlignment="Center"></TextBlock>
-                        <ComboBox x:Name="TagsList" IsEditable="True" FontSize="14" Margin="10 0" VerticalContentAlignment="Center" IsReadOnly="{c:Binding ShowNew}" ItemsSource="{Binding Tags}"><!-- Text="{Binding Tags, Converter={StaticResource WatchTagsToString},ConverterParameter=&apos;Все&apos;, Mode=OneWay}" -->
+                        <ComboBox x:Name="TagsList" IsEditable="True" FontSize="14" Margin="10 0" VerticalContentAlignment="Center" IsReadOnly="{c:Binding ShowNew}" ItemsSource="{Binding Tags}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type local:WatchTag}">
                                     <CheckBox IsThreeState="True" VerticalContentAlignment="Center" Content="{c:Binding Name+\' (\'+Count+\')\'}" IsChecked="{Binding Selected}"/>
@@ -200,7 +208,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
-                        <DockPanel Width="105" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"><!-- <TextBlock Text="{Binding Diff.Next.Time, StringFormat='dd.MM.yyyy HH:mm'}" Style="{StaticResource StatusStyle}" FontSize="12" TextWrapping="NoWrap" DockPanel.Dock="Top" TextAlignment="Right"/> -->
+                        <DockPanel Width="105" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0">
                             <TextBlock Text="{Binding Diff.Next.Time, Converter={local:DateToNowRelevanceConverter}}" Style="{StaticResource StatusStyle}" FontSize="12" TextWrapping="NoWrap" DockPanel.Dock="Top" TextAlignment="Right"/>
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <StackPanel.Resources>
@@ -277,18 +285,6 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                             </Rectangle.Fill>
                         </Rectangle>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 0" DockPanel.Dock="Top" HorizontalAlignment="Left" Width="350">
-<!--                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center">
-                                    <TextBlock.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
-                                    </TextBlock.InputBindings>
-                                </TextBlock>   
-                                <TextBlock Text="{Binding Source.Url}" Margin="10 0 10 2" Foreground="Blue" TextDecorations="Underline" Cursor="Hand" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis">
-                                    <TextBlock.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
-                                    </TextBlock.InputBindings>
-                                </TextBlock>
-                            </StackPanel> -->
                             <TextBlock Style="{StaticResource HoverUnderline}" Text="{Binding Name}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock.InputBindings>
                                     <MouseBinding Gesture="LeftClick" Command="{Binding Source={StaticResource Proxy}, Path=Data.NavigateWatchCommand}" CommandParameter="{Binding}"/>
@@ -301,7 +297,7 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
             </ListView.ItemTemplate>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="Padding" Value="0 2"/><!-- <Setter Property="Width" Value="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"/> -->
+                    <Setter Property="Padding" Value="0 2"/>
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                     <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
@@ -317,6 +313,8 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>
                                     <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -324,13 +322,31 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Visibility="{c:Binding &apos;Comment!=\&apos;\&apos;&apos;, FalseToVisibility=Collapsed}">
-                                <!-- Width="{Binding PlacementTarget.ActualWidth, RelativeSource={RelativeSource Self}}" -->
                                     <TextBlock DockPanel.Dock="Top" FontSize="14" Text="{Binding Comment}" Margin="0 0 0 5"/>
                                     <Separator DockPanel.Dock="Top" />
-                                </DockPanel>
-                                <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
+                                </DockPanel> 
+                                <StackPanel Grid.Row="2" Grid.Column="0" Visibility="{c:Binding &apos;!MarkDiff.Prev.Marked&apos;, FalseToVisibility=Collapsed}">
+                                    <TextBlock Style="{StaticResource DateOldStyle}" Text="{Binding Diff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
                                     <TextBlock Text="{Binding Diff.Prev, Converter={local:CutLeftConverter}, ConverterParameter={StaticResource CutLeftMax}}" MaxHeight="200" MaxWidth="300"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="0" Visibility="{c:Binding &apos;MarkDiff.Prev.Marked&apos;, FalseToVisibility=Collapsed}">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill" Value="Gray"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{c:Binding 'MarkDiff.Prev.Time==MarkDiff.Next.Time'}" Value="True">
+                                                        <Setter Property="Fill" Value="ForestGreen"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Resources>
+                                        <Border Margin="0" Padding="0" Background="Transparent" Width="16" Height="16" Visibility="{c:Binding &apos;MarkDiff.Prev.Marked&apos;, FalseToVisibility=Collapsed}">
+                                                <ContentControl VerticalContentAlignment="Center" Content="{StaticResource IconChecked}"/>  
+                                        </Border>
+                                        <TextBlock Style="{StaticResource DateOldStyle}" Text="{Binding MarkDiff.Prev.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding MarkDiff.Prev, Converter={local:CutLeftConverter}, ConverterParameter={StaticResource CutLeftMax}}" MaxHeight="200" MaxWidth="300"/>
                                 </StackPanel>
                                 <Border Grid.Row="2" Grid.Column="1">
                                     <Canvas Height="40" Width="1">
@@ -342,14 +358,20 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                                     </Canvas>
                                 </Border>
                                 <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="{Binding Diff.Next.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
-                                    <ContentControl MaxHeight="200" MaxWidth="300"><!-- Content="{Binding Test, Converter={local:DiffTextConverter}, ConverterParameter={Binding TestOld}, Mode=OneTime}"> -->
-                                        <MultiBinding Converter="{local:DiffTextOldToNewConverter}"><!-- &#x0a;&#x0d; -->
+                                    <TextBlock Style="{StaticResource DateStyle}" Text="{Binding Diff.Next.Time,StringFormat=dd.MM.yyyy HH:mm}"/>
+                                    <ContentControl MaxHeight="200" MaxWidth="300" Visibility="{c:Binding &apos;!MarkDiff.Prev.Marked&apos;, FalseToVisibility=Collapsed}">
+                                        <MultiBinding Converter="{local:DiffTextOldToNewConverter}">
                                             <Binding Path="Diff.Prev.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
                                             <Binding Path="Diff.Next.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
                                         </MultiBinding>
                                     </ContentControl>
-                                </StackPanel>                                
+                                    <ContentControl MaxHeight="200" MaxWidth="300" Visibility="{c:Binding &apos;MarkDiff.Prev.Marked&apos;, FalseToVisibility=Collapsed}">
+                                        <MultiBinding Converter="{local:DiffTextOldToNewConverter}">
+                                            <Binding Path="MarkDiff.Prev.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
+                                            <Binding Path="MarkDiff.Next.Text" Converter="{local:CutLeftConverter}" ConverterParameter="{StaticResource CutLeftMax}"/>
+                                        </MultiBinding>
+                                    </ContentControl>
+                                </StackPanel>                      
                             </Grid>
                         </Setter.Value>
                     </Setter>

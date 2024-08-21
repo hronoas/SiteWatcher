@@ -18,6 +18,8 @@ namespace SiteWatcher{
         public static bool operator ==(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Text == chp2?.Text && chp1?.Data == chp2?.Data;
         public static bool operator >(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Time > chp2?.Time;
         public static bool operator <(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Time < chp2?.Time;
+        public static bool operator <=(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Time <= chp2?.Time;
+        public static bool operator >=(Checkpoint? chp1, Checkpoint? chp2) => chp1?.Time >= chp2?.Time;
         public static bool operator !=(Checkpoint? chp1, Checkpoint? chp2) => !(chp1 == chp2);
         public Checkpoint() { }
         public Checkpoint(string content,string data="")
