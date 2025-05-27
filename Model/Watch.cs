@@ -74,12 +74,15 @@ namespace SiteWatcher{
                     if(!String.IsNullOrWhiteSpace(item.Data)) CheckpointData+=(CheckpointData==""?"":"\n")+item.Data;
                 });
                 if(Diff.Next.Text!=CheckpointText){
-                    Checkpoints.RaiseListChangedEvents=false;
-                    Checkpoints.Add(new Checkpoint(CheckpointText,CheckpointData));
-                    if(Checkpoints.Count>MaxCheckpoints){
-                        Checkpoints.OrderBy(x=>x.Time).Reverse().Skip(MaxCheckpoints).ToList().ForEach(x=>Checkpoints.Remove(x));
-                    }
-                    Checkpoints.RaiseListChangedEvents=true;
+                    Checkpoints.RaiseListChangedEvents = false;
+                    Checkpoints.Add(new Checkpoint(CheckpointText, CheckpointData));
+                    var sorted = Checkpoints.OrderByDescending(c => c.Time).ToList();
+                    var latestMarked = sorted.FirstOrDefault(c => c.Marked);
+                    var toRemove = sorted.Skip(MaxCheckpoints)
+                                        .Where(c => c != latestMarked)
+                                        .ToList();
+                    toRemove.ForEach(x=>Checkpoints.Remove(x));
+                    Checkpoints.RaiseListChangedEvents = true;
                 }
                 if(Checkpoints.Count<2){ // after first check
                         IsNeedNotify=false;
