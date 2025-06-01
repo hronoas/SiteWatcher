@@ -70,11 +70,12 @@ namespace SiteWatcher
 
         public static ProxyServer proxy = new();
 
-        public class CheckItem{
-            public Watch SourceWatch {get;set;}
+        public class CheckItem
+        {
+            public Watch SourceWatch { get; set; }
             public Action<List<SelectorResult>>? onData;
             public Action<string>? onError;
-            public Action<List<SelectorResult>,string>? onFinally;
+            public Action<List<SelectorResult>, string>? onFinally;
 
             public CheckItem(Watch sourceWatch, Action<List<SelectorResult>>? onData, Action<string>? onError, Action<List<SelectorResult>, string>? onFinally)
             {
@@ -84,15 +85,16 @@ namespace SiteWatcher
                 this.onFinally = onFinally;
             }
 
-            public static bool operator ==(CheckItem? i1,CheckItem? i2){
-                return i1?.SourceWatch==i2?.SourceWatch;
+            public static bool operator ==(CheckItem? i1, CheckItem? i2)
+            {
+                return i1?.SourceWatch == i2?.SourceWatch;
                 /* && i1?.onData==i2?.onData 
                 && i1?.onError==i2?.onError 
                 && i1?.onFinally==i2?.onFinally; */
             }
-            public static bool operator !=(CheckItem i1,CheckItem i2) => !(i1==i2);
+            public static bool operator !=(CheckItem i1, CheckItem i2) => !(i1 == i2);
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (ReferenceEquals(this, obj))
                 {
@@ -104,7 +106,11 @@ namespace SiteWatcher
                     return false;
                 }
 
-                return this==(obj as CheckItem);
+                return this == (obj as CheckItem);
+            }
+            public override int GetHashCode()
+            {
+                return SourceWatch?.GetHashCode() ?? 0;
             }
         }
 

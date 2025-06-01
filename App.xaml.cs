@@ -66,11 +66,24 @@ namespace SiteWatcher
             MessageBox.Show(e.ExceptionObject.ToString(),"Критическая ошибка",MessageBoxButton.OK,MessageBoxImage.Error);
         }
 
-        public void Start(){
+        public void Start()
+        {
             CheckBrowser.Init();
             AppWindow appWindow = new AppWindow();
             AppWindowModel appModel = new AppWindowModel(appWindow);
-            appWindow.Show();
+
+            // Apply minimized setting if configured
+            if (Utils.CurrentConfig.StartMinimized)
+            {
+                appWindow.WindowState = WindowState.Minimized;
+                appWindow.Hide();
+            }
+            else
+            { 
+                appWindow.Show();    
+            }
+
+            
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 

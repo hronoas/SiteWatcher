@@ -15,6 +15,8 @@ namespace SiteWatcher{
         public string NotifiySound { get; set; }
         public bool CheckAllOnlyVisible { get; set; }
         public TimeSpan ErrorInterval { get; set; }
+        public bool StartMinimized { get; set; }
+
         public bool AutoStart
         {
             get => IsSiteWatcherInStartup();
@@ -72,6 +74,7 @@ namespace SiteWatcher{
             CheckAllOnlyVisible = CurrentConfig.CheckAllOnlyVisible;
             WriteLog = CurrentConfig.WriteLog;
             ErrorInterval = CurrentConfig.ErrorInterval;
+            StartMinimized = CurrentConfig.StartMinimized;
             ToggleAutoStartCommand = new (o => ToggleAutoStart(o));
         }
 
@@ -84,6 +87,7 @@ namespace SiteWatcher{
             CurrentConfig.CheckAllOnlyVisible = CheckAllOnlyVisible;
             CurrentConfig.WriteLog = WriteLog;
             CurrentConfig.ErrorInterval = ErrorInterval;
+            CurrentConfig.StartMinimized = StartMinimized;
             CurrentConfig.Tags.Clear();
             Tags.ToList().ForEach(t => CurrentConfig.Tags.Add(t));
         }

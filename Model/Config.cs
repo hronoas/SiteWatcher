@@ -16,6 +16,7 @@ namespace SiteWatcher{
         public TelegramConfig Telegram {get;set;} = new(){Template=defaultTelegramTemplate};
         public string NotifySound {get;set;} = "";
         public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
+        public bool StartMinimized { get; set; } = false;
 
         public SiteWatcherConfig Clone(){
             return Deserialize<SiteWatcherConfig>(Serialize(this)??"{}")??new SiteWatcherConfig();
