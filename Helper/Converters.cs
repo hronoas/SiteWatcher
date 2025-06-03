@@ -142,6 +142,30 @@ namespace SiteWatcher
         }
     }
 
+
+    [ValueConversion(typeof(bool), typeof(Visibility))]
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public Visibility TrueValue { get; set; }
+        public Visibility FalseValue { get; set; }
+
+        public BoolToVisibilityConverter()
+        {
+            FalseValue = Visibility.Collapsed;
+            TrueValue = Visibility.Visible;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (bool)value ? TrueValue : FalseValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [ValueConversion(typeof(string), typeof(Visibility))]
     public class StringNullOrEmptyToVisibilityConverter : System.Windows.Markup.MarkupExtension, IValueConverter{
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
