@@ -33,6 +33,7 @@ namespace SiteWatcher
             settings.CefCommandLineArgs.Remove("enable-system-flash");
             settings.CefCommandLineArgs.Add("enable-begin-frame-scheduling", "1");
             settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1");
+            settings.CefCommandLineArgs.Add("disable-remote-debugging", "1");
             //settings.CefCommandLineArgs.Add("mute-audio", "true");
             settings.CefCommandLineArgs.Add("disable-3d-apis", "1");
             settings.CefCommandLineArgs.Add("renderer-process-limit", "10");
