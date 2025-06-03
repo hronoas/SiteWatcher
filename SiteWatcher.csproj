@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\SiteWatcher.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- <RuntimeIdentifier>win-x64</RuntimeIdentifier> -->
-<!--     <CefSharpAnyCpuSupport>true</CefSharpAnyCpuSupport> -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <PublishDir>build</PublishDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,37 +23,32 @@
     <DebugType>None</DebugType>
       <GenerateDependencyFile>false</GenerateDependencyFile>
       <PreserveCompilationContext>false</PreserveCompilationContext>
-      <!-- <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles> -->
-      <!-- <PublishSingleFile>true</PublishSingleFile> -->
+      <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+      <PublishSingleFile>false</PublishSingleFile>
+      <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
-  <ItemGroup>
-    <LibFiles Include="$(TargetDir)runtimes/win-x64/lib/**/*.*" />
-    <AppLibs Include="$(TargetDir)*.*" Exclude="$(TargetDir)$(ProjectName)*.*" />
-    <NativeFiles Include="$(TargetDir)runtimes/win-x64/native/*.*" />
-    <LocalesFiles Include="$(TargetDir)runtimes/win-x64/native/locales/*.*" />
-    
-  </ItemGroup>
-<!-- AfterTargets="AfterBuild" -->
-<Target Name="CopyLibs" BeforeTargets="ComputeAndCopyFilesToPublishDirectory" Condition=" '$(Configuration)' == 'Release' ">
-    <Message Text="Copying runtimes to libs" Importance="High" />
-    <Copy SourceFiles="@(LibFiles)" DestinationFolder="$(TargetDir)libs" />
-    <Copy SourceFiles="@(AppLibs)" DestinationFolder="$(TargetDir)libs" />
-    <Copy SourceFiles="@(NativeFiles)" DestinationFolder="$(TargetDir)libs" />
-    <Copy SourceFiles="@(LocalesFiles)" DestinationFolder="$(TargetDir)libs/locales" />
-</Target>
+<Target Name="CopyLibs" AfterTargets="ComputeAndCopyFilesToPublishDirectory">
 
-<Target Name="DeleteLibs" AfterTargets="CopyLibs">
-    <Message Text="Deleting libs" Importance="High" />
-    <Delete Files="@(AppLibs)" />
-    <RemoveDir Directories="$(TargetDir)runtimes" />
-    <RemoveDir Directories="$(TargetDir)publish" />
+    <Message Text="Copying runtimes to libs" Importance="High" />
+    <Message Text="AppLibs items: @(AppLibs)" Importance="High" />
+
+    <ItemGroup>
+      <AppLibs Include="$(PublishDir)*.*" Exclude="$(PublishDir)$(ProjectName)*.*" />
+      <LocalesFiles Include="$(PublishDir)locales/*.*" />
+    </ItemGroup>
+
+    <Move SourceFiles="@(AppLibs)" DestinationFolder="$(PublishDir)libs" />
+    <Message Text="LocalesFiles items: @(LocalesFiles)" Importance="High" />
+    <Move SourceFiles="@(LocalesFiles)" DestinationFolder="$(PublishDir)libs/locales" />
+    <RemoveDir Directories="$(PublishDir)locales" />
 </Target>
 
 <Target Name="DeleteBin" AfterTargets="AfterClean">
-    <Message Text="Deleting obj and bin" Importance="High" />
+    <Message Text="Deleting obj, bin and build" Importance="High" />
     <RemoveDir Directories="$(ProjectDir)bin" />
     <RemoveDir Directories="$(ProjectDir)obj" />
+    <RemoveDir Directories="$(ProjectDir)build" />
 </Target>
 
 <ItemGroup>
@@ -62,12 +58,12 @@
 
   <ItemGroup>
     <PackageReference Include="CalcBinding" Version="2.5.2" />
-    <PackageReference Include="CefSharp.OffScreen.NETCore" Version="123.*" />
-    <PackageReference Include="CefSharp.Wpf.NETCore" Version="123.*" />
-    <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="123.*" />
+    <PackageReference Include="CefSharp.OffScreen.NETCore" Version="136.1.40" />
+    <PackageReference Include="CefSharp.Wpf.NETCore" Version="136.1.40" />
     <PackageReference Include="HtmlAgilityPack.NetCore" Version="1.5.0.1" />
 <!--      <PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.53" /> -->
     <PackageReference Include="Menees.Diffs" Version="5.1.2" />
+    
   </ItemGroup>
 
 </Project>

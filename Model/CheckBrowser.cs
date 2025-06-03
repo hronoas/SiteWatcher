@@ -46,21 +46,15 @@ namespace SiteWatcher
             return settings;
         }
         public static void Init(){
-#if ANYCPU
-            //Only required for PlatformTarget of AnyCPU
-            CefRuntime.SubscribeAnyCpuAssemblyResolver();
-#endif
             var settings = GetSettingsDefault();
 
-            if (!CefSharp.Cef.IsInitialized){
-                CefSharp.Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
+            if (!(CefSharp.Cef.IsInitialized??false)){
+                CefSharp.Cef.InitializeAsync(settings, performDependencyCheck: true, browserProcessHandler: null);
             } 
-/*             GC.KeepAlive(Q);
-            GC.KeepAlive(tasks); */
         }
 
         public static void DeInit(){
-            if (CefSharp.Cef.IsInitialized){
+            if (CefSharp.Cef.IsInitialized??false){
                 CefSharp.Cef.Shutdown();
             }
         }
@@ -89,9 +83,6 @@ namespace SiteWatcher
             public static bool operator ==(CheckItem? i1, CheckItem? i2)
             {
                 return i1?.SourceWatch == i2?.SourceWatch;
-                /* && i1?.onData==i2?.onData 
-                && i1?.onError==i2?.onError 
-                && i1?.onFinally==i2?.onFinally; */
             }
             public static bool operator !=(CheckItem i1, CheckItem i2) => !(i1 == i2);
 
@@ -364,6 +355,11 @@ namespace SiteWatcher
         }
 
         public void OnRenderProcessTerminated(IWebBrowser chromiumWebBrowser, IBrowser browser, CefTerminationStatus status)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void OnRenderProcessTerminated(IWebBrowser chromiumWebBrowser, IBrowser browser, CefTerminationStatus status, int errorCode, string errorMessage)
         {
             //throw new NotImplementedException();
         }
