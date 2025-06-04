@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -17,8 +18,8 @@ namespace SiteWatcher
         public bool ShowNew { 
             get=>showNew; 
             set{
-                SetField(ref showNew, value);
-                FilterWatches();
+                if (SetField(ref showNew, value))
+                    FilterWatches();
             }
         }
 
@@ -29,8 +30,8 @@ namespace SiteWatcher
             get=>textFilter; 
             set{
                 if(TagsUpdating) return;
-                SetField(ref textFilter, value);
-                FilterWatches();
+                if (SetField(ref textFilter, value))
+                    FilterWatches();
             }
         }
         private string? textFilter;
@@ -292,6 +293,9 @@ namespace SiteWatcher
         }
 
         private void FilterWatches(){
+            Dictionary<string, int> counts = new();
+            Tags.ToList().ForEach(t=>counts[t.Name]=Watches.Where(w=>w.Tags.Where(wt=>wt.Name==t.Name).Count()>0).Count());
+
             window.Dispatcher.Invoke(()=>{
                 TagsUpdating=true;
                 if(ShowNew){
@@ -313,7 +317,7 @@ namespace SiteWatcher
                     currentFilterText = converter.Convert(Tags,typeof(String),"Все",System.Globalization.CultureInfo.CurrentCulture).ToString();
                     window.TagsList.Text = currentFilterText;
                     Tags.RaiseListChangedEvents=false;
-                    Tags.ToList().ForEach(t=>t.Count=Watches.Where(w=>w.Tags.Where(wt=>wt.Name==t.Name).Count()>0).Count());
+                    Tags.ToList().ForEach(t=>t.Count=counts[t.Name]);
                     Tags.RaiseListChangedEvents=true;
                     Watches.Sort((x,y)=>{
                         return y.CompareTo(x);
@@ -331,7 +335,9 @@ namespace SiteWatcher
                 TagsUpdating=false;
             });
         }
-        private void RefreshList(){
+    
+        private void RefreshList()
+        {
             FilterWatches();
         }
 

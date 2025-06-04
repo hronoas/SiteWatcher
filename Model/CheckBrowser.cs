@@ -274,19 +274,42 @@ namespace SiteWatcher
             }
         }
 
+        private static readonly Dictionary<string, int> attemptCounts = new Dictionary<string, int>();
 
-        public static async Task SaveIconAsync(string url,string filename){
+        public static async Task SaveIconAsync(string url, string filename)
+        {
             UrlParts parts = Cef.ParseUrl(url);
-            if(parts==null) return;
-            try {
-                HttpClient client = new HttpClient();
-                using(HttpResponseMessage resp =  await client.GetAsync($"{parts.Origin}favicon.ico"))
-                using (var fileStream = File.Create(filename))
+            if (parts == null) return;
+            string domain = parts.Origin;
+
+            // Initialize attempt count for the domain if not present
+            if (!attemptCounts.ContainsKey(domain))
+            {
+                attemptCounts[domain] = 0;
+            }
+            attemptCounts[domain]++;
+
+            if (attemptCounts[domain] <= 3)
+            {
+                try
+                {
+                    HttpClient client = new HttpClient();
+                    using (HttpResponseMessage resp = await client.GetAsync($"{domain}favicon.ico"))
                     {
-                        resp.Content.ReadAsStream().CopyTo(fileStream);
-                        fileStream.Flush();
+                        if (!File.Exists(filename) && resp.IsSuccessStatusCode && resp.Content.Headers.ContentType.MediaType.Contains("image", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            using (var fileStream = File.Create(filename))
+                            {
+                                resp.Content.ReadAsStream().CopyTo(fileStream);
+                                fileStream.Flush();
+                            }
+                        }
                     }
-            } catch {
+                }
+                catch
+                { 
+                    
+                }
             }
         }
     }
