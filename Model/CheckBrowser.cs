@@ -238,16 +238,16 @@ namespace SiteWatcher
                 if(browser.CanExecuteJavascriptInMainFrame){
                     for (var i = 0; i < Source.Select.Count; i++){
                         var selector = Source.Select[i];
-                        string jsCode=@"JSON.stringify((function(parameters){"+
+                        string jsCode=@"(function(parameters){"+
                         selector.ToScript()+
-                        "})("+Serialize(selector.Value)+"))";
+                        "})("+Serialize(selector.Value)+")";
                         try{
                             var response = await browser.EvaluateScriptAsync(jsCode,timeout);
                             if(!response.Success){
                                 errors+=$"wrong selector {selector.Value}\n";
                             }else{
                                 if (response.Result != null){
-                                    List<SelectorResult> res = Deserialize<List<SelectorResult>>(response.Result.ToString()??"[]")??new List<SelectorResult>();
+                                    List<SelectorResult> res = Deserialize<List<SelectorResult>>(Serialize(response.Result))??new List<SelectorResult>();
                                     res.ForEach(r=>{
                                         if(selector.Filter!="") r.Text=selector.FilterData(Source.CheckData?r.Data:r.Text);
                                         results.Add(r);
