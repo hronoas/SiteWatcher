@@ -236,6 +236,13 @@ namespace SiteWatcher
                 var onUi = Cef.CurrentlyOnThread(CefThreadIds.TID_UI);
 
                 if(browser.CanExecuteJavascriptInMainFrame){
+                    if (!string.IsNullOrWhiteSpace(Source.PreScript)){
+                        try{
+                            var preResult = await browser.EvaluateScriptAsync(Source.PreScript, timeout);
+                        }catch (Exception ex){
+                            errors += $"pre-script error: {ex.Message}\n";
+                        }
+                    }
                     for (var i = 0; i < Source.Select.Count; i++){
                         var selector = Source.Select[i];
                         string jsCode=@"(function(parameters){"+

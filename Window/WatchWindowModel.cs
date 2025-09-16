@@ -97,10 +97,18 @@ namespace SiteWatcher
         }
 
         private async void FrameLoaded(object? sender, FrameLoadEndEventArgs e){
-            if(e.Frame.IsMain){
-                ignoreRedirect=false;
-                SelectAll();
-                if(Selecting) BeginSelect();
+        if(e.Frame.IsMain){
+            ignoreRedirect=false;
+            if (!string.IsNullOrWhiteSpace(Item.Source.PreScript)){
+                try{
+                    var timeout = new TimeSpan(0, 0, 15);
+                    var preResult = await webBrowser.EvaluateScriptAsync(Item.Source.PreScript, timeout);
+                }catch (Exception ex){
+                    MessageBox.Show($"Ошибка предварительного скрипта: {ex.Message}", "Ошибка скрипта", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            SelectAll();
+            if(Selecting) BeginSelect();
             }
         }
 

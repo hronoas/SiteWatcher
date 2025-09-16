@@ -16,6 +16,8 @@ namespace SiteWatcher{
         private bool simulateMouse;
         private readonly TimeSpan maxWaitTimout = new(0,2,0);
         public TimeSpan WaitTimeout { get=>waitTimeout; set=>SetField(ref waitTimeout, value>maxWaitTimout?maxWaitTimout:value);}
+        public string PreScript { get=>preScript; set=>SetField(ref preScript, value);}
+        private string preScript = "";
         private TimeSpan waitTimeout = new TimeSpan(0,0,3);
         public BindingList<SourceSelector> Select { get; set;} = new(){};
         public bool CheckData { get=>checkData; set=>SetField(ref checkData, value);}

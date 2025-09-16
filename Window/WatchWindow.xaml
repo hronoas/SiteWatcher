@@ -531,6 +531,16 @@
                                  local:TextBoxUtils.CheckRegexText="^([0-9]+[смчдsmhd]?)*$"/>
                     </StackPanel>
                     <StackPanel Margin="0 0 0 5"
+                                Orientation="Vertical"
+                                ToolTip="JavaScript, который будет выполнен перед проверкой элементов">
+                        <Label>Выполнить скрипт на странице перед выбором (JavaScript)</Label>
+                        <TextBox Padding="2 2 2 2"
+                                AcceptsReturn="true"
+                                MaxLines="15"
+                                Text="{Binding Item.Source.PreScript}"
+                                VerticalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                    <StackPanel Margin="0 0 0 5"
                             Orientation="Vertical">
                         <Label>Комментарий</Label>
                         <TextBox Padding="2 2 2 2"
