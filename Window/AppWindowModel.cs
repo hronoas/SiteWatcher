@@ -15,26 +15,30 @@ namespace SiteWatcher
         public SortableBindingList<Watch> Watches {get;set;}=new SortableBindingList<Watch>(new List<Watch>());
         public SortableBindingList<WatchTag> Tags {get;set;}=new(new List<WatchTag>());
         public bool TagsUpdating = false;
-        public bool ShowNew { 
-            get=>showNew; 
+        public bool ShowNew {
+            get=>showNew;
             set{
-                if (SetField(ref showNew, value))
+                if (SetField(ref showNew, value)){
+                    _pendingTextFilter=null;
                     FilterWatches();
+                }
             }
         }
 
         public string currentFilterText = "";
         private bool showNew;
 
-        public string? TextFilter { 
-            get=>textFilter; 
+        public string? TextFilter {
+            get=>textFilter;
             set{
                 if(TagsUpdating) return;
-                if (SetField(ref textFilter, value))
-                    FilterWatches();
+                _pendingTextFilter=value;
+                _filterDebounceTimer!.Change((int)TimeSpan.FromMilliseconds(300).TotalMilliseconds, Timeout.Infinite);
             }
         }
         private string? textFilter;
+        private System.Threading.Timer? _filterDebounceTimer;
+        private string? _pendingTextFilter;
         private Stack<Watch> Trash {get;set;} = new();
         public bool Trashed {get{
             return Trash.Count>0;
@@ -69,6 +73,7 @@ namespace SiteWatcher
         public Command ClearFilterCommand {get;set;}
         
         public AppWindowModel(AppWindow win) : base(win){
+            _filterDebounceTimer=new Timer(_=>window.Dispatcher.Invoke(ApplyPendingFilter), null, Timeout.Infinite, Timeout.Infinite);
             if (CurrentConfig==null) Log("Config not loaded!"); // force init config
             Log("Started");
             WatchList=win.WatchList;
@@ -100,6 +105,7 @@ namespace SiteWatcher
 
         private void TagsChanged(object? sender, ListChangedEventArgs e){
             textFilter=null;
+            _pendingTextFilter=null;
             ChangedField(nameof(Tags));
             RefreshList();
         }
@@ -310,7 +316,7 @@ namespace SiteWatcher
                     window.TagsList.Text=textFilter;
                     string lf = textFilter.ToLower();
                     Watches.ToList().ForEach(w=>{
-                        w.IsVisible = w.Name.ToLower().Contains(lf) || w.Comment.ToLower().Contains(lf) || w.Source.Url.ToLower().Contains(lf);
+                        w.IsVisible = (w.Name?? "").ToLower().Contains(lf) || (w.Comment?? "").ToLower().Contains(lf) || (w.Source?.Url?? "").ToLower().Contains(lf);
                     });
                 }else{
                     ListWatchTagToStringConverter converter = new();
@@ -327,7 +333,7 @@ namespace SiteWatcher
                     List<string> tagInclude = Tags.Where(t=>t.Selected??false).Select(t=>t.Name).ToList();
                     Watches.ToList().ForEach(w=>{
                         w.IsVisible = nofilter  || w.Tags.Count==0 && tagInclude.Count==0 ||
-                        !w.Tags.Any(wt=>tagExclude.Contains(wt.Name)) 
+                        !w.Tags.Any(wt=>tagExclude.Contains(wt.Name))
                         && w.Tags.Any(wt=>tagInclude.Count==0 || tagInclude.Contains(wt.Name));
                     });
                 }
@@ -339,6 +345,13 @@ namespace SiteWatcher
         private void RefreshList()
         {
             FilterWatches();
+        }
+
+        private void ApplyPendingFilter(){
+            string? pending = _pendingTextFilter;
+            _pendingTextFilter=null;
+            if(SetField(ref textFilter, pending))
+                FilterWatches();
         }
 
         private void EditWatch(Watch w){

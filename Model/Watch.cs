@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace SiteWatcher{
     public class Watch:PropertyChangedBase,ICloneable,IComparable<Watch>{
-        public bool Enabled { get=>enabled; set{SetField(ref enabled, value);ChangedField(nameof(Status));}}
+        public bool Enabled { get=>enabled; set{SetField(ref enabled, value);InvalidateStatus();}}
         private bool enabled = true;
         public string Name { get=>name; set=>SetField(ref name, value);}
         private string name="";
@@ -17,7 +17,7 @@ namespace SiteWatcher{
         private string comment = "";
         public WatchSource Source { get; set;} = new();
         public BindingList<WatchTag> Tags {get;set;} = new();
-        public string Error { get=>error; set{SetField(ref error, value);ChangedField(nameof(Status));}}
+        public string Error { get=>error; set{SetField(ref error, value);InvalidateStatus();}}
         private string error="";
         public TimeSpan Interval { get=>interval; set=>SetField(ref interval, value);}
         private TimeSpan interval = new TimeSpan(3,0,0);
@@ -30,7 +30,7 @@ namespace SiteWatcher{
         public bool RepeatNotify { get=>repeatNotify; set=>SetField(ref repeatNotify, value);}
         private bool repeatNotify = false;
 
-        public DateTime LastSeen { get=>lastSeen; set{SetField(ref lastSeen, value);ChangedField(nameof(IsNew));ChangedField(nameof(Status));}}
+        public DateTime LastSeen { get=>lastSeen; set{SetField(ref lastSeen, value);ChangedField(nameof(IsNew));InvalidateStatus();}}
         private DateTime lastSeen;
         public bool Notify { get=>notify; set=>SetField(ref notify, value);}
         private bool notify = true;
@@ -40,14 +40,20 @@ namespace SiteWatcher{
         public int MaxCheckpoints { get=>maxCheckpoints; set=>SetField(ref maxCheckpoints, value);}
         private int maxCheckpoints = 10;
         [JsonIgnoreAttribute()]
-        public bool IsChecking { get=>isChecking; set{SetField(ref isChecking, value);ChangedField(nameof(Status));}}
+        public bool IsChecking { get=>isChecking; set{SetField(ref isChecking, value);InvalidateStatus();}}
         private bool isChecking = false;
         [JsonIgnoreAttribute()]
-        public bool IsQueued { get=>isQueued; set{SetField(ref isQueued, value);ChangedField(nameof(Status));}}
+        public bool IsQueued { get=>isQueued; set{SetField(ref isQueued, value);InvalidateStatus();}}
         private bool isQueued = false;
         [JsonIgnoreAttribute()]
         public bool IsVisible { get=>isVisible; set=>SetField(ref isVisible, value);}
         private bool isVisible = true;
+
+        private CheckpointDiff? _cachedDiff;
+        private void InvalidateDiff() { _cachedDiff = null; }
+
+        private WatchStatus? _cachedStatus;
+        private void InvalidateStatus() { _cachedStatus = null; ChangedField(nameof(Status)); }
 
         public bool UseProxy { get=>useProxy; set=>SetField(ref useProxy, value);}
         private bool useProxy = false;
@@ -83,6 +89,11 @@ namespace SiteWatcher{
                                         .ToList();
                     toRemove.ForEach(x=>Checkpoints.Remove(x));
                     Checkpoints.RaiseListChangedEvents = true;
+                    InvalidateDiff();
+                    ChangedField(nameof(Diff));
+                    ChangedField(nameof(MarkDiff));
+                    ChangedField(nameof(IsNew));
+                    InvalidateStatus();
                 }
                 if(Checkpoints.Count<2){ // after first check
                         IsNeedNotify=false;
@@ -115,24 +126,37 @@ namespace SiteWatcher{
 
         public void CheckpointTrace(){
             Checkpoints.AddingNew+=(o,e)=>{
+                InvalidateDiff();
                 ChangedField(nameof(Diff));
                 ChangedField(nameof(MarkDiff));
                 ChangedField(nameof(IsNew));
-                ChangedField(nameof(Status));
+                InvalidateStatus();
                 };
+            Checkpoints.ListChanged+=(o,e)=>{
+                if(e.ListChangedType==ListChangedType.ItemDeleted || e.ListChangedType==ListChangedType.ItemChanged){
+                    InvalidateDiff();
+                    ChangedField(nameof(Diff));
+                    ChangedField(nameof(MarkDiff));
+                    ChangedField(nameof(IsNew));
+                    InvalidateStatus();
+                }
+            };
         }
 
 
         [JsonIgnoreAttribute()]
         public CheckpointDiff Diff{
             get{
+                if(_cachedDiff != null) return _cachedDiff;
                 if(Checkpoints.Count==0){
                     Checkpoint dummy = new Checkpoint(){Time=DateTime.MinValue};
-                    return new CheckpointDiff(dummy,dummy);
+                    _cachedDiff = new CheckpointDiff(dummy,dummy);
+                }else{
+                    Checkpoint max = Checkpoints.Max() ?? new();
+                    Checkpoint prev = Checkpoints.Where(c => c < max).Max() ?? new() { Time = DateTime.MinValue };
+                    _cachedDiff = max - prev;
                 }
-                Checkpoint max = Checkpoints.Max() ?? new();
-                Checkpoint prev = Checkpoints.Where(c => c < max).Max() ?? new() { Time = DateTime.MinValue };
-                return max - prev;
+                return _cachedDiff;
             }
         }
         [JsonIgnoreAttribute()]
@@ -156,12 +180,18 @@ namespace SiteWatcher{
         public string LastError {get;set;} = ""; //last error sent to notify
         [JsonIgnoreAttribute()]
         public WatchStatus Status { get {
-            if(isChecking) return WatchStatus.Checking;
-            if(isQueued) return WatchStatus.Queued;
-            if(!enabled) return WatchStatus.Off;
-            if(Error!="") return WatchStatus.Fail;
-            if(IsNew) return WatchStatus.New;
-            return WatchStatus.NoChanges;
+            WatchStatus newStatus;
+            if(isChecking) newStatus=WatchStatus.Checking;
+            else if(isQueued) newStatus=WatchStatus.Queued;
+            else if(!enabled) newStatus=WatchStatus.Off;
+            else if(Error!="") newStatus=WatchStatus.Fail;
+            else if(IsNew) newStatus=WatchStatus.New;
+            else newStatus=WatchStatus.NoChanges;
+            if(_cachedStatus != newStatus){
+                _cachedStatus=newStatus;
+                ChangedField(nameof(Status));
+            }
+            return newStatus;
         } }
         public void CopySettingsFrom(Watch w){
             Enabled=w.Enabled;
@@ -189,6 +219,8 @@ namespace SiteWatcher{
         }
         public object Clone(){
             Watch clone = (Watch)MemberwiseClone();
+            clone._cachedDiff = null;
+            clone._cachedStatus = null;
             clone.Checkpoints = new BindingList<Checkpoint>(Checkpoints.Select(x=>(Checkpoint)x.Clone()).ToList());
             clone.Tags = new BindingList<WatchTag>(Tags.Select(x=>x.Clone()).ToList());
             clone.CheckpointTrace();
