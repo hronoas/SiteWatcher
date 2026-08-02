@@ -37,7 +37,7 @@ namespace SiteWatcher{
         }
     }
     class WatchTagConverter : JsonConverter<WatchTag>{
-        public override WatchTag Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => WatchTag.FromString(reader.GetString());
+        public override WatchTag Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => WatchTag.FromString(reader.GetString()!);
         public override void Write(Utf8JsonWriter writer, WatchTag watchTag, JsonSerializerOptions options) => writer.WriteStringValue(watchTag.ToString());
     }
 

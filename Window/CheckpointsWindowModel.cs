@@ -24,7 +24,7 @@ namespace SiteWatcher
         
         public CheckpointsWindowModel(Watch Source,CheckpointsWindow win) : base(win){
             CheckpointsList = window.CheckpointsList;
-            ToggleMarkedCommand = new(o=>ToggleMarked(o));
+            ToggleMarkedCommand = new(o=>ToggleMarked(o!));
             DeleteSelectedCommand=new(o=>DeleteSelected());
             CloseWindowCommand = new(o=>win.Close());
             SaveCommentCommand=new(o=>SaveComment());

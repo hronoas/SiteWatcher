@@ -36,7 +36,7 @@ namespace SiteWatcher{
         private string data = "";
 
     }
-    public enum SourceSelectorType{XPath=0,CSS=1 /* ,JavaScript=2 */}
+    public enum SourceSelectorType{XPath=0,CSS=1,JavaScript=2}
     
     public class SourceSelector:PropertyChangedBase,ICloneable{
         public string Value { get=>sValue; set=>SetField(ref sValue, value);}
@@ -112,8 +112,13 @@ namespace SiteWatcher{
                             }
                         });
                         return result;";
-/*                 case SourceSelectorType.JavaScript:
-                    return Value; */
+                case SourceSelectorType.JavaScript:
+                    return @"var result=[];
+                    " + Regex.Replace(Value, "(?<!await\\s)\\bwait\\(", "await wait(") +
+                        @" if(typeof result!=='undefined' && Array.isArray(result)){
+                            result=result.filter(function(r){return r&&typeof r.Text!=='undefined' && typeof r.Data!=='undefined';});
+                        }
+                        return result||[];";
                 default:
                 return @"var result = [];
                         return result;";

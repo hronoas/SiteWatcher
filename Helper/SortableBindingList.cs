@@ -8,7 +8,7 @@ namespace SiteWatcher{
         public void Sort() { sort(null, null); }
         public void Sort(IComparer<T> p_Comparer) { sort(p_Comparer, null); }
         public void Sort(Comparison<T> p_Comparison) { sort(null, p_Comparison); }
-        private void sort(IComparer<T> p_Comparer, Comparison<T> p_Comparison){
+        private void sort(IComparer<T>? p_Comparer, Comparison<T>? p_Comparison){
             if(typeof(T).GetInterface(typeof(IComparable<T>).Name) != null || typeof(T).GetInterface(typeof(IComparable).Name) != null){
                 bool originalValue = this.RaiseListChangedEvents;
                 this.RaiseListChangedEvents = false;

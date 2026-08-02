@@ -18,7 +18,7 @@ namespace SiteWatcher
     {
         public Watch Item {get;set;} = new();
         public SortableBindingList<WatchTag> Tags {get;set;} = new(new List<WatchTag>());
-        private ChromiumWebBrowser webBrowser;
+        private ChromiumWebBrowser webBrowser = null!;
         public Command<string> UrlOpenCommand {get;set;}
         public Command<string> UrlUpdateCommand {get;set;}
         public Command SaveCommand {get;set;}
@@ -47,8 +47,8 @@ namespace SiteWatcher
                 }
             }
             ignoreRedirect=ignoreFirstRedirect;
-            UrlOpenCommand=new((s)=>{ Item.Source.Referer=""; ignoreRedirect=true; UrlOpen(s);});
-            UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s);});
+            UrlOpenCommand=new((s)=>{ Item.Source.Referer=""; ignoreRedirect=true; UrlOpen(s!);});
+            UrlUpdateCommand=new((s)=>{ ignoreRedirect=true; UrlOpen(s!);});
             SaveCommand=new(o=>{Save();});
             CancelCommand=new(o=>{window.DialogResult=false; window.Close();});
             SelectAddCommand=new(o=>Item.Source.Select.Add(new("")));
@@ -74,7 +74,7 @@ namespace SiteWatcher
         private RequestContext createBrowser(){
             var rc = new RequestContext(CheckBrowser.GetContextSettingsDefault(Item.UseProxy));                    
             webBrowser = new ChromiumWebBrowser();
-            Border border = (window.FindName("BrowserBorder") as Border);
+            Border border = (window.FindName("BrowserBorder") as Border)!;
             webBrowser.RequestContext = rc;
             border.Child=webBrowser;
             webBrowser.LifeSpanHandler = new MyCustomLifeSpanHandler();
@@ -117,7 +117,7 @@ namespace SiteWatcher
                 MessageBox.Show("Откройте страницу перед выбором","Страница не загружена",MessageBoxButton.OK,MessageBoxImage.Error);
                 return;
             }
-            string script = ReadResource("inject_choose.js").ReadToEnd();  //H.Resources.inject_choose_js.AsString();
+            string script = ReadResource("inject_choose.js")!.ReadToEnd();  //H.Resources.inject_choose_js.AsString();
             string allscript = @"(async function() {"+
                 $@"CefSharp.DeleteBoundObject('{jsObjectName}');
                 CefSharp.RemoveObjectFromCache('{jsObjectName}');
@@ -156,7 +156,7 @@ namespace SiteWatcher
             Item.Source.Select.ToList().ForEach(selector=>{
                 list.Add(new(selector));
             });
-            string script = ReadResource("inject_select.js").ReadToEnd(); //H.Resources.inject_select_js.AsString();
+            string script = ReadResource("inject_select.js")!.ReadToEnd(); //H.Resources.inject_select_js.AsString();
             string allscript = @"(function(parameters){"+
                 script+
                 @"})("+Serialize(list)+")";
@@ -211,7 +211,7 @@ namespace SiteWatcher
     public class MyCustomLifeSpanHandler : ILifeSpanHandler{
         public bool OnBeforePopup(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser){
             browser.MainFrame.LoadUrl(targetUrl);
-            newBrowser = null;
+            newBrowser = default!;
             return true;
         }
         

@@ -59,7 +59,7 @@ namespace SiteWatcher
 
         private void TagsList_TextChanged(object sender, TextChangedEventArgs e){
             if (((AppWindowModel)DataContext).TagsUpdating) return;
-            ComboBox cb = sender as ComboBox;
+            ComboBox cb = (sender as ComboBox)!;
             if (cb.Text == ((AppWindowModel)DataContext).currentFilterText) return;
             ((AppWindowModel)DataContext).TextFilter = cb.Text;
         }
@@ -71,7 +71,7 @@ namespace SiteWatcher
             }
         }
         private void UndoSelectedIndex(object sender, SelectionChangedEventArgs e){
-            ComboBox cb = sender as ComboBox;
+            ComboBox cb = (sender as ComboBox)!;
             if(cb==null) return;
             cb.SelectedIndex=-1;
             e.Handled = true;

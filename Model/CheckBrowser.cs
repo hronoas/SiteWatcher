@@ -84,7 +84,7 @@ namespace SiteWatcher
             {
                 return i1?.SourceWatch == i2?.SourceWatch;
             }
-            public static bool operator !=(CheckItem i1, CheckItem i2) => !(i1 == i2);
+            public static bool operator !=(CheckItem? i1, CheckItem? i2) => !(i1 == i2);
 
             public override bool Equals(object? obj)
             {
@@ -245,9 +245,12 @@ namespace SiteWatcher
                     }
                     for (var i = 0; i < Source.Select.Count; i++){
                         var selector = Source.Select[i];
-                        string jsCode=@"(function(parameters){"+
-                        selector.ToScript()+
-                        "})("+Serialize(selector.Value)+")";
+                        string preamble = selector.Type == SourceSelectorType.JavaScript
+                            ? Utils.ReadResource("js_selector.js")!.ReadToEnd() : "";
+                        string jsCode= @"(async function(parameters){" +
+                            preamble +
+                            selector.ToScript() +
+                            "})("+Serialize(selector.Value)+")";
                         try{
                             var response = await browser.EvaluateScriptAsync(jsCode,timeout);
                             if(!response.Success){
@@ -303,12 +306,16 @@ namespace SiteWatcher
                     HttpClient client = new HttpClient();
                     using (HttpResponseMessage resp = await client.GetAsync($"{domain}favicon.ico"))
                     {
-                        if (!File.Exists(filename) && resp.IsSuccessStatusCode && resp.Content.Headers.ContentType.MediaType.Contains("image", StringComparison.CurrentCultureIgnoreCase))
+                        var ct = resp.Content.Headers.ContentType;
+                        if (ct != null)
                         {
-                            using (var fileStream = File.Create(filename))
+                            if (!File.Exists(filename) && resp.IsSuccessStatusCode && ct.MediaType?.Contains("image", StringComparison.CurrentCultureIgnoreCase) == true)
                             {
-                                resp.Content.ReadAsStream().CopyTo(fileStream);
-                                fileStream.Flush();
+                                using (var fileStream = File.Create(filename))
+                                {
+                                    resp.Content.ReadAsStream().CopyTo(fileStream);
+                                    fileStream.Flush();
+                                }
                             }
                         }
                     }
@@ -380,7 +387,7 @@ namespace SiteWatcher
         }
         void IRequestHandler.OnRenderViewReady(IWebBrowser browserControl, IBrowser browser){}
         void IRequestHandler.OnDocumentAvailableInMainFrame(IWebBrowser chromiumWebBrowser, IBrowser browser){}
-        IResourceRequestHandler IRequestHandler.GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling){
+        IResourceRequestHandler? IRequestHandler.GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling){
             return null;
         }
 

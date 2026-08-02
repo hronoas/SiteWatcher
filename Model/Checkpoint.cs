@@ -8,7 +8,7 @@ namespace SiteWatcher{
         private string text="";
         
         public string Data { get=>data; set=>SetField(ref data, value);}
-        private string data;
+        private string data="";
 
         public bool Marked { get=>marked; set=>SetField(ref marked, value);}
         private bool marked=false;
@@ -48,6 +48,11 @@ namespace SiteWatcher{
             if (ReferenceEquals(this, obj)) return true;
             if (ReferenceEquals(obj, null)) return false;
             return this==(obj as Checkpoint);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Text, Data);
         }
     }
 }

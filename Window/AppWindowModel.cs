@@ -44,7 +44,7 @@ namespace SiteWatcher
             return Trash.Count>0;
         }}
         private ListView WatchList {get;set;}
-        private Timer timer;
+        private Timer timer = null!;
         public int TimerInterval { 
             get=>timerInterval; 
             set{
@@ -83,10 +83,10 @@ namespace SiteWatcher
             win.Closed+=(o,e)=>{ConfigSave();ConfigSave2();};
             CheckWatchCommand=new(w=>CheckSelectedWatch(w));
             AddWatchCommand=new(n=>AddWatch());
-            EditWatchCommand =new(w=>EditWatch(w));
+            EditWatchCommand =new(w=>EditWatch(w!));
             DeleteWatchCommand = new(w=>DeleteSelectedWatch(w));
-            CheckAllCommand = new(w=>CheckAll(CurrentConfig.CheckAllOnlyVisible));
-            CopyWatchCommand = new(w=>CopyWatch(w));
+            CheckAllCommand = new(w=>CheckAll(CurrentConfig!.CheckAllOnlyVisible));
+            CopyWatchCommand = new(w=>CopyWatch(w!));
             ToggleWatchCommand = new(w=>ToggleSelectedWatch(w));
             NavigateWatchCommand = new(w=>NavigateWatch(w));
             NavigateAllWatchCommand = new(w=>NavigateAllWatch(w));
@@ -237,7 +237,7 @@ namespace SiteWatcher
         private void ConfigLoad(){
             Watches.Clear();
             if(File.Exists(WatchesConfig))
-                Deserialize<List<Watch>>(ReadAllText(WatchesConfig))?.ForEach(x=>Watches.Add(x));
+                Deserialize<List<Watch>>(ReadAllText(WatchesConfig))?.ForEach(x=>{x.CheckpointTrace();Watches.Add(x);});
 
             window.Width = CurrentConfig.WindowSize.X;
             window.Height = CurrentConfig.WindowSize.Y;
@@ -320,7 +320,7 @@ namespace SiteWatcher
                     });
                 }else{
                     ListWatchTagToStringConverter converter = new();
-                    currentFilterText = converter.Convert(Tags,typeof(String),"Все",System.Globalization.CultureInfo.CurrentCulture).ToString();
+                    currentFilterText = converter.Convert(Tags,typeof(String),"Все",System.Globalization.CultureInfo.CurrentCulture).ToString()!;
                     window.TagsList.Text = currentFilterText;
                     Tags.RaiseListChangedEvents=false;
                     Tags.ToList().ForEach(t=>t.Count=counts[t.Name]);

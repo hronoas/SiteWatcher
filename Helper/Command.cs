@@ -34,7 +34,7 @@ namespace SiteWatcher
         {
             if(CanExecuteDelegate != null)
             {
-                return CanExecuteDelegate((T)parameter);
+                return CanExecuteDelegate((T?)parameter);
             }
  
             return true;
@@ -50,7 +50,7 @@ namespace SiteWatcher
         {
             if (ExecuteDelegate != null)
             {
-                ExecuteDelegate((T)parameter);
+                ExecuteDelegate((T?)parameter);
             }
         }
  

@@ -39,6 +39,8 @@ function selectChoose(selectors){
       case 'xpath':
         selectPath(sel.value).forEach(el=>el.classList.add(selectedClass))
         break;
+      case 'javascript':
+        break;
       default:
         break;
     }

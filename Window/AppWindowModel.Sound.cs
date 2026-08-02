@@ -4,7 +4,7 @@ using System.Media;
 namespace SiteWatcher
 {
     public partial class AppWindowModel : BaseWindowModel<AppWindow>{
-        private SoundPlayer soundPlayer = new SoundPlayer(ReadResource("notify.wav").BaseStream);
+        private SoundPlayer soundPlayer = new SoundPlayer(ReadResource("notify.wav")!.BaseStream);
         public string NotifySound { 
             get => CurrentConfig.NotifySound; 
             set{
@@ -15,7 +15,7 @@ namespace SiteWatcher
                     soundPlayer.Dispose();
                     soundPlayer = newPlayer;
                 }catch{
-                    soundPlayer = new SoundPlayer(ReadResource("notify.wav").BaseStream);
+                    soundPlayer = new SoundPlayer(ReadResource("notify.wav")!.BaseStream);
                 }
             }
         }

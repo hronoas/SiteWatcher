@@ -107,7 +107,7 @@ namespace SiteWatcher{
         var nodes =  doc.DocumentNode.SelectNodes("//a");
         if (nodes!=null){ 
           foreach (var item in nodes){
-              var herf = ((HtmlAttribute)item.Attributes.Where(x => x.Name == "href").FirstOrDefault()).Value;
+              var herf = ((HtmlAttribute)item.Attributes.Where(x => x.Name == "href").FirstOrDefault()!).Value;
               html = html.Replace(item.InnerText, item.InnerText + string.Format("({0})", herf));
           }
           doc.LoadHtml(html);

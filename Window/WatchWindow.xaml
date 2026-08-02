@@ -384,12 +384,22 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Выбирать"
-                                            Width="600">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding Value}"
-                                                        TextWrapping="NoWrap">
+                                     <GridViewColumn Header="Выбирать"
+                                             Width="600">
+                                         <GridViewColumn.CellTemplate>
+                                             <DataTemplate>
+                                                 <TextBox Text="{Binding Value}"
+                                                         TextWrapping="NoWrap">
+                                                     <TextBox.Style>
+                                                         <Style TargetType="TextBox">
+                                                             <Setter Property="ToolTip" Value=""/>
+                                                             <Style.Triggers>
+                                                                 <DataTrigger Binding="{Binding Type}" Value="JavaScript">
+                                                                     <Setter Property="ToolTip" Value="Доступные функции:&#x0a;click(xpath/css, тип) — клик по элементу (тип: &apos;xpath&apos; или &apos;css&apos;)&#x0a;wait(ms) — ожидание в миллисекундах&#x0a;result — массив [{Text, Data}] для вывода"/>
+                                                                 </DataTrigger>
+                                                             </Style.Triggers>
+                                                         </Style>
+                                                     </TextBox.Style>
                                                     <TextBox.InputBindings>
                                                         <KeyBinding Command="{Binding Source={StaticResource Proxy}, Path=Data.UpdateTextBoxCommand}"
                                                                 Key="Enter"

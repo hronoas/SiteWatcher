@@ -121,17 +121,17 @@ namespace SiteWatcher
             string filenameLocal = Path.Combine(AppPath,file);
             string filenameRoaming = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),AppName,file);
             if(File.Exists(filenameLocal)){
-                if(HasWritePermissionOnDir(Path.GetDirectoryName(filenameLocal))) return filenameLocal;
+                if(HasWritePermissionOnDir(Path.GetDirectoryName(filenameLocal)!)) return filenameLocal;
                 else{
                     if(File.Exists(filenameRoaming)) return filenameRoaming;
                     else{
-                        Directory.CreateDirectory(Path.GetDirectoryName(filenameRoaming));
+                        Directory.CreateDirectory(Path.GetDirectoryName(filenameRoaming)!);
                         File.Copy(filenameLocal,filenameRoaming);
                         return filenameRoaming;
                     }
                 }
             } else {
-                string dir = Path.GetDirectoryName(filenameRoaming);
+                string dir = Path.GetDirectoryName(filenameRoaming)!;
                 if(!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 return filenameRoaming;
             }
@@ -145,7 +145,7 @@ namespace SiteWatcher
             string resourcePath = "SiteWatcher.Resources."+name;
             if(!assembly.GetManifestResourceNames().Any(s=>s==resourcePath)) return null;
 
-            return new StreamReader(assembly.GetManifestResourceStream(resourcePath));
+            return new StreamReader(assembly.GetManifestResourceStream(resourcePath)!);
         }
 
         public static bool HasWritePermissionOnDir(string path){
@@ -156,7 +156,7 @@ namespace SiteWatcher
                 testfile=testfile+i.ToString();
                 File.WriteAllText(testfile,"test string");
                 File.Delete(testfile);   
-            }catch (System.Exception ex){
+            }catch (System.Exception){
                 return false;
             }
             return true;

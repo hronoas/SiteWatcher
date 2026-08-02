@@ -79,7 +79,7 @@ namespace SiteWatcher
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture){
-             return null;
+             return null!;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider){
@@ -111,7 +111,7 @@ namespace SiteWatcher
             return (str).Substring(0,pos);
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-            return null;
+            return null!;
         }
         public override object ProvideValue(IServiceProvider serviceProvider){            
             return this;
@@ -134,7 +134,7 @@ namespace SiteWatcher
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture){
-             return null;
+             return null!;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider){
@@ -173,7 +173,7 @@ namespace SiteWatcher
                 ? Visibility.Collapsed : Visibility.Visible;
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-            return null;
+            return null!;
         }
         public override object ProvideValue(IServiceProvider serviceProvider){            
             return this;
@@ -192,7 +192,7 @@ namespace SiteWatcher
             return String.Join(defSplitter,tags.Select(t=>((t.Selected==null?"!":"")+t.Name)));
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-            return null;
+            return null!;
         }
         public override object ProvideValue(IServiceProvider serviceProvider){            
             return this;
@@ -217,7 +217,7 @@ namespace SiteWatcher
                 string newfilename = Path.Combine(AppIcons, uri.Host+".ico");
                 if(!File.Exists(newfilename)){
                     Directory.CreateDirectory(Path.GetDirectoryName(newfilename)??AppIcons);
-                    CheckBrowser.SaveIconAsync(url,newfilename);
+                    _ = CheckBrowser.SaveIconAsync(url,newfilename);
                 }else{
                     filename=newfilename;
                 }
@@ -226,7 +226,7 @@ namespace SiteWatcher
             return filename;
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture){
-            return null;
+            return null!;
         }
         public override object ProvideValue(IServiceProvider serviceProvider){            
             return this;
@@ -292,7 +292,7 @@ namespace SiteWatcher
                 return textBlock;
             }
 
-            return null;
+            return null!;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider){
@@ -300,7 +300,7 @@ namespace SiteWatcher
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture){
-            return null;
+            return null!;
         }
     }
 }

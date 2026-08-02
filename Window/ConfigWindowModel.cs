@@ -26,13 +26,13 @@ namespace SiteWatcher{
         private bool IsSiteWatcherInStartup()
         {
             string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            string exePath = Environment.ProcessPath;
+            string? exePath = Environment.ProcessPath;
 
             if (string.IsNullOrEmpty(exePath)) return false;
 
             foreach (string file in Directory.GetFiles(startupPath, "*.lnk"))
             {
-                string targetPath = GetShortcutTargetPath(file);
+                string? targetPath = GetShortcutTargetPath(file);
                 if (!string.IsNullOrEmpty(targetPath) &&
                     string.Equals(targetPath, exePath, StringComparison.OrdinalIgnoreCase))
                 {
@@ -60,11 +60,11 @@ namespace SiteWatcher{
             win.DataContext = this;
             SaveCommand = new(o => { SaveAll(); window.DialogResult = true; window.Close(); });
             CancelCommand = new(o => { window.DialogResult = false; window.Close(); });
-            OpenConfigFolder = new(o => { Process.Start("explorer.exe", Path.GetDirectoryName(AppConfig)); });
-            OpenWatchesFolder = new(o => { Process.Start("explorer.exe", Path.GetDirectoryName(WatchesConfig)); });
+            OpenConfigFolder = new(o => { Process.Start("explorer.exe", Path.GetDirectoryName(AppConfig!)!); });
+            OpenWatchesFolder = new(o => { Process.Start("explorer.exe", Path.GetDirectoryName(WatchesConfig!)!); });
             ChooseNotifySoundCommand = new(o => ChooseNotifySound());
-            AddTagCommand = new(o => Tags.Add(new WatchTag()));
-            RemoveTagCommand = new(t => Tags.Remove(t));
+            AddTagCommand = new(o => Tags!.Add(new WatchTag()));
+            RemoveTagCommand = new(t => Tags!.Remove(t!));
             CloseWindowCommand = new(o => win.Close());
 
             Tags = new(tags);
@@ -120,7 +120,7 @@ namespace SiteWatcher{
         }
         public void ToggleAutoStart(bool addToStartup) {
             string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            string exePath = Environment.ProcessPath;
+            string? exePath = Environment.ProcessPath;
 
             if (string.IsNullOrEmpty(exePath)) return;
 
@@ -141,8 +141,8 @@ namespace SiteWatcher{
                 } while (File.Exists(lnkPath) && GetShortcutTargetPath(lnkPath) != exePath);
 
                 // Create a proper Windows shortcut to the executable
-                Type shellType = Type.GetTypeFromProgID("WScript.Shell");
-                dynamic shell = Activator.CreateInstance(shellType);
+                Type shellType = Type.GetTypeFromProgID("WScript.Shell")!;
+                dynamic shell = Activator.CreateInstance(shellType)!;
                 dynamic shortcut = shell.CreateShortcut(lnkPath);
 
                 shortcut.TargetPath = exePath;
@@ -163,10 +163,10 @@ namespace SiteWatcher{
             }
         }
 
-        private string GetShortcutTargetPath(string shortcutPath) {
+        private string? GetShortcutTargetPath(string shortcutPath) {
             try {
-                Type shellType = Type.GetTypeFromProgID("WScript.Shell");
-                dynamic shell = Activator.CreateInstance(shellType);
+                Type shellType = Type.GetTypeFromProgID("WScript.Shell")!;
+                dynamic shell = Activator.CreateInstance(shellType)!;
                 dynamic shortcut = shell.CreateShortcut(shortcutPath);
                 return shortcut.TargetPath;
             } catch {

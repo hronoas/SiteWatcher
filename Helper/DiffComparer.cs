@@ -70,7 +70,7 @@ namespace SiteWatcher{
                     res[x]=null;
                 }
             }
-            List<DiffPart> result2=new(a.Select(s=>new DiffPart(s,DiffType.Normal,Splitter)));
+            List<DiffPart?> result2=new(a.Select(s=>new DiffPart(s,DiffType.Normal,Splitter)));
             Dictionary<int,List<DiffPart>> subs=new();
             for (var i = 0; i < edit.Count; i++){
                 Edit e= edit[i];

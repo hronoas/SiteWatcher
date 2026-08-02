@@ -10,7 +10,7 @@ namespace SiteWatcher{
         }
         private void CheckpointsList_DoubleClick(object sender, EventArgs e){
             if (CheckpointsList.SelectedItems.Count == 1) {
-                ((CheckpointsWindowModel)DataContext).ToggleMarked(CheckpointsList.SelectedItems[0] as CheckpointDiff);
+                ((CheckpointsWindowModel)DataContext).ToggleMarked((CheckpointsList.SelectedItems[0] as CheckpointDiff)!);
             }
         }
     }

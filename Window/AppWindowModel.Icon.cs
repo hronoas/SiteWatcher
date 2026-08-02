@@ -17,16 +17,16 @@ namespace SiteWatcher
                 Icon ico;
                 switch (status){
                     case WatchStatus.Fail:
-                        ico = new System.Drawing.Icon(ReadResource("iFail.ico").BaseStream);
+                        ico = new System.Drawing.Icon(ReadResource("iFail.ico")!.BaseStream);
                         break;
                     case WatchStatus.Checking:
-                        ico = new System.Drawing.Icon(ReadResource("iChecking.ico").BaseStream);
+                        ico = new System.Drawing.Icon(ReadResource("iChecking.ico")!.BaseStream);
                         break;
                     case WatchStatus.New:
-                        ico = new System.Drawing.Icon(ReadResource("iNew.ico").BaseStream);
+                        ico = new System.Drawing.Icon(ReadResource("iNew.ico")!.BaseStream);
                         break;
                     case WatchStatus.Off:
-                        ico = new System.Drawing.Icon(ReadResource("iOff.ico").BaseStream);
+                        ico = new System.Drawing.Icon(ReadResource("iOff.ico")!.BaseStream);
                         break;
                     default:
                         ico = defaultIcon;

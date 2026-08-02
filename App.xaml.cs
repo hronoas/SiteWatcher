@@ -21,8 +21,8 @@ namespace SiteWatcher
         }
         private string UniqueEventName = generateGuid("event");
         private string UniqueMutexName =  generateGuid("mutex");
-        private EventWaitHandle eventWaitHandle;
-        private Mutex mutex;
+        private EventWaitHandle eventWaitHandle = null!;
+        private Mutex mutex = null!;
 
         private void AppOnStartup(object sender, StartupEventArgs e)
         {
