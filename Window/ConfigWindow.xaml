@@ -81,6 +81,7 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                             <Button Content="Выбрать" Command="{Binding ChooseNotifySoundCommand}" DockPanel.Dock="Right" Margin="3 0 0 0" Padding="2 2 2 2"/>
                             <TextBox ToolTip="Путь к файлу со звуком для уведомлений" Text="{Binding NotifiySound}" Padding="2 2 2 2"/>
                         </DockPanel>
+                        <CheckBox ToolTip="Глобально отключить все звуковые уведомления" Margin="0 5 0 5" IsChecked="{Binding DisableNotifySound}">Отключить все звуковые уведомления</CheckBox>
                         <GroupBox Header="Настройки Telegram бота для уведомлений">
                             <Grid Margin="0 5 0 5">
                                 <Grid.Resources>

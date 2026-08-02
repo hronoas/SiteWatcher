@@ -205,7 +205,7 @@ namespace SiteWatcher
             w.Check(()=> {
                 if(w.IsNeedNotify){
                     if(w.Notify) ShowToast(w);
-                    if(w.SoundNotify) PlaySound(w);
+                    if(w.SoundNotify && !CurrentConfig.DisableNotifySound) PlaySound(w);
                     if(w.NotifyTelegram) SendTelegram(w);
                     if(w.NotifyRepeatedError) w.LastError="";
                     w.IsNeedNotify=false;

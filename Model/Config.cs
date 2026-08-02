@@ -15,6 +15,7 @@ namespace SiteWatcher{
         public readonly static string defaultTelegramTemplate = "{error=}✅{/error}{error!=}❌{/error} <a href=\"{url}\">{name}</a>\n{error=}{changed}{/error}{error!=}⚠️ {error}{/error}";
         public TelegramConfig Telegram {get;set;} = new(){Template=defaultTelegramTemplate};
         public string NotifySound {get;set;} = "";
+        public bool DisableNotifySound {get;set;} = false;
         public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
         public bool StartMinimized { get; set; } = false;
 
