@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SiteWatcher
 {
@@ -68,6 +70,7 @@ namespace SiteWatcher
 
         public void Start()
         {
+            EventManager.RegisterClassHandler(typeof(TextBox), TextBox.PreviewMouseDownEvent, new MouseButtonEventHandler(OnTextBoxTripleClick));
             CheckBrowser.Init();
             AppWindow appWindow = new AppWindow();
             AppWindowModel appModel = new AppWindowModel(appWindow);
@@ -85,6 +88,12 @@ namespace SiteWatcher
 
             
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        }
+
+        private static void OnTextBoxTripleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 3 && sender is TextBox tb)
+                tb.SelectAll();
         }
 
         protected override void OnExit(ExitEventArgs e){
