@@ -462,6 +462,8 @@
                             IsChecked="{Binding Item.NotifyRepeatedError}"
                             ToolTip="Уведомление сработает, на повторяющуюся ошибку после устранения ошибки.">Уведомлять при повторяющейся ошибке</CheckBox>
                     <CheckBox Margin="0 0 0 5"
+                            IsChecked="{Binding Item.NavigateOnUpdate}">Запускать браузер</CheckBox>
+                    <CheckBox Margin="0 0 0 5"
                             IsChecked="{Binding Item.Notify}">Показывать всплывающее уведомление</CheckBox>
                     <CheckBox Margin="0 0 0 5"
                             IsChecked="{Binding Item.SoundNotify}">Уведомление звуком</CheckBox>

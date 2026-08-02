@@ -64,6 +64,8 @@ namespace SiteWatcher{
         private bool notifyRepeatedError;
         public bool NotifyTelegram { get=>notifyTelegram; set=>SetField(ref notifyTelegram, value);}
         private bool notifyTelegram = false;
+        public bool NavigateOnUpdate { get=>navigateOnUpdate; set=>SetField(ref navigateOnUpdate, value);}
+        private bool navigateOnUpdate = false;
 
         public string TelegramChat { get=>telegramChat; set=>SetField(ref telegramChat, value);}
         private string telegramChat = "";
@@ -216,6 +218,7 @@ namespace SiteWatcher{
             SoundNotify=w.SoundNotify;
             NotifyAfterError=w.NotifyAfterError;
             NotifyRepeatedError=w.NotifyRepeatedError;
+            NavigateOnUpdate=w.NavigateOnUpdate;
         }
         public object Clone(){
             Watch clone = (Watch)MemberwiseClone();

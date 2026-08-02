@@ -204,6 +204,7 @@ namespace SiteWatcher
             WatchStatus oldStatus = w.Status;
             w.Check(()=> {
                 if(w.IsNeedNotify){
+                    if(w.NavigateOnUpdate) w.Navigate(true);
                     if(w.Notify) ShowToast(w);
                     if(w.SoundNotify && !CurrentConfig.DisableNotifySound) PlaySound(w);
                     if(w.NotifyTelegram) SendTelegram(w);
