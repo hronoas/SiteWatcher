@@ -46,6 +46,8 @@ namespace SiteWatcher{
         public bool IsQueued { get=>isQueued; set{SetField(ref isQueued, value);InvalidateStatus();}}
         private bool isQueued = false;
         [JsonIgnoreAttribute()]
+        private bool isFirstCheckDone;
+        [JsonIgnoreAttribute()]
         public bool IsVisible { get=>isVisible; set=>SetField(ref isVisible, value);}
         private bool isVisible = true;
 
@@ -71,6 +73,18 @@ namespace SiteWatcher{
         private string telegramChat = "";
         public string TelegramTemplate { get=>telegramTemplate; set=>SetField(ref telegramTemplate, value);}
         private string telegramTemplate="";
+        public bool NotifyWebhook { get=>notifyWebhook; set=>SetField(ref notifyWebhook, value);}
+        private bool notifyWebhook = false;
+        public string WebhookMethod { get=>webhookMethod; set=>SetField(ref webhookMethod, value);}
+        private string webhookMethod = "";
+        public string WebhookUrl { get=>webhookUrl; set=>SetField(ref webhookUrl, value);}
+        private string webhookUrl = "";
+        public string WebhookBody { get=>webhookBody; set=>SetField(ref webhookBody, value);}
+        private string webhookBody = "";
+        public string WebhookHeaders { get=>webhookHeaders; set=>SetField(ref webhookHeaders, value);}
+        private string webhookHeaders = "";
+        public string WebhookBodyType { get=>webhookBodyType; set=>SetField(ref webhookBodyType, value);}
+        private string webhookBodyType = "";
 
         public void Check(Action onReady){
             if(IsChecking && (DateTime.Now-LastCheck) < new TimeSpan(0,5,0)) return;
@@ -97,7 +111,8 @@ namespace SiteWatcher{
                     ChangedField(nameof(IsNew));
                     InvalidateStatus();
                 }
-                if(Checkpoints.Count<2){ // after first check
+                if(Checkpoints.Count<2 && !isFirstCheckDone){
+                        isFirstCheckDone=true;
                         IsNeedNotify=false;
                         LastSeen=DateTime.Now;
                 }
@@ -181,6 +196,8 @@ namespace SiteWatcher{
         [JsonIgnoreAttribute()]
         public string LastError {get;set;} = ""; //last error sent to notify
         [JsonIgnoreAttribute()]
+        public bool NotifyAfterErrorPending {get;set;} = false;
+        [JsonIgnoreAttribute()]
         public WatchStatus Status { get {
             WatchStatus newStatus;
             if(isChecking) newStatus=WatchStatus.Checking;
@@ -215,6 +232,12 @@ namespace SiteWatcher{
             RepeatNotify=w.RepeatNotify;
             TelegramChat=w.TelegramChat;
             TelegramTemplate=w.TelegramTemplate;
+            NotifyWebhook=w.NotifyWebhook;
+            WebhookMethod=w.WebhookMethod;
+            WebhookUrl=w.WebhookUrl;
+            WebhookBody=w.WebhookBody;
+            WebhookHeaders=w.WebhookHeaders;
+            WebhookBodyType=w.WebhookBodyType;
             SoundNotify=w.SoundNotify;
             NotifyAfterError=w.NotifyAfterError;
             NotifyRepeatedError=w.NotifyRepeatedError;

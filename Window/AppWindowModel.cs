@@ -203,17 +203,20 @@ namespace SiteWatcher
             DateTime prevDate = w.Diff.Next.Time;
             WatchStatus oldStatus = w.Status;
             w.Check(()=> {
-                if(w.IsNeedNotify){
+                if(w.IsNeedNotify || w.NotifyAfterErrorPending){
                     if(w.NavigateOnUpdate) w.Navigate(true);
                     if(w.Notify) ShowToast(w);
                     if(w.SoundNotify && !CurrentConfig.DisableNotifySound) PlaySound(w);
                     if(w.NotifyTelegram) SendTelegram(w);
+                    if(w.NotifyWebhook) SendWebhook(w);
                     if(w.NotifyRepeatedError) w.LastError="";
                     w.IsNeedNotify=false;
+                    w.NotifyAfterErrorPending=false;
                 }else if(w.LastError!=w.Error){
                     if(!string.IsNullOrEmpty(w.Error)){
                         if(w.NotifyTelegram) SendTelegram(w);
-                        if(w.NotifyAfterError) w.IsNeedNotify=true;
+                        if(w.NotifyWebhook) SendWebhook(w);
+                        if(w.NotifyAfterError) w.NotifyAfterErrorPending=true;
                     }
                     w.LastError=w.Error;
                 }

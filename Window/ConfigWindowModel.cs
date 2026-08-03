@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Media;
@@ -54,8 +55,10 @@ namespace SiteWatcher{
         public Command OpenWatchesFolder { get; set; }
         public Command AddTagCommand { get; set; }
         public TelegramConfig Telegram { get; set; }
+        public WebhookConfig Webhook { get; set; }
         public Command<WatchTag> RemoveTagCommand { get; set; }
         public Command CloseWindowCommand { get; set; }
+        public Command TestWebhookCommand { get; set; }
         public ConfigWindowModel(List<WatchTag> tags, ConfigWindow win) : base(win)
         {
             win.DataContext = this;
@@ -67,10 +70,12 @@ namespace SiteWatcher{
             AddTagCommand = new(o => Tags!.Add(new WatchTag()));
             RemoveTagCommand = new(t => Tags!.Remove(t!));
             CloseWindowCommand = new(o => win.Close());
+            TestWebhookCommand = new(o => TestWebhook());
 
             Tags = new(tags);
             Proxy = CurrentConfig.Proxy.Clone();
             Telegram = CurrentConfig.Telegram.Clone();
+            Webhook = CurrentConfig.Webhook.Clone();
             NotifiySound = CurrentConfig.NotifySound;
             CheckAllOnlyVisible = CurrentConfig.CheckAllOnlyVisible;
             WriteLog = CurrentConfig.WriteLog;
@@ -85,6 +90,7 @@ namespace SiteWatcher{
             CurrentConfig.NotifySound = NotifiySound;
             CurrentConfig.Proxy = Proxy.Clone();
             CurrentConfig.Telegram = Telegram;
+            CurrentConfig.Webhook = Webhook;
             if (string.IsNullOrWhiteSpace(CurrentConfig.Telegram.Template)) CurrentConfig.Telegram.Template = SiteWatcherConfig.defaultTelegramTemplate;
             CurrentConfig.CheckAllOnlyVisible = CheckAllOnlyVisible;
             CurrentConfig.WriteLog = WriteLog;
@@ -173,8 +179,24 @@ namespace SiteWatcher{
                 dynamic shortcut = shell.CreateShortcut(shortcutPath);
                 return shortcut.TargetPath;
             } catch {
-                return null;
+            return null;
+             }
+        }
+
+        private async void TestWebhook(){
+            if(string.IsNullOrWhiteSpace(Webhook.Url)){
+                System.Windows.MessageBox.Show("URL не указан", "Webhook", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+            var cfg = new WebhookConfig{
+                Method = Webhook.Method,
+                Url = Webhook.Url,
+                Body = Webhook.Body,
+                Headers = Webhook.Headers,
+                BodyType = Webhook.BodyType
+            };
+            string result = await WebhookNotify.SendAsync(cfg, new Dictionary<string,string>{{"test","true"}});
+            System.Windows.MessageBox.Show(result, "Webhook — ответ сервера", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

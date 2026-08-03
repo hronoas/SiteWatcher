@@ -108,6 +108,52 @@ Title="{Binding Source={x:Static local:Utils.Version}, StringFormat=SiteWatcher 
                                 </DockPanel>
                             </Grid>
                         </GroupBox>
+                        <GroupBox Header="Настройки Webhook для уведомлений">
+                            <Grid Margin="0 5 0 5">
+                                <Grid.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="120"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <DockPanel Grid.Row="0" Margin="2 2 2 2" ToolTip="HTTP-метод запроса (POST, GET, PUT, PATCH)">
+                                    <Label Content="Метод"/>
+                                    <TextBox Text="{Binding Webhook.Method}" Padding="2 2 2 2" Width="100" HorizontalAlignment="Left"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="1" Margin="2 2 2 2" ToolTip="URL для отправки webhook запроса. Поддерживаются шаблоны.">
+                                    <Label Content="URL"/>
+                                    <TextBox Text="{Binding Webhook.Url}" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="2" Margin="2 2 2 2" ToolTip="Тип тела запроса: JSON — экранирование для JSON, Query — URL-кодирование, Raw — без изменений">
+                                    <Label Content="Тип body"/>
+                                    <ComboBox Text="{Binding Webhook.BodyType}" Padding="2 2 2 2" Width="100" HorizontalAlignment="Left" SelectedValue="{Binding Webhook.BodyType}" SelectedValuePath="Content">
+                                        <ComboBoxItem Content=""/>
+                                        <ComboBoxItem Content="json"/>
+                                        <ComboBoxItem Content="query"/>
+                                        <ComboBoxItem Content="raw"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel Grid.Row="3" Margin="2 2 2 2">
+                                    <Label DockPanel.Dock="Left" Content="Body"/>
+                                    <TextBox DockPanel.Dock="Right" Text="{Binding Webhook.Body}" VerticalScrollBarVisibility="Auto" MaxLines="4" AcceptsReturn="true" Padding="2 2 2 2"
+                                             ToolTip="{Binding Source={x:Static local:AppWindowModel.AvailableWebhookReplace}, StringFormat=Доступны замены {0} , Mode=OneWay}"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="4" Margin="2 2 2 2" ToolTip="Заголовки запроса. Формат: Key: Value, каждый заголовок с новой строки. Поддерживаются шаблоны.">
+                                    <Label DockPanel.Dock="Left" Content="Заголовки"/>
+                                    <TextBox DockPanel.Dock="Right" Text="{Binding Webhook.Headers}" VerticalScrollBarVisibility="Auto" MaxLines="3" AcceptsReturn="true" Padding="2 2 2 2"/>
+                                </DockPanel>
+                                <DockPanel Grid.Row="5" Margin="2 2 2 2">
+                                    <Button Content="Проверить" Command="{Binding TestWebhookCommand}" Padding="2 2 2 2" HorizontalAlignment="Left"/>
+                                </DockPanel>
+                            </Grid>
+                        </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

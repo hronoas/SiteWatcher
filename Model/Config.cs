@@ -14,6 +14,12 @@ namespace SiteWatcher{
         public bool WriteLog {get;set;} = false;
         public readonly static string defaultTelegramTemplate = "{error=}✅{/error}{error!=}❌{/error} <a href=\"{url}\">{name}</a>\n{error=}{changed}{/error}{error!=}⚠️ {error}{/error}";
         public TelegramConfig Telegram {get;set;} = new(){Template=defaultTelegramTemplate};
+        public WebhookConfig Webhook {get;set;} = new(){
+            Method = "POST",
+            Url = "https://api.telegram.org/botYOUR_TOKEN_HERE/sendMessage",
+            Body = "{\"chat_id\":\"YOUR_CHAT_ID_HERE\",\"parse_mode\":\"HTML\",\"text\":\"{error=}✅{/error}{error!=}❌{/error} <a href=\\\"{url}\\\">{name}</a>\n{error=}{changed}{/error}{error!=}⚠️ {error}{/error}\"}",
+            Headers = "Content-Type: application/json"
+        };
         public string NotifySound {get;set;} = "";
         public bool DisableNotifySound {get;set;} = false;
         public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
