@@ -18,6 +18,7 @@ namespace SiteWatcher{
         public TimeSpan ErrorInterval { get; set; }
         public bool StartMinimized { get; set; }
         public bool DisableNotifySound { get; set; }
+        public bool HideTooltips { get; set; }
 
         public bool AutoStart
         {
@@ -82,6 +83,7 @@ namespace SiteWatcher{
             ErrorInterval = CurrentConfig.ErrorInterval;
             StartMinimized = CurrentConfig.StartMinimized;
             DisableNotifySound = CurrentConfig.DisableNotifySound;
+            HideTooltips = CurrentConfig.HideTooltips;
             ToggleAutoStartCommand = new (o => ToggleAutoStart(o));
         }
 
@@ -97,6 +99,7 @@ namespace SiteWatcher{
             CurrentConfig.ErrorInterval = ErrorInterval;
             CurrentConfig.StartMinimized = StartMinimized;
             CurrentConfig.DisableNotifySound = DisableNotifySound;
+            CurrentConfig.HideTooltips = HideTooltips;
             CurrentConfig.Tags.Clear();
             Tags.ToList().ForEach(t => CurrentConfig.Tags.Add(t));
         }

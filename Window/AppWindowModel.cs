@@ -27,6 +27,8 @@ namespace SiteWatcher
 
         public string currentFilterText = "";
         private bool showNew;
+        private bool showTooltips = true;
+        public bool ShowTooltips { get=>showTooltips; set=>SetField(ref showTooltips, value); }
 
         public string? TextFilter {
             get=>textFilter;
@@ -80,6 +82,7 @@ namespace SiteWatcher
             InitIcon();
             ConfigBackup();
             ConfigLoad();
+            ShowTooltips = !CurrentConfig!.HideTooltips;
             win.Closed+=(o,e)=>{ConfigSave();ConfigSave2();};
             CheckWatchCommand=new(w=>CheckSelectedWatch(w));
             AddWatchCommand=new(n=>AddWatch());
@@ -121,6 +124,7 @@ namespace SiteWatcher
                 CurrentConfig.Tags.ToList().ForEach(t=>Tags.Add(t));
                 NotifySound = CurrentConfig.NotifySound; // load wav
                 CheckBrowser.proxy = CurrentConfig.Proxy.Clone();
+                ShowTooltips = !CurrentConfig.HideTooltips;
                 ConfigSave2();
             }
         }

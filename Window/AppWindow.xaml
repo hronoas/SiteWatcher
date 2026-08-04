@@ -391,6 +391,11 @@ mc:Ignorable="d" Title="SiteWatcher" Height="450" Width="570" MaxWidth="570" Min
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.ShowTooltips, RelativeSource={RelativeSource AncestorType=ListView}}" Value="False">
+                            <Setter Property="ToolTip" Value="{x:Null}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.Resources>

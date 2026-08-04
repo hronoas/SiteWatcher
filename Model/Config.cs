@@ -24,6 +24,7 @@ namespace SiteWatcher{
         public bool DisableNotifySound {get;set;} = false;
         public TimeSpan ErrorInterval = new TimeSpan(0,5,0);
         public bool StartMinimized { get; set; } = false;
+        public bool HideTooltips { get; set; } = false;
 
         public SiteWatcherConfig Clone(){
             return Deserialize<SiteWatcherConfig>(Serialize(this)??"{}")??new SiteWatcherConfig();
